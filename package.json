@@ -1,5 +1,5 @@
 {
-  "name": "next-js-boilerplate",
+  "name": "symbolic",
   "author": "Ixartz (https://github.com/ixartz)",
   "scripts": {
     "dev:spotlight": "npx @spotlightjs/spotlight",
