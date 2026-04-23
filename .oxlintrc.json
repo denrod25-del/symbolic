@@ -22,6 +22,7 @@
     "react-perf/jsx-no-new-function-as-prop": "off",
 
     "unicorn/filename-case": "off", // Impossible to enforce consistent filename case due to multiple conventions
+    "unicorn/no-document-cookie": "off", // Cookie Store API lacks cross-browser support; document.cookie is the standard fallback
 
     // --- JSDoc Rules ---
     "jsdoc/require-param": "error",
