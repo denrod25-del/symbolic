@@ -18,10 +18,6 @@ const MOCK_RESPONSE = {
   },
 };
 
-function mockJson(value: unknown) {
-  return  async () => Promise.resolve(value);
-}
-
 describe('searchWeb', () => {
   beforeEach(() => {
     vi.stubEnv('BRAVE_SEARCH_API_KEY', 'test-api-key');
@@ -29,7 +25,7 @@ describe('searchWeb', () => {
       'fetch',
       vi.fn().mockResolvedValue({
         ok: true,
-        json: mockJson(MOCK_RESPONSE),
+        json: vi.fn().mockResolvedValue(MOCK_RESPONSE),
       })
     );
   });
@@ -48,7 +44,9 @@ describe('searchWeb', () => {
       'fetch',
       vi.fn().mockResolvedValue({
         ok: true,
-        json: mockJson({ type: 'search', query: { original: 'test' } }),
+        json: vi
+          .fn()
+          .mockResolvedValue({ type: 'search', query: { original: 'test' } }),
       })
     );
 
