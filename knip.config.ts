@@ -6,7 +6,7 @@ const config: KnipConfig = {
     'checkly.config.ts',
     'src/libs/I18n.ts',
     'src/types/I18n.ts',
-    'src/components/SearchBar.tsx',
+    'src/components/Sponsors.tsx',
     'src/components/SearchResult.tsx',
     'src/components/ResultsList.tsx',
     'src/components/Pagination.tsx',
