@@ -13,18 +13,13 @@ const config: KnipConfig = {
     'src/components/CurrentCount.tsx',
     'src/libs/Arcjet.ts',
     'src/libs/I18nNavigation.ts',
-    'src/libs/DB.ts',
     'src/libs/Logger.ts',
-    'src/utils/DBConnection.ts',
     'src/validations/CounterValidation.ts',
     'tests/**/*.ts',
   ],
   // Dependencies to ignore during analysis
   ignoreDependencies: [
     '@commitlint/types',
-    '@clerk/shared',
-    '@clerk/localizations',
-    '@clerk/nextjs',
     '@arcjet/next',
     '@hookform/resolvers',
     'react-hook-form',
