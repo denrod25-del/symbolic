@@ -26,17 +26,27 @@ export function tokenize(query: string): string[] {
  * @param query - The raw search query string.
  * @returns Promise resolving to matching ad rows.
  */
-export async function selectAds(query: string): Promise<Ad[]> {
+ async export function selectAds(query: string): Promise<Ad[]> {
   const tokens = tokenize(query);
-  if (tokens.length === 0) {return [];}
+  if (tokens.length === 0) {
+    return Promise.resolve([]);
+  }
 
   // The && operator checks array overlap. Drizzle's query builder does not
   // support &&, so we use a raw SQL fragment. The ::text[] cast is required
   // for PGlite to resolve the operator overload correctly.
-  return  db
+  return db
     .select()
     .from(ads)
-    .where(and(eq(ads.active, true), sql`${ads.keywords} && ${tokens}::text[]`))
+    .where(
+      and(
+        eq(ads.active, true),
+        sql`${ads.keywords} && ARRAY[${sql.join(
+          tokens.map((t) => sql`${t}`),
+          sql`, `
+        )}]::text[]`
+      )
+    )
     .orderBy(desc(ads.bidAmount))
     .limit(2);
 }

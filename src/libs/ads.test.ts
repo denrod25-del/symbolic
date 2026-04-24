@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock DB before importing the module under test
 vi.mock('./DB', () => ({
@@ -39,6 +39,10 @@ describe('tokenize', () => {
 });
 
 describe('selectAds', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('returns empty array without querying db when query tokenises to nothing', async () => {
     const result = await selectAds('');
     expect(result).toEqual([]);
