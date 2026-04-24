@@ -19,7 +19,11 @@ export async function GET(request: Request) {
     return new NextResponse('Not Found', { status: 404 });
   }
 
-  await db.insert(adClicks).values({ adId: ad.id, query });
+  try {
+    await db.insert(adClicks).values({ adId: ad.id, query });
+  } catch {
+    // Best-effort: record the click if possible, but don't block the redirect
+  }
 
   return new NextResponse(null, {
     status: 307,
