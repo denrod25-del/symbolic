@@ -13,6 +13,7 @@ const config: KnipConfig = {
     'src/components/LocaleSwitcher.tsx',
     'src/components/CurrentCount.tsx',
     'src/libs/Arcjet.ts',
+    'src/libs/DB.ts',
     'src/libs/I18nNavigation.ts',
     'src/libs/Logger.ts',
     'src/validations/CounterValidation.ts',
