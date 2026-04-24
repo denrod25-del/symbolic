@@ -27,20 +27,23 @@ export default defineConfig<ChromaticConfig>({
     timeout: 15 * 1000,
   },
 
+  globalSetup: './tests/e2e/global-setup.ts',
+  globalTeardown: './tests/e2e/global-teardown.ts',
+
   // Run your local dev server before starting the tests:
   // https://playwright.dev/docs/test-advanced#launching-a-development-web-server-during-the-tests
   webServer: {
-    command: process.env.CI
-      ? 'npx run-p db-server:memory start --race'
-      : 'npx run-p db-server:memory dev:next --race',
+    command: 'npx next dev',
     url: baseURL,
-    timeout: 60 * 1000,
+    timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
     gracefulShutdown: { signal: 'SIGTERM', timeout: 2 * 1000 },
     env: {
       NEXT_PUBLIC_SENTRY_DISABLED: 'true',
       NEXT_PUBLIC_APP_URL: baseURL,
       PORT,
+      BRAVE_SEARCH_API_KEY: 'test-key',
+      BRAVE_API_BASE_URL: 'http://localhost:3099',
     },
   },
 

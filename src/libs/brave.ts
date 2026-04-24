@@ -1,6 +1,8 @@
 import type { BraveSearchResponse, SearchResult } from '@/types/brave';
 
-const BRAVE_API_URL = 'https://api.search.brave.com/res/v1/web/search';
+const BRAVE_API_URL =
+  process.env.BRAVE_API_BASE_URL ??
+  'https://api.search.brave.com/res/v1/web/search';
 
 export type SearchOptions = {
   query: string;
