@@ -1,6 +1,8 @@
 import type { KnipConfig } from 'knip';
 
 const config: KnipConfig = {
+  // Standalone entry-point scripts (not imported by the app, run directly)
+  entry: ['scripts/*.ts'],
   // Files to exclude from Knip analysis
   ignore: [
     'checkly.config.ts',
