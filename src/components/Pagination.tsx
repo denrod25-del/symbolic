@@ -12,7 +12,9 @@ export function Pagination(props: PaginationProps) {
   const hasPrev = props.offset > 0;
   const hasNext = props.count === PAGE_SIZE;
 
-  if (!hasPrev && !hasNext) {return null;}
+  if (!hasPrev && !hasNext) {
+    return null;
+  }
 
   const prevOffset = Math.max(0, props.offset - PAGE_SIZE);
   const nextOffset = props.offset + PAGE_SIZE;

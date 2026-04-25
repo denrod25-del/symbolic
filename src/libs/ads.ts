@@ -26,16 +26,16 @@ export function tokenize(query: string): string[] {
  * @param query - The raw search query string.
  * @returns Promise resolving to matching ad rows.
  */
-export const selectAds =  async (query: string): Promise<Ad[]> => {
+export const selectAds = async (query: string): Promise<Ad[]> => {
   const tokens = tokenize(query);
   if (tokens.length === 0) {
-    return Promise.resolve([]);
+    return [];
   }
 
   // The && operator checks array overlap. Drizzle's query builder does not
   // support &&, so we use a raw SQL fragment. The ::text[] cast is required
   // for PGlite to resolve the operator overload correctly.
-  return db
+  const result = await db
     .select()
     .from(ads)
     .where(
@@ -49,4 +49,5 @@ export const selectAds =  async (query: string): Promise<Ad[]> => {
     )
     .orderBy(desc(ads.bidAmount))
     .limit(2);
+  return result;
 };
