@@ -26,7 +26,7 @@ export function tokenize(query: string): string[] {
  * @param query - The raw search query string.
  * @returns Promise resolving to matching ad rows.
  */
- async export function selectAds(query: string): Promise<Ad[]> {
+export const selectAds =  async (query: string): Promise<Ad[]> => {
   const tokens = tokenize(query);
   if (tokens.length === 0) {
     return Promise.resolve([]);
@@ -49,4 +49,4 @@ export function tokenize(query: string): string[] {
     )
     .orderBy(desc(ads.bidAmount))
     .limit(2);
-}
+};
