@@ -2,9 +2,12 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { AdCard } from '@/components/AdCard';
 import { Pagination } from '@/components/Pagination';
 import { ResultsList } from '@/components/ResultsList';
 import { SearchLayout } from '@/components/SearchLayout';
+import { selectAds } from '@/libs/ads';
+import type { Ad } from '@/libs/ads';
 import { searchWeb } from '@/libs/brave';
 
 type SearchPageProps = {
@@ -38,14 +41,14 @@ export default async function SearchPage(props: SearchPageProps) {
       ? rawSafesearch
       : 'moderate';
 
-  let results: Awaited<ReturnType<typeof searchWeb>> | null = null;
-  let error: string | null = null;
+  const [searchResult, adSlots] = await Promise.all([
+    searchWeb({ query, offset, safesearch }).catch(() => null),
+    selectAds(query).catch((): Ad[] => []),
+  ]);
 
-  try {
-    results = await searchWeb({ query, offset, safesearch });
-  } catch {
-    error = 'Something went wrong. Please try again.';
-  }
+  const results = searchResult;
+  const error =
+    searchResult === null ? 'Something went wrong. Please try again.' : null;
 
   if (lucky === '1' && results?.results[0]) {
     redirect(results.results[0].url);
@@ -69,8 +72,7 @@ export default async function SearchPage(props: SearchPageProps) {
 
         {results && results.results.length > 0 && (
           <>
-            {/* Ad slot — reserved for Phase 2 */}
-            <div data-slot="ad-top" className="hidden" aria-hidden="true" />
+            {adSlots[0] && <AdCard ad={adSlots[0]} query={query} />}
 
             <ResultsList results={results.results} />
             <Pagination
@@ -78,6 +80,8 @@ export default async function SearchPage(props: SearchPageProps) {
               offset={offset}
               count={results.results.length}
             />
+
+            {adSlots[1] && <AdCard ad={adSlots[1]} query={query} />}
           </>
         )}
       </main>
