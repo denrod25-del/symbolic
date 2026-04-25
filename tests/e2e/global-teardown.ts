@@ -1,3 +1,4 @@
+import type { ChildProcess } from 'node:child_process';
 import { once } from 'node:events';
 import type { Server } from 'node:http';
 
@@ -10,11 +11,30 @@ function isServer(value: unknown): value is Server {
   );
 }
 
+function isChildProcess(value: unknown): value is ChildProcess {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'kill' in value &&
+    'killed' in value &&
+    typeof (value as { kill: unknown }).kill === 'function'
+  );
+}
+
 async function globalTeardown() {
-  const value = (globalThis as Record<string, unknown>)['__mockBraveServer__'];
-  if (isServer(value)) {
-    value.close();
-    await once(value, 'close');
+  // Stop mock Brave server
+  const braveServer = (globalThis as Record<string, unknown>)[
+    '__mockBraveServer__'
+  ];
+  if (isServer(braveServer)) {
+    braveServer.close();
+    await once(braveServer, 'close');
+  }
+
+  // Kill PGlite process
+  const pgliteProc = (globalThis as Record<string, unknown>)['__pgliteProc__'];
+  if (isChildProcess(pgliteProc) && !pgliteProc.killed) {
+    pgliteProc.kill('SIGTERM');
   }
 }
 

@@ -30,6 +30,14 @@
     "jsdoc/require-returns": "error",
     "jsdoc/require-returns-description": "error"
   },
+  "overrides": [
+    {
+      "files": ["tests/e2e/global-setup.ts"],
+      "rules": {
+        "promise/avoid-new": "off"
+      }
+    }
+  ],
   "options": {
     "reportUnusedDisableDirectives": "error"
   }

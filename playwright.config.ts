@@ -44,6 +44,7 @@ export default defineConfig<ChromaticConfig>({
       PORT,
       BRAVE_SEARCH_API_KEY: 'test-key',
       BRAVE_API_BASE_URL: 'http://localhost:3099',
+      DATABASE_URL: 'postgresql://postgres:postgres@127.0.0.1:5432/postgres',
     },
   },
 
