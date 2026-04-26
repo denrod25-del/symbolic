@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { SearchBar } from './SearchBar';
 
@@ -11,11 +12,8 @@ export function SearchLayout(props: SearchLayoutProps) {
     <div className="min-h-screen bg-symbolic-bg">
       <header className="sticky top-0 z-10 border-b border-symbolic-border bg-symbolic-bg">
         <div className="mx-auto flex max-w-4xl items-center gap-6 px-4 py-3">
-          <Link
-            href="/"
-            className="symbolic-glow shrink-0 text-xl font-bold text-white"
-          >
-            Symbolic
+          <Link href="/" className="shrink-0">
+            <Image src="/logo.png" alt="Symbolic" width={64} height={64} />
           </Link>
           <div className="w-full max-w-xl">
             <SearchBar defaultValue={props.query} />
