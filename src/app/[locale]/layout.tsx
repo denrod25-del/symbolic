@@ -39,7 +39,7 @@ export default async function RootLayout({
   setRequestLocale(locale);
 
   return (
-    <ClerkProvider>
+    <ClerkProvider afterSignOutUrl="/en/advertise/sign-in">
       <html lang={locale}>
         <body>
           <NextIntlClientProvider>{children}</NextIntlClientProvider>
