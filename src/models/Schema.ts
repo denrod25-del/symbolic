@@ -35,7 +35,7 @@ export const advertisers = pgTable('advertisers', {
   clerkUserId: text('clerk_user_id').notNull().unique(),
   email: text('email').notNull(),
   name: text('name').notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
 });
 
 export const ads = pgTable('ads', {
