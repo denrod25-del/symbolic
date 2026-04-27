@@ -12,7 +12,7 @@ export async function ensureAdvertiser(
   clerkUserId: string,
   email: string,
   name: string
-): Promise<void> {
+) {
   await db
     .insert(advertisers)
     .values({ clerkUserId, email, name })
