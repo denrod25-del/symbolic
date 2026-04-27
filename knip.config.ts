@@ -24,6 +24,7 @@ const config: KnipConfig = {
   ignoreDependencies: [
     '@commitlint/types',
     '@arcjet/next',
+    '@clerk/nextjs',
     '@hookform/resolvers',
     'react-hook-form',
     '@logtape/logtape',
