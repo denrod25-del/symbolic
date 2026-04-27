@@ -25,24 +25,21 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-export default async function RootLayout({
-  children,
-  params,
-}: {
+export default async function RootLayout(props: {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
+  const { locale } = await props.params;
   if (!hasLocale(routing.locales, locale)) {
     notFound();
   }
   setRequestLocale(locale);
 
   return (
-    <ClerkProvider afterSignOutUrl="/en/advertise/sign-in">
+    <ClerkProvider afterSignOutUrl={`/${locale}/advertise/sign-in`}>
       <html lang={locale}>
         <body>
-          <NextIntlClientProvider>{children}</NextIntlClientProvider>
+          <NextIntlClientProvider>{props.children}</NextIntlClientProvider>
         </body>
       </html>
     </ClerkProvider>

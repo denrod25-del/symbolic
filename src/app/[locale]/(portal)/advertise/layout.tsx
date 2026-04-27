@@ -1,6 +1,11 @@
 import { UserButton } from '@clerk/nextjs';
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'Dashboard — Symbolic Ads',
+};
 
 export default function AdvertiseLayout(props: { children: React.ReactNode }) {
   return (

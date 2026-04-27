@@ -5,8 +5,6 @@ import { ensureAdvertiser } from '@/libs/advertisers';
 import { db } from '@/libs/DB';
 import { ads, advertisers } from '@/models/Schema';
 
-export const metadata = { title: 'Dashboard — Symbolic Ads' };
-
 export default async function DashboardPage() {
   const user = await currentUser();
   if (!user) {
