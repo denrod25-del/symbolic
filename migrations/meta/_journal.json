@@ -15,6 +15,13 @@
       "when": 1777052862490,
       "tag": "0001_giant_maestro",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777327676297,
+      "tag": "0002_ancient_tiger_shark",
+      "breakpoints": true
     }
   ]
 }

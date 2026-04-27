@@ -30,8 +30,17 @@ export const counterSchema = pgTable('counter', {
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
 });
 
+export const advertisers = pgTable('advertisers', {
+  id: serial('id').primaryKey(),
+  clerkUserId: text('clerk_user_id').notNull().unique(),
+  email: text('email').notNull(),
+  name: text('name').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
 export const ads = pgTable('ads', {
   id: serial('id').primaryKey(),
+  advertiserId: integer('advertiser_id').references(() => advertisers.id),
   advertiserName: text('advertiser_name').notNull(),
   title: text('title').notNull(),
   url: text('url').notNull(),
