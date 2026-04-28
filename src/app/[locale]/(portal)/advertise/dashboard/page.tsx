@@ -5,10 +5,13 @@ import { ensureAdvertiser } from '@/libs/advertisers';
 import { db } from '@/libs/DB';
 import { ads, advertisers } from '@/models/Schema';
 
-export default async function DashboardPage() {
+export default async function DashboardPage(props: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await props.params;
   const user = await currentUser();
   if (!user) {
-    redirect('/en/advertise/sign-in');
+    redirect(`/${locale}/advertise/sign-in`);
   }
 
   const email = user.emailAddresses[0]?.emailAddress ?? '';

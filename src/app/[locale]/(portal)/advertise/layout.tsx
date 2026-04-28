@@ -7,12 +7,16 @@ export const metadata: Metadata = {
   title: 'Dashboard — Symbolic Ads',
 };
 
-export default function AdvertiseLayout(props: { children: React.ReactNode }) {
+export default async function AdvertiseLayout(props: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await props.params;
   return (
     <div className="min-h-screen bg-[#0d0d14] text-white">
       <nav className="flex items-center justify-between border-b border-white/10 px-6 py-4">
         <Link
-          href="/en/advertise/dashboard"
+          href={`/${locale}/advertise/dashboard`}
           className="flex items-center gap-3"
         >
           <Image src="/logo.png" alt="Symbolic" width={100} height={44} />
