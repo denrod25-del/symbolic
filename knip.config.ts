@@ -18,7 +18,6 @@ const config: KnipConfig = {
     'src/libs/Arcjet.ts',
     'src/libs/I18nNavigation.ts',
     'src/libs/Logger.ts',
-    'src/app/[locale]/(portal)/advertise/ads/AdRowActions.tsx',
     'src/validations/CounterValidation.ts',
     'tests/**/*.ts',
   ],
