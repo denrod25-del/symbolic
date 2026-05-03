@@ -1,5 +1,6 @@
 import { currentUser } from '@clerk/nextjs/server';
 import { eq } from 'drizzle-orm';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ensureAdvertiser } from '@/libs/advertisers';
 import { db } from '@/libs/DB';
@@ -49,13 +50,12 @@ export default async function DashboardPage(props: {
         </div>
       </div>
 
-      <button
-        disabled
-        type="button"
-        className="w-full cursor-not-allowed rounded-lg bg-indigo-600/40 px-4 py-3 text-sm font-semibold text-white/50"
+      <Link
+        href={`/${locale}/advertise/create`}
+        className="block w-full rounded-lg bg-indigo-600 px-4 py-3 text-center text-sm font-semibold text-white hover:bg-indigo-500"
       >
-        + Create your first ad (coming soon)
-      </button>
+        + Create your first ad
+      </Link>
     </div>
   );
 }
