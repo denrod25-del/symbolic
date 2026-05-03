@@ -8,6 +8,7 @@ const config: KnipConfig = {
     'checkly.config.ts',
     'src/libs/I18n.ts',
     'src/types/I18n.ts',
+    'src/components/AdWizard.tsx',
     'src/components/Sponsors.tsx',
     'src/components/CounterForm.tsx',
     'src/components/DemoBadge.tsx',
