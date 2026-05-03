@@ -10,7 +10,9 @@ export default async function EditPage(props: {
 }) {
   const { locale, id } = await props.params;
   const user = await currentUser();
-  if (!user) {redirect(`/${locale}/advertise/sign-in`);}
+  if (!user) {
+    redirect(`/${locale}/advertise/sign-in`);
+  }
 
   const [advertiser] = await db
     .select()
@@ -18,16 +20,23 @@ export default async function EditPage(props: {
     .where(eq(advertisers.clerkUserId, user.id))
     .limit(1);
 
-  if (!advertiser) {redirect(`/${locale}/advertise/sign-in`);}
+  if (!advertiser) {
+    redirect(`/${locale}/advertise/sign-in`);
+  }
 
   const adId = Number(id);
+  if (!Number.isInteger(adId) || adId <= 0) {
+    notFound();
+  }
   const [ad] = await db
     .select()
     .from(ads)
     .where(and(eq(ads.id, adId), eq(ads.advertiserId, advertiser.id)))
     .limit(1);
 
-  if (!ad) {notFound();}
+  if (!ad) {
+    notFound();
+  }
 
   return (
     <AdWizard
