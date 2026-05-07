@@ -1,58 +1,79 @@
+// ============================================================
 // Text Adventure Game — demonstrates core C++ OOP concepts:
-//   Encapsulation, Inheritance, Polymorphism, Abstract Classes, Composition, RAII
+//   Encapsulation, Inheritance, Polymorphism, Abstract Classes,
+//   Composition, and RAII.
+// Compile: g++ -std=c++17 -Wall -Wextra -o game game.cpp
+// Run:     ./game
+// ============================================================
 
 #include <algorithm>
-#include <cstdlib>
-#include <ctime>
 #include <iostream>
-#include <limits>
 #include <map>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
 
-// Forward declarations needed because Room references Enemy/Item before they are defined
-class Item;
-class Enemy;
+// Forward declarations needed because Room references Enemy and Item
+// before those classes are fully defined.
 class Room;
+class Enemy;
+class Item;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ENTITY — Abstract base class (Encapsulation + Polymorphism)
-// Encapsulation: name and description are protected; external code uses getters.
-// Polymorphism:  display() is pure virtual — resolved at runtime via vtable.
-// ─────────────────────────────────────────────────────────────────────────────
+// ============================================================
+// ABSTRACT BASE CLASS: Entity
+//
+// OOP — Encapsulation: name and description are protected so
+// subclasses can read them, but external code must use getters.
+//
+// OOP — Abstract class: display() is a pure virtual function.
+// Any class that inherits Entity MUST override display(), or
+// it also becomes abstract and cannot be instantiated.
+// ============================================================
 class Entity {
 protected:
     std::string name;
     std::string description;
 
 public:
-    Entity(const std::string& n, const std::string& d) : name(n), description(d) {}
+    Entity(const std::string& n, const std::string& d)
+        : name(n), description(d) {}
+
     virtual ~Entity() = default;
 
     const std::string& getName()        const { return name; }
     const std::string& getDescription() const { return description; }
 
-    // Pure virtual: every concrete subclass must override this (Abstract class)
+    // OOP — Polymorphism (runtime): the correct display() is chosen
+    // at runtime based on the actual object type, not the pointer type.
     virtual void display() const = 0;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ITEM — Inherits Entity (Inheritance)
-// Represents objects the player can pick up, use, or equip.
-// ─────────────────────────────────────────────────────────────────────────────
+
+// ============================================================
+// CLASS: Item
+//
+// OOP — Inheritance: Item IS-A Entity (inherits name + description).
+// OOP — Encapsulation: internal fields (healAmount, etc.) are
+// private; callers use getters.
+// ============================================================
 class Item : public Entity {
 private:
-    int  healAmount;   // HP restored when used (0 = not a healing item)
-    int  attackBonus;  // Extra attack added when equipped as weapon (0 = not a weapon)
-    bool consumable;   // Removed from inventory after use if true
-    bool equipped;     // Whether this item is the player's active weapon
+    int  healAmount;   // HP restored when used (0 = not a potion)
+    int  attackBonus;  // Extra attack when equipped (0 = not a weapon)
+    bool consumable;   // Removed from inventory after use?
+    bool equipped;     // Is the player currently wielding this?
 
 public:
     Item(const std::string& n, const std::string& d,
-         int heal, int atk, bool cons)
-        : Entity(n, d), healAmount(heal), attackBonus(atk),
-          consumable(cons), equipped(false) {}
+         int heal, int atkBonus, bool consume)
+        : Entity(n, d)
+        , healAmount(heal)
+        , attackBonus(atkBonus)
+        , consumable(consume)
+        , equipped(false)
+    {}
 
     int  getHealAmount()  const { return healAmount; }
     int  getAttackBonus() const { return attackBonus; }
@@ -60,21 +81,25 @@ public:
     bool isEquipped()     const { return equipped; }
     void setEquipped(bool state) { equipped = state; }
 
-    // Polymorphism: overrides Entity::display() — called via Entity* at runtime
+    // OOP — Polymorphism: overrides the pure virtual from Entity.
     void display() const override {
-        std::cout << "  [" << name << "] " << description;
-        if (equipped)      std::cout << " (equipped)";
-        if (attackBonus > 0) std::cout << " [+" << attackBonus << " ATK]";
-        if (healAmount > 0)  std::cout << " [heals " << healAmount << " HP]";
-        std::cout << "\n";
+        std::cout << "  [item] " << name;
+        if (attackBonus > 0) std::cout << " (weapon, +" << attackBonus << " atk)";
+        if (healAmount  > 0) std::cout << " (heals "    << healAmount  << " hp)";
+        if (equipped)        std::cout << " <equipped>";
+        std::cout << "\n         " << description << "\n";
     }
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// COMBATANT — Abstract base for anything that fights (Inheritance + Abstract)
-// Inherits Entity. Adds HP, attack, and defense.
-// attack() is pure virtual: subclasses decide how damage is calculated.
-// ─────────────────────────────────────────────────────────────────────────────
+
+// ============================================================
+// ABSTRACT CLASS: Combatant
+//
+// OOP — Inheritance: Combatant IS-A Entity.
+// OOP — Abstract class: attack() is pure virtual. Both Player
+// and Enemy inherit Combatant and each computes damage differently.
+// Combatant knows how to take damage but not how to deal it.
+// ============================================================
 class Combatant : public Entity {
 protected:
     int hp;
@@ -85,7 +110,9 @@ protected:
 public:
     Combatant(const std::string& n, const std::string& d,
               int hp_, int atk, int def)
-        : Entity(n, d), hp(hp_), maxHp(hp_), baseAttack(atk), defense(def) {}
+        : Entity(n, d)
+        , hp(hp_), maxHp(hp_), baseAttack(atk), defense(def)
+    {}
 
     int  getHp()         const { return hp; }
     int  getMaxHp()      const { return maxHp; }
@@ -101,14 +128,18 @@ public:
         hp = std::min(maxHp, hp + amount);
     }
 
-    // Pure virtual: forces subclasses to define their own attack logic
-    virtual int  attack()      = 0;
-    virtual void display() const override = 0;
+    // OOP — Polymorphism (pure virtual): subclasses define exactly
+    // how they roll their attack damage.
+    virtual int  attack()        = 0;
+    virtual void display() const = 0;
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ENEMY — Inherits Combatant (Inheritance + Polymorphism)
-// ─────────────────────────────────────────────────────────────────────────────
+
+// ============================================================
+// CLASS: Enemy
+//
+// OOP — Inheritance: Enemy IS-A Combatant IS-A Entity.
+// ============================================================
 class Enemy : public Combatant {
 private:
     int         xpReward;
@@ -116,55 +147,63 @@ private:
 
 public:
     Enemy(const std::string& n, const std::string& d,
-          int hp_, int atk, int def, int xp, const std::string& msg)
-        : Combatant(n, d, hp_, atk, def), xpReward(xp), attackMessage(msg) {}
+          int hp, int atk, int def, int xp, const std::string& msg)
+        : Combatant(n, d, hp, atk, def)
+        , xpReward(xp)
+        , attackMessage(msg)
+    {}
 
-    int               getXpReward()     const { return xpReward; }
+    int                getXpReward()      const { return xpReward; }
     const std::string& getAttackMessage() const { return attackMessage; }
 
-    // Polymorphism: override of pure virtual Combatant::attack()
+    // OOP — Polymorphism: overrides pure virtual from Combatant.
+    // Enemy attack has a small random component.
     int attack() override {
         return baseAttack + (std::rand() % 3);
     }
 
     void display() const override {
-        std::cout << "  * " << name << " (HP: " << hp << "/" << maxHp << ")\n";
+        std::cout << "  [enemy] " << name
+                  << "  HP: " << hp << "/" << maxHp
+                  << "  ATK: " << baseAttack
+                  << "  DEF: " << defense << "\n"
+                  << "         " << description << "\n";
     }
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PLAYER — Inherits Combatant (Inheritance + Composition)
-// Composition: Player *has* a vector of Item pointers (inventory).
-// The vector belongs to Player; the Items themselves are owned by Game.
-// ─────────────────────────────────────────────────────────────────────────────
+
+// ============================================================
+// CLASS: Player
+//
+// OOP — Inheritance: Player IS-A Combatant IS-A Entity.
+// OOP — Composition: Player HAS-A vector of Item pointers
+//   (the inventory). The vector is part of the Player's state.
+// ============================================================
 class Player : public Combatant {
 private:
-    std::vector<Item*> inventory;   // Inventory system — backed by std::vector
-    Item* equippedWeapon;           // nullptr when unarmed
+    // OOP — Composition + Encapsulation: inventory is an internal
+    // data structure managed exclusively through Player methods.
+    std::vector<Item*> inventory;
+    Item* equippedWeapon;   // nullptr when unarmed
     int   xp;
 
 public:
     explicit Player(const std::string& n)
-        : Combatant(n, "You, the adventurer.", 50, 5, 2),
-          equippedWeapon(nullptr), xp(0) {}
+        : Combatant(n, "The hero of our story.", 50, 5, 2)
+        , equippedWeapon(nullptr)
+        , xp(0)
+    {}
 
-    // ── Inventory ────────────────────────────────────────────────────────────
+    // --- Inventory management ---
+
     void addItem(Item* item) {
         inventory.push_back(item);
     }
 
-    // Erase-remove idiom: find by name, erase the single matching pointer
-    bool removeItem(const std::string& itemName) {
-        auto it = std::find_if(inventory.begin(), inventory.end(),
-            [&](Item* i){ return i->getName() == itemName; });
-        if (it == inventory.end()) return false;
-        inventory.erase(it);
-        return true;
-    }
-
+    // Returns the pointer (caller does NOT take ownership) or nullptr.
     Item* findItem(const std::string& itemName) const {
         auto it = std::find_if(inventory.begin(), inventory.end(),
-            [&](Item* i){ return i->getName() == itemName; });
+            [&](Item* i) { return i->getName() == itemName; });
         return (it != inventory.end()) ? *it : nullptr;
     }
 
@@ -172,75 +211,93 @@ public:
         return findItem(itemName) != nullptr;
     }
 
-    const std::vector<Item*>& getInventory() const { return inventory; }
-
-    // ── Equipment ────────────────────────────────────────────────────────────
-    bool equipWeapon(Item* item) {
-        if (item->getAttackBonus() == 0) return false;   // not a weapon
-        if (equippedWeapon) equippedWeapon->setEquipped(false);
-        equippedWeapon = item;
-        item->setEquipped(true);
+    // Removes item from inventory (does NOT delete it — Game owns memory).
+    // Returns true on success.
+    bool removeItem(const std::string& itemName) {
+        auto it = std::find_if(inventory.begin(), inventory.end(),
+            [&](Item* i) { return i->getName() == itemName; });
+        if (it == inventory.end()) return false;
+        if (*it == equippedWeapon) equippedWeapon = nullptr;
+        inventory.erase(it);
         return true;
     }
 
-    void unequipWeapon() {
-        if (equippedWeapon) {
-            equippedWeapon->setEquipped(false);
-            equippedWeapon = nullptr;
-        }
+    const std::vector<Item*>& getInventory() const { return inventory; }
+
+    // --- Equipment ---
+
+    bool equipWeapon(Item* item) {
+        if (item->getAttackBonus() <= 0) return false;
+        if (equippedWeapon) equippedWeapon->setEquipped(false);
+        equippedWeapon = item;
+        equippedWeapon->setEquipped(true);
+        return true;
     }
 
     Item* getEquippedWeapon() const { return equippedWeapon; }
 
-    // ── XP ───────────────────────────────────────────────────────────────────
-    void gainXp(int amount) { xp += amount; }
-    int  getXp()      const { return xp; }
+    // --- XP ---
 
-    // Polymorphism: attack() overrides Combatant's pure virtual.
-    // Adds equipped weapon's bonus on top of base attack.
+    void gainXp(int amount) { xp += amount; }
+    int  getXp()       const { return xp; }
+
+    // OOP — Polymorphism: overrides Combatant::attack().
+    // Adds equipped weapon bonus on top of base attack.
     int attack() override {
         int bonus = equippedWeapon ? equippedWeapon->getAttackBonus() : 0;
         return baseAttack + bonus + (std::rand() % 4);
     }
 
     void display() const override {
-        std::cout << name
-                  << " | HP: " << hp << "/" << maxHp
-                  << " | ATK: " << baseAttack
-                  << (equippedWeapon ? "+" + std::to_string(equippedWeapon->getAttackBonus()) : "")
-                  << " | DEF: " << defense
-                  << " | XP: " << xp << "\n";
+        std::cout << "  " << name
+                  << "  HP: " << hp << "/" << maxHp
+                  << "  ATK: " << baseAttack;
+        if (equippedWeapon)
+            std::cout << " (+" << equippedWeapon->getAttackBonus() << " weapon)";
+        std::cout << "  DEF: " << defense
+                  << "  XP: "  << xp << "\n";
     }
 
     void showInventory() const {
         if (inventory.empty()) {
-            std::cout << "Your pack is empty.\n";
+            std::cout << "Your inventory is empty.\n";
             return;
         }
-        std::cout << "Inventory:\n";
-        for (Item* item : inventory) item->display();
+        std::cout << "Inventory (" << inventory.size() << " item"
+                  << (inventory.size() == 1 ? "" : "s") << "):\n";
+        for (const Item* item : inventory) {
+            item->display();
+        }
     }
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ROOM — Inherits Entity (Inheritance + Composition)
-// Composition: Room owns lists of items and enemies inside it,
-// and a map of exits connecting it to neighbouring rooms.
-// ─────────────────────────────────────────────────────────────────────────────
+
+// ============================================================
+// CLASS: Room
+//
+// OOP — Inheritance: Room IS-A Entity.
+// OOP — Composition: Room HAS-A map of exits, a vector of items,
+//   and a vector of enemies. These make up the room's structure.
+// OOP — Encapsulation: the containers are private; callers use
+//   named methods (addExit, getExit, etc.) rather than touching
+//   the map/vectors directly.
+// ============================================================
 class Room : public Entity {
 private:
-    std::map<std::string, Room*> exits;   // direction name → adjacent Room
-    std::vector<Item*>           items;   // items currently on the floor
-    std::vector<Enemy*>          enemies; // enemies present in this room
+    std::map<std::string, Room*> exits;   // direction -> Room*
+    std::vector<Item*>  items;            // items currently on the floor
+    std::vector<Enemy*> enemies;          // enemies currently in the room
     bool        locked;
     std::string requiredKey;              // item name needed to unlock
 
 public:
     Room(const std::string& n, const std::string& d,
          bool lk = false, const std::string& key = "")
-        : Entity(n, d), locked(lk), requiredKey(key) {}
+        : Entity(n, d), locked(lk), requiredKey(key)
+    {}
 
-    // ── Exits ─────────────────────────────────────────────────────────────────
+    // --- Exits ---
+
     void  addExit(const std::string& dir, Room* room) { exits[dir] = room; }
     Room* getExit(const std::string& dir) const {
         auto it = exits.find(dir);
@@ -248,396 +305,405 @@ public:
     }
     const std::map<std::string, Room*>& getExits() const { return exits; }
 
-    // ── Items ─────────────────────────────────────────────────────────────────
+    // --- Items ---
+
     void addItem(Item* item) { items.push_back(item); }
 
-    Item* findItem(const std::string& itemName) const {
-        auto it = std::find_if(items.begin(), items.end(),
-            [&](Item* i){ return i->getName() == itemName; });
-        return (it != items.end()) ? *it : nullptr;
-    }
-
-    // Removes the item from the room and returns it; caller takes ownership
+    // Removes item from the floor and returns its pointer (caller takes it).
     Item* takeItem(const std::string& itemName) {
         auto it = std::find_if(items.begin(), items.end(),
-            [&](Item* i){ return i->getName() == itemName; });
+            [&](Item* i) { return i->getName() == itemName; });
         if (it == items.end()) return nullptr;
         Item* item = *it;
         items.erase(it);
         return item;
     }
 
+    Item* findItem(const std::string& itemName) const {
+        auto it = std::find_if(items.begin(), items.end(),
+            [&](Item* i) { return i->getName() == itemName; });
+        return (it != items.end()) ? *it : nullptr;
+    }
+
     const std::vector<Item*>& getItems() const { return items; }
 
-    // ── Enemies ───────────────────────────────────────────────────────────────
+    // --- Enemies ---
+
     void addEnemy(Enemy* e) { enemies.push_back(e); }
 
+    // Removes dead enemies from the room list (does NOT delete them).
     void removeDeadEnemies() {
-        // Erase-remove: removes pointers to dead enemies (does NOT delete — Game owns them)
         enemies.erase(
             std::remove_if(enemies.begin(), enemies.end(),
-                [](Enemy* e){ return !e->isAlive(); }),
+                [](Enemy* e) { return !e->isAlive(); }),
             enemies.end());
-    }
-
-    bool hasLivingEnemies() const {
-        return std::any_of(enemies.begin(), enemies.end(),
-            [](Enemy* e){ return e->isAlive(); });
-    }
-
-    Enemy* firstLivingEnemy() const {
-        auto it = std::find_if(enemies.begin(), enemies.end(),
-            [](Enemy* e){ return e->isAlive(); });
-        return (it != enemies.end()) ? *it : nullptr;
     }
 
     const std::vector<Enemy*>& getEnemies() const { return enemies; }
 
-    // ── Lock ──────────────────────────────────────────────────────────────────
-    bool isLocked() const { return locked; }
-    const std::string& getRequiredKey() const { return requiredKey; }
+    bool hasLivingEnemies() const {
+        return std::any_of(enemies.begin(), enemies.end(),
+            [](Enemy* e) { return e->isAlive(); });
+    }
 
-    bool tryUnlock(const Player& player) {
-        if (!locked) return true;
-        if (player.hasItem(requiredKey)) {
+    Enemy* firstLivingEnemy() const {
+        for (Enemy* e : enemies)
+            if (e->isAlive()) return e;
+        return nullptr;
+    }
+
+    // --- Lock ---
+
+    bool isLocked() const { return locked; }
+
+    // Returns true if the provided key name matches and unlocks the room.
+    bool tryUnlock(const std::string& keyName) {
+        if (locked && keyName == requiredKey) {
             locked = false;
             return true;
         }
         return false;
     }
 
-    // Polymorphism: overrides Entity::display()
+    const std::string& getRequiredKey() const { return requiredKey; }
+
+    // OOP — Polymorphism: overrides Entity::display() with room-specific output.
     void display() const override {
-        std::cout << "\n=== " << name << " ===\n" << description << "\n";
+        std::cout << "\n=== " << name << " ===\n";
+        std::cout << description << "\n";
 
         if (!items.empty()) {
             std::cout << "\nYou see:\n";
-            // Calling display() on Item* — runtime polymorphism in action
-            for (Item* item : items) item->display();
+            for (const Item* item : items) item->display();
         }
 
         if (hasLivingEnemies()) {
-            std::cout << "\nEnemies:\n";
-            for (Enemy* e : enemies) {
+            std::cout << "\nEnemies present:\n";
+            for (const Enemy* e : enemies)
                 if (e->isAlive()) e->display();
-            }
         }
 
-        std::cout << "\nExits:";
-        for (const auto& [dir, _] : exits) std::cout << " [" << dir << "]";
+        std::cout << "\nExits: ";
+        bool first = true;
+        for (const auto& [dir, room] : exits) {
+            if (!first) std::cout << ", ";
+            std::cout << dir;
+            if (room->isLocked()) std::cout << " (locked)";
+            first = false;
+        }
         std::cout << "\n";
     }
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GAME — Owns all heap objects and runs the game loop (RAII + Composition)
-// RAII: Game's destructor releases every heap-allocated object.
-// Composition: Game is assembled from Player, Rooms, Items, and Enemies.
-// ─────────────────────────────────────────────────────────────────────────────
+
+// ============================================================
+// CLASS: Game
+//
+// OOP — Composition: Game owns all objects (rooms, items, enemies,
+//   player). It is the single point of allocation and deallocation.
+// OOP — RAII: the destructor cleans up all heap memory so there
+//   are no leaks when the game ends.
+// ============================================================
 class Game {
 private:
-    Player*             player;
-    Room*               currentRoom;
+    Player* player;
+    Room*   currentRoom;
+
+    // Game owns all heap objects; other classes only borrow pointers.
     std::vector<Room*>  allRooms;
     std::vector<Item*>  allItems;
     std::vector<Enemy*> allEnemies;
+
     bool running;
     bool won;
 
-    // ── World setup ───────────────────────────────────────────────────────────
+    // ----------------------------------------------------------
+    // World construction
+    // ----------------------------------------------------------
     void setupWorld() {
         // --- Items ---
-        auto* healthPotion    = new Item("health potion",
-            "A small glass vial of glowing red liquid.", 30, 0, true);
-        auto* rustyKey        = new Item("rusty key",
-            "An old iron key, flecked with orange rust.", 0, 0, false);
-        auto* ironSword       = new Item("iron sword",
-            "A serviceable blade, still sharp enough to bite.", 0, 8, false);
-        auto* goldenTreasure  = new Item("golden treasure",
-            "A gleaming chest overflowing with ancient gold coins.", 0, 0, false);
+        auto* potion    = new Item("health potion",
+                                   "A small vial of shimmering red liquid.",
+                                   30, 0, true);
+        auto* rustyKey  = new Item("rusty key",
+                                   "An old iron key caked in rust. It might still work.",
+                                   0, 0, false);
+        auto* ironSword = new Item("iron sword",
+                                   "A well-balanced sword, nicked but reliable.",
+                                   0, 8, false);
+        auto* treasure  = new Item("golden treasure",
+                                   "A glittering chest overflowing with gold coins. You've done it!",
+                                   0, 0, false);
 
-        allItems = { healthPotion, rustyKey, ironSword, goldenTreasure };
+        allItems = {potion, rustyKey, ironSword, treasure};
 
         // --- Enemies ---
-        auto* guard = new Enemy("Guard",
-            "A bored soldier in dented armour.",
-            25, 5, 1, 15,
+        auto* guard = new Enemy(
+            "guard",
+            "A bored armory guard who perks up at the sight of an intruder.",
+            25, 6, 2, 15,
             "The Guard swings a rusty blade at you!");
 
-        auto* skeletonLord = new Enemy("Skeleton Lord",
-            "A towering undead warrior with glowing eye sockets.",
-            50, 9, 3, 50,
+        auto* skeletonLord = new Enemy(
+            "skeleton lord",
+            "A towering skeleton in black armor. Its eye sockets glow red.",
+            45, 10, 3, 50,
             "The Skeleton Lord's bony fist crashes into you!");
 
-        allEnemies = { guard, skeletonLord };
+        allEnemies = {guard, skeletonLord};
 
         // --- Rooms ---
-        auto* entranceHall = new Room("Entrance Hall",
-            "A cold stone hall. Torchlight flickers on moss-covered walls.\n"
-            "A faint smell of rust drifts from the east. Something ominous\n"
-            "looms to the north — a heavy door, sealed with iron.");
+        auto* entranceHall = new Room(
+            "Entrance Hall",
+            "You stand in a cold stone hall. Torchlight flickers on the walls.\n"
+            "A passage leads east to the armory. A heavy door to the north\n"
+            "bears a large iron lock.");
 
-        auto* armory = new Room("Armory",
-            "Weapon racks line the walls, most of them bare and cobwebbed.\n"
-            "A lone guard stands watch — or did, until he heard you come in.");
+        auto* armory = new Room(
+            "Armory",
+            "Racks of weapons line the walls, most rusted beyond use.\n"
+            "Something useful might still be here.");
 
-        auto* dungeon = new Room("Dungeon",
-            "The air is thick and cold. Ancient bones litter the floor.\n"
-            "At the far end, something golden glimmers in the darkness.",
-            true, "rusty key");  // locked; requires "rusty key"
+        auto* dungeon = new Room(
+            "Dungeon",
+            "A damp, dark chamber. Bones litter the floor.\n"
+            "In the far corner glints something extraordinary.",
+            true, "rusty key");   // locked — needs rusty key
 
-        allRooms = { entranceHall, armory, dungeon };
+        allRooms = {entranceHall, armory, dungeon};
 
-        // --- Place items ---
-        entranceHall->addItem(healthPotion);
+        // --- Place items in rooms ---
+        entranceHall->addItem(potion);
         armory->addItem(rustyKey);
         armory->addItem(ironSword);
-        dungeon->addItem(goldenTreasure);
+        dungeon->addItem(treasure);
 
-        // --- Place enemies ---
+        // --- Place enemies in rooms ---
         armory->addEnemy(guard);
         dungeon->addEnemy(skeletonLord);
 
         // --- Wire exits ---
         entranceHall->addExit("east",  armory);
         entranceHall->addExit("north", dungeon);
-        armory->addExit("west", entranceHall);
+        armory->addExit("west",  entranceHall);
         dungeon->addExit("south", entranceHall);
 
         // --- Create player ---
-        player      = new Player("Hero");
+        player = new Player("Hero");
+
         currentRoom = entranceHall;
     }
 
-    // ── Input parsing ─────────────────────────────────────────────────────────
+    // ----------------------------------------------------------
+    // Input parsing helpers
+    // ----------------------------------------------------------
+    static std::string trim(const std::string& s) {
+        const std::string ws = " \t\r\n";
+        size_t start = s.find_first_not_of(ws);
+        if (start == std::string::npos) return "";
+        size_t end = s.find_last_not_of(ws);
+        return s.substr(start, end - start + 1);
+    }
 
     static std::string toLower(std::string s) {
         std::transform(s.begin(), s.end(), s.begin(), ::tolower);
         return s;
     }
 
-    static std::string trim(const std::string& s) {
-        const std::string ws = " \t\r\n";
-        auto start = s.find_first_not_of(ws);
-        if (start == std::string::npos) return "";
-        auto end = s.find_last_not_of(ws);
-        return s.substr(start, end - start + 1);
+    // Returns {verb, rest} both lowercased and trimmed.
+    static std::pair<std::string, std::string> parseCommand(const std::string& raw) {
+        std::string input = toLower(trim(raw));
+        size_t sp = input.find(' ');
+        if (sp == std::string::npos) return {input, ""};
+        return {input.substr(0, sp), trim(input.substr(sp + 1))};
     }
 
-    // Returns {verb, rest} — both lowercased and trimmed
-    static std::pair<std::string, std::string> parseCommand(const std::string& input) {
-        std::string low = toLower(trim(input));
-        auto spacePos = low.find(' ');
-        if (spacePos == std::string::npos) return { low, "" };
-        return { low.substr(0, spacePos), trim(low.substr(spacePos + 1)) };
+    // Expands single-letter direction abbreviations.
+    static std::string expandDirection(const std::string& d) {
+        if (d == "n") return "north";
+        if (d == "s") return "south";
+        if (d == "e") return "east";
+        if (d == "w") return "west";
+        return d;
     }
 
-    static std::string expandDirection(const std::string& dir) {
-        if (dir == "n") return "north";
-        if (dir == "s") return "south";
-        if (dir == "e") return "east";
-        if (dir == "w") return "west";
-        return dir;
-    }
-
-    // ── Command handlers ──────────────────────────────────────────────────────
-
+    // ----------------------------------------------------------
+    // Command handlers
+    // ----------------------------------------------------------
     void cmdLook() const {
         currentRoom->display();
-        std::cout << "\n";
-        player->display();
     }
 
-    void cmdGo(const std::string& dir) {
+    void cmdGo(const std::string& rawDir) {
+        if (rawDir.empty()) { std::cout << "Go where?\n"; return; }
+
+        // Block movement while enemies are alive in this room.
         if (currentRoom->hasLivingEnemies()) {
-            std::cout << "You can't leave while enemies are present! Fight or flee.\n";
+            std::cout << "You can't leave while enemies are present!\n";
             return;
         }
 
-        Room* next = currentRoom->getExit(expandDirection(dir));
-        if (!next) {
-            std::cout << "You can't go that way.\n";
-            return;
-        }
+        std::string dir = expandDirection(rawDir);
+        Room* next = currentRoom->getExit(dir);
+        if (!next) { std::cout << "You can't go that way.\n"; return; }
 
         if (next->isLocked()) {
-            if (!next->tryUnlock(*player)) {
-                std::cout << "The door is locked. You need a "
+            // Try every key in the player's inventory to unlock the door.
+            bool unlocked = false;
+            for (Item* item : player->getInventory()) {
+                if (next->tryUnlock(item->getName())) {
+                    std::cout << "You use the " << item->getName()
+                              << " to unlock the door.\n";
+                    unlocked = true;
+                    break;
+                }
+            }
+            if (!unlocked) {
+                std::cout << "The door is locked. You need: "
                           << next->getRequiredKey() << ".\n";
                 return;
             }
-            std::cout << "You use the " << next->getRequiredKey()
-                      << " to unlock the door.\n";
         }
 
         currentRoom = next;
         cmdLook();
 
-        // Combat triggers automatically on room entry
+        // Trigger combat automatically on room entry if enemies are present.
         if (currentRoom->hasLivingEnemies()) {
-            Enemy* enemy = currentRoom->firstLivingEnemy();
+            Enemy* e = currentRoom->firstLivingEnemy();
             std::cout << "\nAn enemy blocks your path!\n";
-            startCombat(enemy);
+            startCombat(e);
         }
     }
 
     void cmdTake(const std::string& itemName) {
         if (itemName.empty()) { std::cout << "Take what?\n"; return; }
         Item* item = currentRoom->takeItem(itemName);
-        if (!item) { std::cout << "There's no '" << itemName << "' here.\n"; return; }
+        if (!item) { std::cout << "You don't see a '" << itemName << "' here.\n"; return; }
         player->addItem(item);
         std::cout << "You pick up the " << item->getName() << ".\n";
-        checkWinCondition();
     }
 
     void cmdDrop(const std::string& itemName) {
         if (itemName.empty()) { std::cout << "Drop what?\n"; return; }
         Item* item = player->findItem(itemName);
-        if (!item) { std::cout << "You don't have '" << itemName << "'.\n"; return; }
-        if (item == player->getEquippedWeapon()) player->unequipWeapon();
+        if (!item) { std::cout << "You don't have a '" << itemName << "'.\n"; return; }
         player->removeItem(itemName);
         currentRoom->addItem(item);
         std::cout << "You drop the " << item->getName() << ".\n";
     }
 
     void cmdInventory() const {
+        player->display();
         player->showInventory();
     }
 
     void cmdUse(const std::string& itemName) {
         if (itemName.empty()) { std::cout << "Use what?\n"; return; }
         Item* item = player->findItem(itemName);
-        if (!item) { std::cout << "You don't have '" << itemName << "'.\n"; return; }
+        if (!item) { std::cout << "You don't have a '" << itemName << "'.\n"; return; }
 
         if (item->getHealAmount() > 0) {
-            int healed = std::min(item->getHealAmount(), player->getMaxHp() - player->getHp());
+            int before = player->getHp();
             player->heal(item->getHealAmount());
             std::cout << "You drink the " << item->getName()
-                      << " and restore " << healed << " HP. "
-                      << "(HP: " << player->getHp() << "/" << player->getMaxHp() << ")\n";
-            if (item->isConsumable()) {
-                player->removeItem(item->getName());
-                std::cout << "The " << item->getName() << " is used up.\n";
-            }
+                      << " and recover " << (player->getHp() - before) << " HP. "
+                      << "HP: " << player->getHp() << "/" << player->getMaxHp() << "\n";
+            if (item->isConsumable()) player->removeItem(item->getName());
+
         } else if (item->getAttackBonus() > 0) {
-            player->equipWeapon(item);
-            std::cout << "You equip the " << item->getName()
-                      << ". (+" << item->getAttackBonus() << " ATK)\n";
+            if (player->equipWeapon(item)) {
+                std::cout << "You equip the " << item->getName()
+                          << ". (+" << item->getAttackBonus() << " attack)\n";
+            }
+
         } else {
-            std::cout << "You're not sure how to use the " << item->getName() << " right now.\n";
+            std::cout << "You can't use the " << item->getName() << " that way.\n";
         }
     }
 
     void cmdExamine(const std::string& itemName) const {
         if (itemName.empty()) { std::cout << "Examine what?\n"; return; }
 
-        // Check inventory first, then room floor
+        // Check player inventory first, then the room floor.
         Item* item = player->findItem(itemName);
         if (!item) item = currentRoom->findItem(itemName);
-        if (!item) {
-            std::cout << "You don't see '" << itemName << "' here or in your pack.\n";
-            return;
-        }
-        std::cout << item->getName() << ": " << item->getDescription() << "\n";
+        if (item) { item->display(); return; }
+
+        // Also check room enemies by name.
+        for (Enemy* e : currentRoom->getEnemies())
+            if (e->getName() == itemName) { e->display(); return; }
+
+        std::cout << "You don't see a '" << itemName << "' here.\n";
     }
 
     void cmdHelp() const {
-        std::cout <<
-            "Commands:\n"
-            "  look                  — describe current room\n"
-            "  go <direction>        — move (north/south/east/west or n/s/e/w)\n"
-            "  take <item>           — pick up an item\n"
-            "  drop <item>           — drop an item from your pack\n"
-            "  inventory  (or inv)   — show your inventory\n"
-            "  use <item>            — use or equip an item\n"
-            "  examine <item>        — read an item's description\n"
-            "  help                  — show this list\n"
-            "  quit                  — exit the game\n";
+        std::cout << "\nCommands:\n"
+                  << "  look               - describe the current room\n"
+                  << "  go <dir>           - move (north/south/east/west or n/s/e/w)\n"
+                  << "  take <item>        - pick up an item\n"
+                  << "  drop <item>        - drop an item\n"
+                  << "  inventory (inv)    - show your items and stats\n"
+                  << "  use <item>         - drink a potion or equip a weapon\n"
+                  << "  examine <thing>    - inspect an item or enemy\n"
+                  << "  help               - show this list\n"
+                  << "  quit               - exit the game\n\n"
+                  << "Objective: find the golden treasure in the dungeon.\n";
     }
 
     void cmdQuit() {
-        std::cout << "You abandon your quest and slink back to the surface. Farewell.\n";
+        std::cout << "Farewell, adventurer.\n";
         running = false;
     }
 
-    // ── Combat ────────────────────────────────────────────────────────────────
+    // ----------------------------------------------------------
+    // Combat
+    // ----------------------------------------------------------
     void startCombat(Enemy* enemy) {
         std::cout << "\n*** COMBAT: " << enemy->getName() << " ***\n";
         enemy->display();
-        std::cout << "\n";
 
         while (player->isAlive() && enemy->isAlive()) {
-            // --- Player turn ---
-            std::cout << "Your HP: " << player->getHp() << "/" << player->getMaxHp()
-                      << "  |  " << enemy->getName() << " HP: "
-                      << enemy->getHp() << "/" << enemy->getMaxHp() << "\n"
-                      << "[1] Attack   [2] Flee   [3] Use item\n> ";
+            // Player's turn
+            std::cout << "\n[HP: " << player->getHp() << "/" << player->getMaxHp()
+                      << "]  [1] Attack  [2] Flee\n> ";
 
             std::string choice;
-            std::getline(std::cin, choice);
-            choice = trim(toLower(choice));
-
-            bool enemyTurnFollows = true;
+            if (!std::getline(std::cin, choice)) { running = false; return; }
+            choice = toLower(trim(choice));
 
             if (choice == "2" || choice == "flee") {
                 if (std::rand() % 2 == 0) {
-                    std::cout << "You manage to escape!\n";
-                    return;  // flee succeeds — leave combat without moving rooms
+                    std::cout << "You manage to flee!\n";
+                    // Move to the first available exit.
+                    for (const auto& [dir, room] : currentRoom->getExits()) {
+                        currentRoom = room;
+                        std::cout << "You scramble into the " << currentRoom->getName() << ".\n";
+                        break;
+                    }
+                    return;
                 }
                 std::cout << "You couldn't escape!\n";
-            } else if (choice == "3" || choice == "use item" || choice == "use") {
-                // Let the player pick a consumable from their inventory mid-fight
-                const auto& inv = player->getInventory();
-                std::vector<Item*> usable;
-                for (Item* it : inv) {
-                    if (it->getHealAmount() > 0) usable.push_back(it);
-                }
-                if (usable.empty()) {
-                    std::cout << "You have no usable items.\n";
-                } else {
-                    std::cout << "Use which item?\n";
-                    for (std::size_t idx = 0; idx < usable.size(); ++idx)
-                        std::cout << "  [" << (idx + 1) << "] " << usable[idx]->getName() << "\n";
-                    std::cout << "> ";
-                    std::string pick;
-                    std::getline(std::cin, pick);
-                    pick = trim(pick);
-                    int sel = 0;
-                    try { sel = std::stoi(pick); } catch (...) { sel = 0; }
-                    if (sel >= 1 && sel <= static_cast<int>(usable.size())) {
-                        Item* chosen = usable[sel - 1];
-                        int healed = std::min(chosen->getHealAmount(),
-                                              player->getMaxHp() - player->getHp());
-                        player->heal(chosen->getHealAmount());
-                        std::cout << "You use the " << chosen->getName()
-                                  << " and restore " << healed << " HP."
-                                  << " (HP: " << player->getHp() << "/" << player->getMaxHp() << ")\n";
-                        if (chosen->isConsumable()) player->removeItem(chosen->getName());
-                    } else {
-                        std::cout << "Never mind.\n";
-                        enemyTurnFollows = false;  // no action taken — don't waste enemy turn
-                    }
-                }
+
             } else {
-                // Default to attack for any other input
-                int rawDmg    = player->attack();
-                int actualDmg = std::max(0, rawDmg - enemy->getDefense());
-                enemy->takeDamage(actualDmg);
-                std::cout << "You strike the " << enemy->getName()
-                          << " for " << actualDmg << " damage!";
-                if (!enemy->isAlive()) std::cout << " It collapses!";
-                std::cout << "\n";
+                // Default to attack for any other input.
+                int raw    = player->attack();
+                int damage = std::max(0, raw - enemy->getDefense());
+                enemy->takeDamage(damage);
+                std::cout << "You hit the " << enemy->getName()
+                          << " for " << damage << " damage!"
+                          << "  (Enemy HP: " << enemy->getHp() << ")\n";
             }
 
-            // --- Enemy turn ---
-            if (enemyTurnFollows && enemy->isAlive()) {
-                int rawDmg    = enemy->attack();
-                int actualDmg = std::max(0, rawDmg - player->getDefense());
-                player->takeDamage(actualDmg);
-                std::cout << enemy->getAttackMessage()
-                          << " (-" << actualDmg << " HP)"
-                          << "  [Your HP: " << player->getHp() << "]\n";
-            }
+            if (!enemy->isAlive()) break;
+
+            // Enemy's turn
+            int raw    = enemy->attack();
+            int damage = std::max(0, raw - player->getDefense());
+            player->takeDamage(damage);
+            std::cout << enemy->getAttackMessage()
+                      << " (-" << damage << " HP)"
+                      << "  [Your HP: " << player->getHp() << "]\n";
         }
 
         if (!player->isAlive()) {
@@ -647,100 +713,109 @@ private:
         }
 
         // Enemy defeated
-        std::cout << "\nYou defeated the " << enemy->getName() << "!"
-                  << " (+" << enemy->getXpReward() << " XP)\n";
+        std::cout << "\nYou defeated the " << enemy->getName()
+                  << "! +" << enemy->getXpReward() << " XP\n";
         player->gainXp(enemy->getXpReward());
         currentRoom->removeDeadEnemies();
-        std::cout << "\n";
     }
 
-    // ── Win condition ─────────────────────────────────────────────────────────
+    // ----------------------------------------------------------
+    // Win condition check (called after every command)
+    // ----------------------------------------------------------
     void checkWinCondition() {
+        if (!running) return;
         if (player->hasItem("golden treasure")) {
-            std::cout << "\n"
-                "╔══════════════════════════════════════╗\n"
-                "║          YOU WIN! CONGRATULATIONS    ║\n"
-                "╠══════════════════════════════════════╣\n"
-                "║  You claimed the golden treasure     ║\n"
-                "║  and emerged victorious!             ║\n"
-                "╚══════════════════════════════════════╝\n\n";
-            player->display();
+            std::cout << "\n+--------------------------------------+\n"
+                      << "|  YOU WIN! The treasure is yours!     |\n"
+                      << "+--------------------------------------+\n"
+                      << "Total XP earned: " << player->getXp() << "\n"
+                      << "Final HP: " << player->getHp() << "/" << player->getMaxHp() << "\n\n"
+                      << "Congratulations, " << player->getName() << "!\n";
             running = false;
-            won = true;
+            won     = true;
         }
     }
 
-    // ── Command dispatcher ────────────────────────────────────────────────────
+    // ----------------------------------------------------------
+    // Command dispatch
+    // ----------------------------------------------------------
     void processCommand(const std::string& input) {
-        if (trim(input).empty()) return;
-
         auto [verb, rest] = parseCommand(input);
 
-        if (verb == "look"   || verb == "l")              { cmdLook(); }
-        else if (verb == "go"|| verb == "move")           { cmdGo(rest); }
-        else if (verb == "north"|| verb == "south"
-              || verb == "east" || verb == "west"
-              || verb == "n"    || verb == "s"
-              || verb == "e"    || verb == "w")           { cmdGo(verb); }
-        else if (verb == "take" || verb == "get"
-              || verb == "pick")                          { cmdTake(rest); }
-        else if (verb == "drop" || verb == "discard")     { cmdDrop(rest); }
-        else if (verb == "inventory" || verb == "inv"
-              || verb == "i")                             { cmdInventory(); }
-        else if (verb == "use"  || verb == "equip")       { cmdUse(rest); }
-        else if (verb == "examine" || verb == "ex"
-              || verb == "inspect" || verb == "look at")  { cmdExamine(rest); }
-        else if (verb == "help" || verb == "?")           { cmdHelp(); }
-        else if (verb == "quit" || verb == "exit"
-              || verb == "q")                             { cmdQuit(); }
-        else {
-            std::cout << "I don't understand '" << verb << "'. Type 'help' for commands.\n";
-        }
+        if (verb.empty())                                  return;
+        if (verb == "look"   || verb == "l")               cmdLook();
+        else if (verb == "go" || verb == "move")           cmdGo(rest);
+        else if (verb == "north" || verb == "south" ||
+                 verb == "east"  || verb == "west"  ||
+                 verb == "n"     || verb == "s"     ||
+                 verb == "e"     || verb == "w")            cmdGo(verb);
+        else if (verb == "take" || verb == "get"  ||
+                 verb == "pick")                            cmdTake(rest);
+        else if (verb == "drop")                            cmdDrop(rest);
+        else if (verb == "inventory" || verb == "inv" ||
+                 verb == "i")                               cmdInventory();
+        else if (verb == "use" || verb == "equip")         cmdUse(rest);
+        else if (verb == "examine" || verb == "x" ||
+                 verb == "inspect")                         cmdExamine(rest);
+        else if (verb == "help" || verb == "?")            cmdHelp();
+        else if (verb == "quit" || verb == "exit" ||
+                 verb == "q")                               cmdQuit();
+        else
+            std::cout << "I don't understand '" << verb
+                      << "'. Type 'help' for commands.\n";
     }
 
 public:
-    // RAII constructor: sets up the entire game world on the heap
-    Game() : player(nullptr), currentRoom(nullptr), running(true), won(false) {
+    Game() : player(nullptr), currentRoom(nullptr), running(false), won(false) {
         setupWorld();
     }
 
-    // RAII destructor: Game owns all heap objects and cleans them up here
+    // OOP — RAII: destructor releases all heap memory allocated in setupWorld().
+    // Called automatically when the Game object goes out of scope in main().
     ~Game() {
-        for (auto* r : allRooms)   delete r;
-        for (auto* i : allItems)   delete i;
-        for (auto* e : allEnemies) delete e;
+        for (Room*  r : allRooms)   delete r;
+        for (Item*  i : allItems)   delete i;
+        for (Enemy* e : allEnemies) delete e;
         delete player;
     }
 
     void run() {
-        std::cout <<
-            "╔══════════════════════════════════════╗\n"
-            "║     DUNGEON OF THE SKELETON LORD     ║\n"
-            "╚══════════════════════════════════════╝\n\n"
-            "You have ventured into an ancient dungeon in search of legendary\n"
-            "treasure. Type 'help' to see available commands.\n";
+        running = true;
+
+        std::cout << "+------------------------------------------+\n"
+                  << "|     DUNGEON OF THE SKELETON LORD         |\n"
+                  << "|          A Text Adventure                |\n"
+                  << "+------------------------------------------+\n\n"
+                  << "You are an adventurer who has heard tales of a golden\n"
+                  << "treasure buried in the dungeon beneath this castle.\n"
+                  << "Find it and claim it as your own -- if you survive.\n"
+                  << "\nType 'help' for a list of commands.\n";
 
         cmdLook();
 
         while (running) {
             std::cout << "\n> ";
             std::string line;
-            if (!std::getline(std::cin, line)) break;  // handle Ctrl+D / piped input
+            if (!std::getline(std::cin, line)) break;   // EOF (Ctrl+D)
             processCommand(line);
+            checkWinCondition();
         }
 
-        if (!won && running == false) {
-            // Only print farewell if not already handled by quit/lose/win
-        }
+        if (!won && !running)
+            std::cout << "\nThanks for playing!\n";
     }
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// main
-// ─────────────────────────────────────────────────────────────────────────────
-int main() {
-    std::srand(static_cast<unsigned>(std::time(nullptr)));  // seed random once
 
+// ============================================================
+// ENTRY POINT
+// ============================================================
+int main() {
+    // Seed the random number generator once at startup.
+    std::srand(static_cast<unsigned>(std::time(nullptr)));
+
+    // OOP — RAII: Game is constructed on the stack. Its destructor
+    // runs automatically when main() returns, freeing all memory.
     Game game;
     game.run();
 
