@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Todos</h1>
+
+      <!-- The frontend never talks to the database directly. It just
+           collects user input and sends it to the backend over HTTP. -->
+      <form id="new-todo-form">
+        <input id="new-todo-input" type="text" placeholder="What needs doing?" autocomplete="off" required />
+        <button type="submit">Add</button>
+      </form>
+
+      <ul id="todo-list"></ul>
+
+      <p id="empty-state" hidden>No todos yet. Add one above.</p>
+      <p id="error" hidden></p>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
