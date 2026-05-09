@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>System Monitor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f1115;
+        --panel: #161a22;
+        --border: #232936;
+        --fg: #e6e8ee;
+        --muted: #8a93a6;
+        --cpu: #4c8bf5;
+        --mem: #f5a04c;
+        --ok: #4ade80;
+        --bad: #f87171;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        color: var(--fg);
+        background: var(--bg);
+      }
+      header {
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+      .status { font-size: 13px; color: var(--muted); }
+      .status .dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-right: 6px;
+        background: var(--bad);
+        vertical-align: middle;
+      }
+      .status.connected .dot { background: var(--ok); }
+      main {
+        padding: 24px;
+        display: grid;
+        gap: 24px;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px 20px 20px;
+      }
+      .card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 8px;
+      }
+      .card-head h2 { font-size: 13px; font-weight: 500; color: var(--muted); margin: 0; text-transform: uppercase; letter-spacing: 0.06em; }
+      .value { font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums; }
+      .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+      canvas { width: 100% !important; height: 200px !important; margin-top: 12px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>System Monitor</h1>
+      <span id="status" class="status"><span class="dot"></span><span id="status-text">disconnected</span></span>
+    </header>
+
+    <main>
+      <section class="card">
+        <div class="card-head">
+          <h2>CPU</h2>
+          <div class="value"><span id="cpu-now">--</span>%</div>
+        </div>
+        <div class="sub">Aggregate across all cores</div>
+        <canvas id="cpu-chart"></canvas>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Memory</h2>
+          <div class="value"><span id="mem-now">--</span>%</div>
+        </div>
+        <div class="sub"><span id="mem-detail">--</span></div>
+        <canvas id="mem-chart"></canvas>
+      </section>
+    </main>
+
+    <script>
+      const WINDOW_SIZE = 60;
+      const WS_URL = `ws://${location.hostname || "localhost"}:8080`;
+
+      const baseChartConfig = (color) => ({
+        type: "line",
+        data: {
+          labels: [],
+          datasets: [{
+            data: [],
+            borderColor: color,
+            backgroundColor: color + "22",
+            borderWidth: 2,
+            tension: 0.25,
+            pointRadius: 0,
+            fill: true,
+          }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: "#8a93a6", maxTicksLimit: 6 }, grid: { color: "#232936" } },
+            y: { min: 0, max: 100, ticks: { color: "#8a93a6", callback: (v) => v + "%" }, grid: { color: "#232936" } },
+          },
+        },
+      });
+
+      const cpuChart = new Chart(document.getElementById("cpu-chart"), baseChartConfig("#4c8bf5"));
+      const memChart = new Chart(document.getElementById("mem-chart"), baseChartConfig("#f5a04c"));
+
+      const statusEl = document.getElementById("status");
+      const statusText = document.getElementById("status-text");
+
+      const pushSample = (chart, label, value) => {
+        chart.data.labels.push(label);
+        chart.data.datasets[0].data.push(value);
+        if (chart.data.labels.length > WINDOW_SIZE) {
+          chart.data.labels.shift();
+          chart.data.datasets[0].data.shift();
+        }
+        chart.update("none");
+      };
+
+      const formatTime = (ms) => {
+        const d = new Date(ms);
+        return d.toTimeString().slice(0, 8);
+      };
+
+      let backoff = 500;
+      const connect = () => {
+        statusText.textContent = "connecting…";
+        const ws = new WebSocket(WS_URL);
+
+        ws.onopen = () => {
+          statusEl.classList.add("connected");
+          statusText.textContent = "connected";
+          backoff = 500;
+        };
+
+        ws.onmessage = (event) => {
+          const msg = JSON.parse(event.data);
+          const label = formatTime(msg.t);
+          document.getElementById("cpu-now").textContent = msg.cpu.toFixed(1);
+          document.getElementById("mem-now").textContent = msg.mem.toFixed(1);
+          document.getElementById("mem-detail").textContent =
+            `${msg.mem_used_mb} MB used of ${msg.mem_total_mb} MB`;
+          pushSample(cpuChart, label, msg.cpu);
+          pushSample(memChart, label, msg.mem);
+        };
+
+        ws.onclose = () => {
+          statusEl.classList.remove("connected");
+          statusText.textContent = `disconnected — retrying in ${Math.round(backoff / 100) / 10}s`;
+          setTimeout(connect, backoff);
+          backoff = Math.min(backoff * 2, 8000);
+        };
+
+        ws.onerror = () => ws.close();
+      };
+
+      connect();
+    </script>
+  </body>
+</html>
