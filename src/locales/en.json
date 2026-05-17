@@ -108,7 +108,7 @@
     "stat_breakdown": "{pending} pending · {approved} approved · {rejected} rejected",
     "stat_clicks": "Clicks (30 days)",
     "stat_revenue": "Bid revenue (30 days)",
-    "queue_banner": "{count} ads awaiting review →"
+    "queue_banner": "{count, plural, one {# ad awaiting review →} other {# ads awaiting review →}}"
   },
   "AdminQueuePage": {
     "title": "Review queue",
