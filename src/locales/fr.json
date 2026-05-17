@@ -76,5 +76,61 @@
   },
   "LocaleSwitcher": {
     "change_language": "Changer de langue"
+  },
+  "AdvertiseLayout": {
+    "nav_dashboard": "Tableau de bord",
+    "nav_my_ads": "Mes annonces"
+  },
+  "AdsPage": {
+    "title": "Mes annonces",
+    "create_ad": "+ Créer une annonce",
+    "no_ads": "Pas encore d'annonces — créez votre première",
+    "create_ad_button": "Créer une annonce",
+    "col_headline": "Titre",
+    "col_keywords": "Mots-clés",
+    "col_bid": "Enchère",
+    "col_status": "Statut",
+    "col_actions": "Actions",
+    "status_active": "Actif",
+    "status_paused": "En pause"
+  },
+  "AdvertiseDashboardPage": {
+    "greeting": "Bienvenue, {name} 👋",
+    "active_ads_label": "Annonces actives",
+    "budget_label": "Budget",
+    "budget_placeholder": "£0",
+    "create_first_ad": "+ Créer votre première annonce"
+  },
+  "AdWizard": {
+    "create_title": "Créer une annonce",
+    "edit_title": "Modifier l'annonce",
+    "step_content": "1. Contenu",
+    "step_keywords": "2. Mots-clés",
+    "step_bid": "3. Enchère",
+    "field_headline": "Titre",
+    "field_destination_url": "URL de destination",
+    "field_display_url": "URL d'affichage",
+    "field_description": "Description",
+    "field_cta_text": "Texte du bouton",
+    "keywords_label": "Mots-clés",
+    "keywords_hint": "Entrez les mots-clés qui déclenchent votre annonce dans les résultats de recherche. Séparez-les par des virgules.",
+    "bid_label": "Enchère par clic",
+    "bid_hint": "Définissez le montant que vous payez par clic. Les enchères plus élevées sont mieux classées.",
+    "bid_per_click": "par clic",
+    "bid_minimum": "Minimum £0.10 par clic",
+    "button_next": "Suivant →",
+    "button_back": "← Retour",
+    "button_saving": "Enregistrement...",
+    "button_save_changes": "Enregistrer ✓",
+    "button_publish": "Publier l'annonce ✓"
+  },
+  "AdRowActions": {
+    "delete_confirm": "Supprimer cette annonce ?",
+    "delete_yes": "Oui",
+    "delete_cancel": "Annuler",
+    "edit": "Modifier",
+    "pause": "Mettre en pause",
+    "resume": "Reprendre",
+    "delete": "Supprimer"
   }
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { createAd, updateAd } from '@/libs/adActions';
@@ -28,12 +29,6 @@ type AdWizardProps = {
   };
 };
 
-const STEPS = [
-  { num: 1, label: '1. Content' },
-  { num: 2, label: '2. Keywords' },
-  { num: 3, label: '3. Bid' },
-] as const;
-
 function Field(props: {
   label: string;
   value: string;
@@ -59,6 +54,7 @@ function Field(props: {
 }
 
 export function AdWizard(props: AdWizardProps) {
+  const t = useTranslations('AdWizard');
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
@@ -118,17 +114,25 @@ export function AdWizard(props: AdWizardProps) {
     }
   }
 
-  const publishLabel = props.initialData ? 'Save changes ✓' : 'Publish ad ✓';
+  const steps = [
+    { num: 1, label: t('step_content') },
+    { num: 2, label: t('step_keywords') },
+    { num: 3, label: t('step_bid') },
+  ];
+
+  const publishLabel = props.initialData
+    ? t('button_save_changes')
+    : t('button_publish');
 
   return (
     <div className="mx-auto max-w-xl px-6 py-12">
       <h1 className="mb-6 text-2xl font-bold">
-        {props.initialData ? 'Edit ad' : 'Create ad'}
+        {props.initialData ? t('edit_title') : t('create_title')}
       </h1>
 
       {/* Step indicator */}
       <div className="mb-8 flex gap-2">
-        {STEPS.map((s) => (
+        {steps.map((s) => (
           <span
             key={s.num}
             className={`rounded px-3 py-1 text-sm font-medium ${
@@ -152,7 +156,7 @@ export function AdWizard(props: AdWizardProps) {
       {step === 1 && (
         <div className="space-y-4">
           <Field
-            label="Headline"
+            label={t('field_headline')}
             value={data.title}
             onChange={(v) => {
               set('title', v);
@@ -161,7 +165,7 @@ export function AdWizard(props: AdWizardProps) {
             maxLength={80}
           />
           <Field
-            label="Destination URL"
+            label={t('field_destination_url')}
             value={data.url}
             onChange={(v) => {
               set('url', v);
@@ -169,7 +173,7 @@ export function AdWizard(props: AdWizardProps) {
             placeholder="https://..."
           />
           <Field
-            label="Display URL"
+            label={t('field_display_url')}
             value={data.displayUrl}
             onChange={(v) => {
               set('displayUrl', v);
@@ -178,7 +182,7 @@ export function AdWizard(props: AdWizardProps) {
             maxLength={60}
           />
           <Field
-            label="Description"
+            label={t('field_description')}
             value={data.description}
             onChange={(v) => {
               set('description', v);
@@ -187,7 +191,7 @@ export function AdWizard(props: AdWizardProps) {
             maxLength={200}
           />
           <Field
-            label="CTA text"
+            label={t('field_cta_text')}
             value={data.ctaText}
             onChange={(v) => {
               set('ctaText', v);
@@ -203,7 +207,7 @@ export function AdWizard(props: AdWizardProps) {
               }}
               className="rounded-lg bg-indigo-600 px-6 py-2 text-sm font-semibold hover:bg-indigo-500"
             >
-              Next →
+              {t('button_next')}
             </button>
           </div>
         </div>
@@ -213,11 +217,10 @@ export function AdWizard(props: AdWizardProps) {
       {step === 2 && (
         <div className="space-y-4">
           <label className="block">
-            <span className="mb-1 block text-sm text-white/60">Keywords</span>
-            <p className="mb-2 text-xs text-white/40">
-              Enter keywords that trigger your ad on search results. Separate
-              with commas.
-            </p>
+            <span className="mb-1 block text-sm text-white/60">
+              {t('keywords_label')}
+            </span>
+            <p className="mb-2 text-xs text-white/40">{t('keywords_hint')}</p>
             <textarea
               value={data.keywords}
               onChange={(e) => {
@@ -236,7 +239,7 @@ export function AdWizard(props: AdWizardProps) {
               }}
               className="rounded-lg bg-white/5 px-6 py-2 text-sm font-semibold hover:bg-white/10"
             >
-              ← Back
+              {t('button_back')}
             </button>
             <button
               type="button"
@@ -245,7 +248,7 @@ export function AdWizard(props: AdWizardProps) {
               }}
               className="rounded-lg bg-indigo-600 px-6 py-2 text-sm font-semibold hover:bg-indigo-500"
             >
-              Next →
+              {t('button_next')}
             </button>
           </div>
         </div>
@@ -256,11 +259,9 @@ export function AdWizard(props: AdWizardProps) {
         <div className="space-y-4">
           <label className="block">
             <span className="mb-1 block text-sm text-white/60">
-              Bid per click
+              {t('bid_label')}
             </span>
-            <p className="mb-2 text-xs text-white/40">
-              Set how much you pay per click. Higher bids rank above lower bids.
-            </p>
+            <p className="mb-2 text-xs text-white/40">{t('bid_hint')}</p>
             <div className="flex items-center gap-2">
               <span className="text-white/50">£</span>
               <input
@@ -273,11 +274,11 @@ export function AdWizard(props: AdWizardProps) {
                 }}
                 className="w-28 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:ring-1 focus:ring-indigo-500 focus:outline-none"
               />
-              <span className="text-sm text-white/40">per click</span>
+              <span className="text-sm text-white/40">
+                {t('bid_per_click')}
+              </span>
             </div>
-            <p className="mt-1 text-xs text-white/30">
-              Minimum £0.10 per click
-            </p>
+            <p className="mt-1 text-xs text-white/30">{t('bid_minimum')}</p>
           </label>
           <div className="flex justify-between pt-2">
             <button
@@ -287,7 +288,7 @@ export function AdWizard(props: AdWizardProps) {
               }}
               className="rounded-lg bg-white/5 px-6 py-2 text-sm font-semibold hover:bg-white/10"
             >
-              ← Back
+              {t('button_back')}
             </button>
             <button
               type="button"
@@ -295,7 +296,7 @@ export function AdWizard(props: AdWizardProps) {
               disabled={pending}
               className="rounded-lg bg-green-600 px-6 py-2 text-sm font-semibold text-white hover:bg-green-500 disabled:opacity-50"
             >
-              {pending ? 'Saving...' : publishLabel}
+              {pending ? t('button_saving') : publishLabel}
             </button>
           </div>
         </div>

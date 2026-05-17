@@ -76,5 +76,61 @@
   },
   "LocaleSwitcher": {
     "change_language": "Change language"
+  },
+  "AdvertiseLayout": {
+    "nav_dashboard": "Dashboard",
+    "nav_my_ads": "My ads"
+  },
+  "AdsPage": {
+    "title": "My ads",
+    "create_ad": "+ Create ad",
+    "no_ads": "No ads yet — create your first one",
+    "create_ad_button": "Create ad",
+    "col_headline": "Headline",
+    "col_keywords": "Keywords",
+    "col_bid": "Bid",
+    "col_status": "Status",
+    "col_actions": "Actions",
+    "status_active": "Active",
+    "status_paused": "Paused"
+  },
+  "AdvertiseDashboardPage": {
+    "greeting": "Welcome, {name} 👋",
+    "active_ads_label": "Active ads",
+    "budget_label": "Budget",
+    "budget_placeholder": "£0",
+    "create_first_ad": "+ Create your first ad"
+  },
+  "AdWizard": {
+    "create_title": "Create ad",
+    "edit_title": "Edit ad",
+    "step_content": "1. Content",
+    "step_keywords": "2. Keywords",
+    "step_bid": "3. Bid",
+    "field_headline": "Headline",
+    "field_destination_url": "Destination URL",
+    "field_display_url": "Display URL",
+    "field_description": "Description",
+    "field_cta_text": "CTA text",
+    "keywords_label": "Keywords",
+    "keywords_hint": "Enter keywords that trigger your ad on search results. Separate with commas.",
+    "bid_label": "Bid per click",
+    "bid_hint": "Set how much you pay per click. Higher bids rank above lower bids.",
+    "bid_per_click": "per click",
+    "bid_minimum": "Minimum £0.10 per click",
+    "button_next": "Next →",
+    "button_back": "← Back",
+    "button_saving": "Saving...",
+    "button_save_changes": "Save changes ✓",
+    "button_publish": "Publish ad ✓"
+  },
+  "AdRowActions": {
+    "delete_confirm": "Delete this ad?",
+    "delete_yes": "Yes",
+    "delete_cancel": "Cancel",
+    "edit": "Edit",
+    "pause": "Pause",
+    "resume": "Resume",
+    "delete": "Delete"
   }
 }

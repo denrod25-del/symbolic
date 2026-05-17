@@ -36,6 +36,17 @@
       "rules": {
         "promise/avoid-new": "off"
       }
+    },
+    {
+      "files": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx"
+      ],
+      "rules": {
+        "typescript/no-non-null-assertion": "off"
+      }
     }
   ],
   "options": {

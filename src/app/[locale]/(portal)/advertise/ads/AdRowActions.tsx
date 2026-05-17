@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -12,6 +13,7 @@ type AdRowActionsProps = {
 };
 
 export function AdRowActions(props: AdRowActionsProps) {
+  const t = useTranslations('AdRowActions');
   const router = useRouter();
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
@@ -28,7 +30,7 @@ export function AdRowActions(props: AdRowActionsProps) {
   if (isConfirmingDelete) {
     return (
       <div className="flex items-center gap-2">
-        <span className="text-sm text-white/70">Delete this ad?</span>
+        <span className="text-sm text-white/70">{t('delete_confirm')}</span>
         <button
           type="button"
           onClick={async () => {
@@ -36,7 +38,7 @@ export function AdRowActions(props: AdRowActionsProps) {
           }}
           className="text-sm font-medium text-red-400 hover:text-red-300"
         >
-          Yes
+          {t('delete_yes')}
         </button>
         <button
           type="button"
@@ -45,7 +47,7 @@ export function AdRowActions(props: AdRowActionsProps) {
           }}
           className="text-sm text-white/50 hover:text-white"
         >
-          Cancel
+          {t('delete_cancel')}
         </button>
       </div>
     );
@@ -57,14 +59,14 @@ export function AdRowActions(props: AdRowActionsProps) {
         href={`/${props.locale}/advertise/ads/${props.adId}/edit`}
         className="text-sm text-indigo-400 hover:underline"
       >
-        Edit
+        {t('edit')}
       </Link>
       <button
         type="button"
         onClick={handleToggle}
         className="text-sm text-white/50 hover:text-white"
       >
-        {props.isActive ? 'Pause' : 'Resume'}
+        {props.isActive ? t('pause') : t('resume')}
       </button>
       <button
         type="button"
@@ -73,7 +75,7 @@ export function AdRowActions(props: AdRowActionsProps) {
         }}
         className="text-sm text-red-400 hover:text-red-300"
       >
-        Delete
+        {t('delete')}
       </button>
     </div>
   );

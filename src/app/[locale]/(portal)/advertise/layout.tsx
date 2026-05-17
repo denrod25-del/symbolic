@@ -1,5 +1,6 @@
 import { UserButton } from '@clerk/nextjs';
 import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -12,6 +13,9 @@ export default async function AdvertiseLayout(props: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await props.params;
+  setRequestLocale(locale);
+  const t = await getTranslations('AdvertiseLayout');
+
   return (
     <div className="min-h-screen bg-[#0d0d14] text-white">
       <nav className="flex items-center justify-between border-b border-white/10 px-6 py-4">
@@ -30,13 +34,13 @@ export default async function AdvertiseLayout(props: {
               href={`/${locale}/advertise/dashboard`}
               className="text-sm text-white/60 hover:text-white"
             >
-              Dashboard
+              {t('nav_dashboard')}
             </Link>
             <Link
               href={`/${locale}/advertise/ads`}
               className="text-sm text-white/60 hover:text-white"
             >
-              My Ads
+              {t('nav_my_ads')}
             </Link>
           </div>
         </div>
