@@ -27,25 +27,27 @@ function thirtyDaysAgo(): Date {
 export async function getAdminStats(): Promise<AdminStats> {
   const since = thirtyDaysAgo();
 
-  const [advertiserRow] = await db.select({ value: count() }).from(advertisers);
-
-  const statusRows = await db
-    .select({ status: ads.status, value: count() })
-    .from(ads)
-    .groupBy(ads.status);
-
-  const [clicksRow] = await db
-    .select({ value: count() })
-    .from(adClicks)
-    .where(gte(adClicks.clickedAt, since));
-
-  const [revenueRow] = await db
-    .select({
-      value: sql<number>`coalesce(sum(${ads.bidAmount}), 0)`.mapWith(Number),
-    })
-    .from(adClicks)
-    .innerJoin(ads, eq(adClicks.adId, ads.id))
-    .where(gte(adClicks.clickedAt, since));
+  const [[advertiserRow], statusRows, [clicksRow], [revenueRow]] =
+    await Promise.all([
+      db.select({ value: count() }).from(advertisers),
+      db
+        .select({ status: ads.status, value: count() })
+        .from(ads)
+        .groupBy(ads.status),
+      db
+        .select({ value: count() })
+        .from(adClicks)
+        .where(gte(adClicks.clickedAt, since)),
+      db
+        .select({
+          value: sql<number>`coalesce(sum(${ads.bidAmount}), 0)`.mapWith(
+            Number
+          ),
+        })
+        .from(adClicks)
+        .innerJoin(ads, eq(adClicks.adId, ads.id))
+        .where(gte(adClicks.clickedAt, since)),
+    ]);
 
   const byStatus = (target: string) =>
     statusRows.find((row) => row.status === target)?.value ?? 0;
