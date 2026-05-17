@@ -91,10 +91,10 @@
     "col_bid": "Enchère",
     "col_status": "Statut",
     "col_actions": "Actions",
-    "status_pending": "Pending review",
-    "status_approved_active": "Active",
-    "status_approved_paused": "Paused",
-    "status_rejected": "Rejected"
+    "status_pending": "En attente de révision",
+    "status_approved_active": "Actif",
+    "status_approved_paused": "En pause",
+    "status_rejected": "Rejeté"
   },
   "AdminLayout": {
     "logo": "Symbolic Admin",
