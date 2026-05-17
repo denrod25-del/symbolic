@@ -145,6 +145,17 @@ describe('adminActions', () => {
       const [row] = await db.select().from(ads).where(eq(ads.id, id));
       expect(row?.active).toBe(false);
     });
+
+    it('refuses a non-admin caller', async () => {
+      asNonAdmin();
+      const id = await insertAd('approved', true);
+
+      const result = await suspendAd(id);
+
+      expect(result).toHaveProperty('error');
+      const [row] = await db.select().from(ads).where(eq(ads.id, id));
+      expect(row?.active).toBe(true);
+    });
   });
 
   describe('unsuspendAd', () => {
@@ -156,6 +167,17 @@ describe('adminActions', () => {
 
       const [row] = await db.select().from(ads).where(eq(ads.id, id));
       expect(row?.active).toBe(true);
+    });
+
+    it('refuses a non-admin caller', async () => {
+      asNonAdmin();
+      const id = await insertAd('approved', false);
+
+      const result = await unsuspendAd(id);
+
+      expect(result).toHaveProperty('error');
+      const [row] = await db.select().from(ads).where(eq(ads.id, id));
+      expect(row?.active).toBe(false);
     });
   });
 
