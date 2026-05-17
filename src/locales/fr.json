@@ -95,6 +95,7 @@
     "status_paused": "En pause"
   },
   "AdminLayout": {
+    "logo": "Symbolic Admin",
     "nav_dashboard": "Dashboard",
     "nav_queue": "Queue",
     "nav_ads": "Ads",

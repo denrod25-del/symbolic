@@ -25,7 +25,7 @@ export default async function AdminLayout(props: {
             href={`/${locale}/admin/dashboard`}
             className="text-sm font-semibold tracking-wide text-white/80"
           >
-            Symbolic Admin
+            {t('logo')}
           </Link>
           <div className="flex items-center gap-6">
             <Link
