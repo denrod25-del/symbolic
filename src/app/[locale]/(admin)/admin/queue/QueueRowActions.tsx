@@ -18,17 +18,26 @@ export function QueueRowActions(props: {
   const [rejecting, setRejecting] = useState(false);
   const [reason, setReason] = useState('');
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
 
   async function handleApprove() {
     setBusy(true);
-    await approveAd(props.adId);
+    setError('');
+    const result = await approveAd(props.adId);
+    if (result && 'error' in result) {
+      setError(result.error);
+      setBusy(false);
+      return;
+    }
     router.refresh();
   }
 
   async function handleReject() {
     setBusy(true);
+    setError('');
     const result = await rejectAd(props.adId, reason);
     if (result && 'error' in result) {
+      setError(result.error);
       setBusy(false);
       return;
     }
@@ -45,10 +54,11 @@ export function QueueRowActions(props: {
           className="rounded border border-white/15 bg-white/5 px-2 py-1 text-sm"
           rows={2}
         />
+        {error && <p className="text-xs text-red-400">{error}</p>}
         <div className="flex gap-2">
           <button
             type="button"
-            disabled={busy}
+            disabled={busy || reason.trim() === ''}
             onClick={handleReject}
             className="rounded bg-red-600 px-3 py-1 text-xs font-semibold hover:bg-red-500 disabled:opacity-50"
           >
@@ -67,22 +77,25 @@ export function QueueRowActions(props: {
   }
 
   return (
-    <div className="flex gap-2">
-      <button
-        type="button"
-        disabled={busy}
-        onClick={handleApprove}
-        className="rounded bg-green-600 px-3 py-1 text-xs font-semibold hover:bg-green-500 disabled:opacity-50"
-      >
-        {props.labels.approve}
-      </button>
-      <button
-        type="button"
-        onClick={() =>{  setRejecting(true); }}
-        className="rounded border border-red-500/40 px-3 py-1 text-xs font-semibold text-red-300 hover:bg-red-500/10"
-      >
-        {props.labels.reject}
-      </button>
+    <div className="flex flex-col gap-2">
+      <div className="flex gap-2">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={handleApprove}
+          className="rounded bg-green-600 px-3 py-1 text-xs font-semibold hover:bg-green-500 disabled:opacity-50"
+        >
+          {props.labels.approve}
+        </button>
+        <button
+          type="button"
+          onClick={() =>{  setRejecting(true); }}
+          className="rounded border border-red-500/40 px-3 py-1 text-xs font-semibold text-red-300 hover:bg-red-500/10"
+        >
+          {props.labels.reject}
+        </button>
+      </div>
+      {error && <p className="text-xs text-red-400">{error}</p>}
     </div>
   );
 }
