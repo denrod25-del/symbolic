@@ -7,6 +7,36 @@ import { db } from '@/libs/DB';
 import { ads, advertisers } from '@/models/Schema';
 import { AdRowActions } from './AdRowActions';
 
+type AdsPageTranslator = Awaited<ReturnType<typeof getTranslations<'AdsPage'>>>;
+
+function statusBadge(
+  ad: { status: string; active: boolean },
+  t: AdsPageTranslator
+): { label: string; className: string } {
+  if (ad.status === 'pending') {
+    return {
+      label: t('status_pending'),
+      className: 'bg-yellow-500/20 text-yellow-400',
+    };
+  }
+  if (ad.status === 'rejected') {
+    return {
+      label: t('status_rejected'),
+      className: 'bg-red-500/20 text-red-400',
+    };
+  }
+  if (ad.active) {
+    return {
+      label: t('status_approved_active'),
+      className: 'bg-green-500/20 text-green-400',
+    };
+  }
+  return {
+    label: t('status_approved_paused'),
+    className: 'bg-orange-500/20 text-orange-400',
+  };
+}
+
 export default async function AdsPage(props: {
   params: Promise<{ locale: string }>;
 }) {
@@ -60,31 +90,35 @@ export default async function AdsPage(props: {
             <span>{t('col_status')}</span>
             <span>{t('col_actions')}</span>
           </div>
-          {advertiserAds.map((ad) => (
-            <div
-              key={ad.id}
-              className="grid grid-cols-[2fr_1fr_80px_100px_160px] items-center gap-4 border-b border-white/5 px-4 py-3 text-sm last:border-0"
-            >
-              <span className="truncate">{ad.title}</span>
-              <span className="truncate text-white/50">
-                {ad.keywords.slice(0, 3).join(', ')}
-                {ad.keywords.length > 3 ? '…' : ''}
-              </span>
-              <span>£{(ad.bidAmount / 100).toFixed(2)}</span>
-              <span>
-                <span
-                  className={`rounded px-2 py-0.5 text-xs font-semibold ${
-                    ad.active
-                      ? 'bg-green-500/20 text-green-400'
-                      : 'bg-orange-500/20 text-orange-400'
-                  }`}
-                >
-                  {ad.active ? t('status_active') : t('status_paused')}
+          {advertiserAds.map((ad) => {
+            const badge = statusBadge(ad, t);
+            return (
+              <div
+                key={ad.id}
+                className="grid grid-cols-[2fr_1fr_80px_100px_160px] items-center gap-4 border-b border-white/5 px-4 py-3 text-sm last:border-0"
+              >
+                <span className="truncate">{ad.title}</span>
+                <span className="truncate text-white/50">
+                  {ad.keywords.slice(0, 3).join(', ')}
+                  {ad.keywords.length > 3 ? '…' : ''}
                 </span>
-              </span>
-              <AdRowActions adId={ad.id} isActive={ad.active} locale={locale} />
-            </div>
-          ))}
+                <span>£{(ad.bidAmount / 100).toFixed(2)}</span>
+                <span>
+                  <span
+                    title={ad.rejectionReason ?? undefined}
+                    className={`rounded px-2 py-0.5 text-xs font-semibold ${badge.className}`}
+                  >
+                    {badge.label}
+                  </span>
+                </span>
+                <AdRowActions
+                  adId={ad.id}
+                  isActive={ad.active}
+                  locale={locale}
+                />
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
