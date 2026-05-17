@@ -19,7 +19,7 @@ function tokenize(query: string): string[] {
 }
 
 /**
- * Selects up to 2 active ads whose keywords overlap with the search query.
+ * Selects up to 2 approved, active ads whose keywords overlap with the search query.
  * Returns highest-bid ads first.
  * Returns an empty array when the query produces no tokens.
  *
