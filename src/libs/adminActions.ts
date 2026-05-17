@@ -15,8 +15,8 @@ const rejectReasonSchema = z.string().min(1).max(300);
  */
 function revalidateAdminPaths() {
   try {
-    revalidatePath('/admin/queue');
-    revalidatePath('/admin/ads');
+    revalidatePath('/[locale]/admin/queue', 'page');
+    revalidatePath('/[locale]/admin/ads', 'page');
   } catch {
     // no-op outside Next.js runtime
   }
