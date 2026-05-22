@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import Image from 'next/image';
+import Link from 'next/link';
 import { SearchBar } from '@/components/SearchBar';
 
 export const metadata: Metadata = {
@@ -31,6 +32,12 @@ export default async function HomePage(props: HomePageProps) {
           </p>
         </div>
         <SearchBar autoFocus />
+        <Link
+          href="/browser"
+          className="text-sm text-symbolic-muted transition-colors hover:text-symbolic-accent"
+        >
+          Open the Symbolic Browser →
+        </Link>
       </div>
     </main>
   );
