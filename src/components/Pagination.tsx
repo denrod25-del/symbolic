@@ -6,18 +6,20 @@ type PaginationProps = {
   count: number;
 };
 
+// Brave Search API treats `offset` as a zero-based page index (max 9).
 const PAGE_SIZE = 10;
+const MAX_PAGE_INDEX = 9;
 
 export function Pagination(props: PaginationProps) {
   const hasPrev = props.offset > 0;
-  const hasNext = props.count === PAGE_SIZE;
+  const hasNext = props.count === PAGE_SIZE && props.offset < MAX_PAGE_INDEX;
 
   if (!hasPrev && !hasNext) {
     return null;
   }
 
-  const prevOffset = Math.max(0, props.offset - PAGE_SIZE);
-  const nextOffset = props.offset + PAGE_SIZE;
+  const prevOffset = Math.max(0, props.offset - 1);
+  const nextOffset = props.offset + 1;
   const encodedQuery = encodeURIComponent(props.query);
 
   return (
