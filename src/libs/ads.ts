@@ -11,7 +11,7 @@ export type Ad = typeof ads.$inferSelect;
  * @param query - The raw search query string.
  * @returns Array of lowercase token strings.
  */
-export function tokenize(query: string): string[] {
+function tokenize(query: string): string[] {
   return query
     .toLowerCase()
     .split(/[\s,.:;!?'"()[\]{}]+/)
@@ -19,7 +19,7 @@ export function tokenize(query: string): string[] {
 }
 
 /**
- * Selects up to 2 active ads whose keywords overlap with the search query.
+ * Selects up to 2 approved, active ads whose keywords overlap with the search query.
  * Returns highest-bid ads first.
  * Returns an empty array when the query produces no tokens.
  *
@@ -40,6 +40,7 @@ export const selectAds = async (query: string): Promise<Ad[]> => {
     .from(ads)
     .where(
       and(
+        eq(ads.status, 'approved'),
         eq(ads.active, true),
         sql`${ads.keywords} && ARRAY[${sql.join(
           tokens.map((t) => sql`${t}`),

@@ -50,6 +50,10 @@ export const ads = pgTable('ads', {
   keywords: text('keywords').array().notNull(),
   bidAmount: integer('bid_amount').notNull(),
   active: boolean('active').notNull().default(true),
+  status: text('status').notNull().default('pending'),
+  rejectionReason: text('rejection_reason'),
+  reviewedAt: timestamp('reviewed_at'),
+  reviewedBy: text('reviewed_by'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
