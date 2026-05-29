@@ -189,6 +189,59 @@ body {
   color: var(--muted);
 }
 
+#bookmarks-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.75rem;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  min-height: 2rem;
+  overflow: hidden;
+}
+
+#bookmarks-list {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+#bookmarks-list::-webkit-scrollbar {
+  display: none;
+}
+
+#bookmarks-list:empty + #bookmarks-hint {
+  display: none;
+}
+
+.bookmark {
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  max-width: 12rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bookmark:hover {
+  background: var(--surface);
+}
+
+#bookmarks-hint {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
 #views {
   flex: 1;
   position: relative;

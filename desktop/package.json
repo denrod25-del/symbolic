@@ -6,7 +6,10 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux"
   },
   "devDependencies": {
     "electron": "^33.2.0",
@@ -15,23 +18,39 @@
   "build": {
     "appId": "com.symbolic.browser",
     "productName": "Symbolic",
+    "asar": true,
+    "directories": {
+      "output": "dist"
+    },
     "files": [
       "main.js",
       "preload.js",
+      "adblock.js",
       "renderer/**/*"
     ],
     "mac": {
-      "category": "public.app-category.productivity"
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg"
+      ]
     },
     "linux": {
       "target": [
         "AppImage"
-      ]
+      ],
+      "category": "Network"
     },
     "win": {
       "target": [
         "nsis"
       ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Symbolic"
     }
   }
 }

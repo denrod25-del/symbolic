@@ -1,8 +1,10 @@
 'use strict';
 
-// Where omnibox searches go. Point this at your Symbolic deployment.
 const SYMBOLIC_ORIGIN = 'http://localhost:3000';
 const NEW_TAB_URL = 'newtab.html';
+const BOOKMARKS_KEY = 'symbolic_bookmarks';
+const RECENT_KEY = 'symbolic_recent';
+const RECENT_LIMIT = 10;
 
 const tabsEl = document.querySelector('#tabs');
 const viewsEl = document.querySelector('#views');
@@ -13,7 +15,9 @@ const forwardBtn = document.querySelector('#forward');
 const reloadBtn = document.querySelector('#reload');
 const homeBtn = document.querySelector('#home');
 const newTabBtn = document.querySelector('#new-tab');
+const addBookmarkBtn = document.querySelector('#add-bookmark');
 const openExternalBtn = document.querySelector('#open-external');
+const bookmarksListEl = document.querySelector('#bookmarks-list');
 
 const tabs = [];
 let activeId = null;
@@ -46,6 +50,35 @@ const isNewTabUrl = (url) =>
 
 const activeTab = () => tabs.find((tab) => tab.id === activeId);
 
+const safeJsonParse = (raw, fallback) => {
+  try {
+    return JSON.parse(raw ?? '') ?? fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+const loadBookmarks = () =>
+  safeJsonParse(localStorage.getItem(BOOKMARKS_KEY), []);
+
+const saveBookmarks = (list) => {
+  localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(list));
+};
+
+const loadRecent = () => safeJsonParse(localStorage.getItem(RECENT_KEY), []);
+
+const recordSearch = (query) => {
+  const trimmed = query.trim();
+  if (!trimmed) {
+    return;
+  }
+  const next = [trimmed, ...loadRecent().filter((q) => q !== trimmed)].slice(
+    0,
+    RECENT_LIMIT
+  );
+  localStorage.setItem(RECENT_KEY, JSON.stringify(next));
+};
+
 const syncActive = () => {
   const tab = activeTab();
   if (!tab) {
@@ -58,9 +91,10 @@ const syncActive = () => {
   forwardBtn.disabled = !(tab.ready && tab.view.canGoForward());
   reloadBtn.classList.toggle('loading', tab.loading);
   openExternalBtn.disabled = isNewTabUrl(tab.url);
+  addBookmarkBtn.disabled = isNewTabUrl(tab.url);
 };
 
-const render = () => {
+const renderTabs = () => {
   tabsEl.innerHTML = '';
   for (const tab of tabs) {
     const el = document.createElement('div');
@@ -96,12 +130,58 @@ const render = () => {
   }
 };
 
+const renderBookmarks = () => {
+  const list = loadBookmarks();
+  bookmarksListEl.innerHTML = '';
+  for (const bm of list) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'bookmark';
+    btn.title = bm.url;
+    let label = bm.title?.trim() || '';
+    if (!label) {
+      try {
+        label = new URL(bm.url).hostname.replace(/^www\./, '');
+      } catch {
+        label = bm.url;
+      }
+    }
+    btn.textContent = label;
+    btn.addEventListener('click', () => {
+      const tab = activeTab();
+      if (tab) {
+        tab.view.src = bm.url;
+      }
+    });
+    btn.addEventListener('contextmenu', (event) => {
+      event.preventDefault();
+      saveBookmarks(loadBookmarks().filter((b) => b.url !== bm.url));
+      renderBookmarks();
+    });
+    bookmarksListEl.append(btn);
+  }
+};
+
+const addCurrentBookmark = () => {
+  const tab = activeTab();
+  if (!tab || isNewTabUrl(tab.url)) {
+    return;
+  }
+  const list = loadBookmarks();
+  if (list.some((b) => b.url === tab.url)) {
+    return;
+  }
+  list.push({ url: tab.url, title: tab.title });
+  saveBookmarks(list);
+  renderBookmarks();
+};
+
 function setActive(id) {
   activeId = id;
   for (const tab of tabs) {
     tab.view.style.display = tab.id === id ? 'flex' : 'none';
   }
-  render();
+  renderTabs();
   syncActive();
 }
 
@@ -116,11 +196,11 @@ function wireWebview(tab) {
   });
   view.addEventListener('page-title-updated', (event) => {
     tab.title = event.title;
-    render();
+    renderTabs();
   });
   view.addEventListener('page-favicon-updated', (event) => {
     tab.favicon = event.favicons[0] ?? '';
-    render();
+    renderTabs();
   });
   view.addEventListener('did-start-loading', () => {
     tab.loading = true;
@@ -147,7 +227,7 @@ function wireWebview(tab) {
     if (tab.id === activeId) {
       syncActive();
     }
-    render();
+    renderTabs();
   };
   view.addEventListener('did-navigate', onNavigate);
   view.addEventListener('did-navigate-in-page', onNavigate);
@@ -198,17 +278,23 @@ function closeTab(id) {
     const next = tabs[Math.max(0, index - 1)];
     setActive(next.id);
   } else {
-    render();
+    renderTabs();
   }
 }
 
 omniboxForm.addEventListener('submit', (event) => {
   event.preventDefault();
+  const raw = omnibox.value;
+  const trimmed = raw.trim();
   const tab = activeTab();
-  if (tab) {
-    tab.view.src = resolveInput(omnibox.value);
-    omnibox.blur();
+  if (!tab) {
+    return;
   }
+  if (trimmed && !isUrlLike(trimmed)) {
+    recordSearch(trimmed);
+  }
+  tab.view.src = resolveInput(raw);
+  omnibox.blur();
 });
 
 backBtn.addEventListener('click', () => {
@@ -246,6 +332,8 @@ homeBtn.addEventListener('click', () => {
 
 newTabBtn.addEventListener('click', () => createTab());
 
+addBookmarkBtn.addEventListener('click', () => addCurrentBookmark());
+
 openExternalBtn.addEventListener('click', () => {
   const tab = activeTab();
   if (tab && !isNewTabUrl(tab.url)) {
@@ -253,6 +341,84 @@ openExternalBtn.addEventListener('click', () => {
   }
 });
 
+const cycleTab = (delta) => {
+  if (tabs.length === 0) {
+    return;
+  }
+  const index = tabs.findIndex((tab) => tab.id === activeId);
+  const next = tabs[(index + delta + tabs.length) % tabs.length];
+  if (next) {
+    setActive(next.id);
+  }
+};
+
+const handleShortcut = (event) => {
+  const ctrl = event.ctrl ?? (event.ctrlKey || event.metaKey);
+  const shift = event.shift ?? event.shiftKey;
+  const alt = event.alt ?? event.altKey;
+  const key = event.key;
+  const stop = () => {
+    if (typeof event.preventDefault === 'function') {
+      event.preventDefault();
+    }
+  };
+
+  if (ctrl && key === 't') {
+    stop();
+    createTab();
+    return;
+  }
+  if (ctrl && key === 'w') {
+    stop();
+    if (activeId) {
+      closeTab(activeId);
+    }
+    return;
+  }
+  if (ctrl && key === 'l') {
+    stop();
+    omnibox.focus();
+    omnibox.select();
+    return;
+  }
+  if ((ctrl && key === 'r') || key === 'F5') {
+    stop();
+    reloadBtn.click();
+    return;
+  }
+  if (ctrl && key === 'd') {
+    stop();
+    addCurrentBookmark();
+    return;
+  }
+  if (alt && key === 'ArrowLeft') {
+    stop();
+    backBtn.click();
+    return;
+  }
+  if (alt && key === 'ArrowRight') {
+    stop();
+    forwardBtn.click();
+    return;
+  }
+  if (ctrl && key === 'Tab') {
+    stop();
+    cycleTab(shift ? -1 : 1);
+    return;
+  }
+  if (ctrl && /^[1-9]$/.test(key)) {
+    stop();
+    const n = Number(key);
+    const target = n === 9 ? tabs.at(-1) : tabs[n - 1];
+    if (target) {
+      setActive(target.id);
+    }
+  }
+};
+
+window.addEventListener('keydown', handleShortcut);
+window.symbolic.onShortcut(handleShortcut);
 window.symbolic.onOpenTab((url) => createTab(url));
 
+renderBookmarks();
 createTab();

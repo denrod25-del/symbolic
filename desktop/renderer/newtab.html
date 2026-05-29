@@ -22,7 +22,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 2.5rem;
+        gap: 2rem;
         background: var(--bg);
         color: var(--text);
         font-family:
@@ -48,6 +48,16 @@
         font-size: 0.85rem;
         color: var(--muted);
       }
+      .engine-badge {
+        margin-top: 0.25rem;
+        font-size: 0.7rem;
+        color: var(--muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .engine-badge strong {
+        color: var(--accent);
+      }
       form {
         width: min(40rem, 90vw);
       }
@@ -62,6 +72,38 @@
         outline: none;
       }
       input:focus {
+        border-color: var(--accent);
+      }
+      #recent {
+        width: min(40rem, 90vw);
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      #recent[hidden] {
+        display: none;
+      }
+      .recent-heading {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+      .recent-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .recent-chip {
+        padding: 0.35rem 0.85rem;
+        border-radius: 9999px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        font-size: 0.8rem;
+        text-decoration: none;
+      }
+      .recent-chip:hover {
         border-color: var(--accent);
       }
       .shortcuts {
@@ -99,6 +141,7 @@
     <div style="text-align: center">
       <div class="wordmark">symbolic<span>.</span></div>
       <p class="tagline">Search without compromise</p>
+      <p class="engine-badge">Default search: <strong>Symbolic</strong></p>
     </div>
 
     <form id="search">
@@ -110,6 +153,8 @@
         placeholder="Search the web or type a URL"
       />
     </form>
+
+    <div id="recent" hidden></div>
 
     <div class="shortcuts" id="shortcuts"></div>
 
