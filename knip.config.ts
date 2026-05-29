@@ -19,6 +19,7 @@ const config: KnipConfig = {
     'src/libs/Logger.ts',
     'src/validations/CounterValidation.ts',
     'tests/**/*.ts',
+    'desktop/**',
   ],
   // Dependencies to ignore during analysis
   ignoreDependencies: [
