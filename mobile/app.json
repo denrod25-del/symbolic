@@ -22,7 +22,6 @@
         "backgroundColor": "#0a0a0f"
       }
     },
-    "plugins": ["react-native-webview"],
     "scheme": "symbolic"
   }
 }
