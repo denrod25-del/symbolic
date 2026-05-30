@@ -19,6 +19,7 @@ public:
     // CRUD operations. Each one uses a prepared statement under the hood.
     int                  create(const Book& book);                      // C
     std::optional<Book>  findById(int id);                              // R
+    std::optional<Book>  findByIsbn(const std::string& isbn);           // R
     std::vector<Book>    findAll();                                     // R
     std::vector<Book>    searchByAuthor(const std::string& author);     // R
     bool                 update(const Book& book);                      // U

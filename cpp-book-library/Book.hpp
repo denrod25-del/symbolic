@@ -6,9 +6,12 @@
 // Keeping the domain model decoupled from SQLite types means the rest of the
 // program never has to know about sqlite3_stmt or column indices.
 struct Book {
-    int         id        = 0;     // PRIMARY KEY, assigned by SQLite on insert.
+    int         id        = 0;          // PRIMARY KEY, assigned by SQLite on insert.
     std::string title;
     std::string author;
-    int         year      = 0;     // Publication year.
-    bool        available = true;  // false when checked out.
+    int         year      = 0;          // Publication year.
+    bool        available = true;       // false when checked out.
+    std::string isbn;                   // empty when unknown.
+    std::string format    = "physical"; // 'physical' | 'pdf' | 'ebook'.
+    std::string filePath;               // filesystem path for digital formats.
 };
