@@ -92,39 +92,60 @@ void runBatchScan(BookRepository& repo) {
             break;
         }
 
-        // Duplicate check on what the scanner gave us. If you genuinely own
-        // two copies of the same book, answer "yes" to add another row.
-        const auto existing = repo.findByIsbn(raw);
-        if (existing) {
-            std::cout << "    Already in library:\n";
-            printBook(*existing);
-            if (!promptYesNo("    Add another copy?", false)) {
-                ++skipped;
-                continue;
+        // Per-scan try/catch keeps one bad book (network blip, CHECK
+        // violation, etc.) from killing the rest of a long batch.
+        try {
+            // Duplicate check on what the scanner gave us. If you genuinely own
+            // two copies of the same book, answer "yes" to add another row.
+            const auto existing = repo.findByIsbn(raw);
+            if (existing) {
+                std::cout << "    Already in library:\n";
+                printBook(*existing);
+                if (!promptYesNo("    Add another copy?", false)) {
+                    ++skipped;
+                    continue;
+                }
             }
-        }
 
-        std::cout << "    Looking up...\n";
-        const auto fetched = IsbnLookup::fetch(raw);
-        if (!fetched) {
-            std::cout << "    No metadata found. Enter manually? ";
-            if (!promptYesNo("", false)) {
-                ++skipped;
+            std::cout << "    Looking up...\n";
+            const auto fetched = IsbnLookup::fetch(raw);
+            if (!fetched) {
+                std::cout << "    No metadata found. Enter manually? ";
+                if (!promptYesNo("", false)) {
+                    ++skipped;
+                    continue;
+                }
+                Book manual = promptBook();
+                manual.isbn = raw;
+                const int id = repo.create(manual);
+                std::cout << "    Added book " << id << ".\n";
+                ++added;
                 continue;
             }
-            Book manual = promptBook();
-            manual.isbn = raw;
-            const int id = repo.create(manual);
+
+            // Open Library sometimes returns a book with no publish_date.
+            // Year is NOT NULL with CHECK > 0 in the schema, so we have to
+            // ask the user before inserting.
+            Book book = *fetched;
+            std::cout << "    Found: \"" << book.title << "\" by " << book.author;
+            if (book.year > 0) {
+                std::cout << " (" << book.year << ")\n";
+            } else {
+                std::cout << " (year unknown)\n";
+                book.year = promptInt("    Year (required, 0 to skip): ");
+                if (book.year <= 0) {
+                    std::cout << "    Skipped.\n";
+                    ++skipped;
+                    continue;
+                }
+            }
+            const int id = repo.create(book);
             std::cout << "    Added book " << id << ".\n";
             ++added;
-            continue;
+        } catch (const std::exception& e) {
+            std::cout << "    Failed: " << e.what() << "\n";
+            ++skipped;
         }
-
-        std::cout << "    Found: \"" << fetched->title << "\" by "
-                  << fetched->author << " (" << fetched->year << ")\n";
-        const int id = repo.create(*fetched);
-        std::cout << "    Added book " << id << ".\n";
-        ++added;
     }
     std::cout << "  Done. " << added << " added, " << skipped << " skipped.\n";
 }
