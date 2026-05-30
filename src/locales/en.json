@@ -77,6 +77,19 @@
   "LocaleSwitcher": {
     "change_language": "Change language"
   },
+  "Footer": {
+    "submit": "Submit a site",
+    "settings": "Settings",
+    "copyright": "© Symbolic"
+  },
+  "SubmitPage": {
+    "meta_title": "Submit your site — Symbolic",
+    "meta_description": "Get your website discoverable on Symbolic Search.",
+    "title": "Get your site on Symbolic",
+    "intro": "Symbolic shows results from Brave Search's index. To make your website discoverable on Symbolic, submit it to Brave's webmaster portal.",
+    "cta": "Submit to Brave Webmaster Tools →",
+    "note": "New sites typically appear in results within a few days. Make sure your site has a sitemap.xml and robots.txt for best results."
+  },
   "AdvertiseLayout": {
     "nav_dashboard": "Dashboard",
     "nav_my_ads": "My ads"

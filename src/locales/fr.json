@@ -77,6 +77,19 @@
   "LocaleSwitcher": {
     "change_language": "Changer de langue"
   },
+  "Footer": {
+    "submit": "Soumettre un site",
+    "settings": "Paramètres",
+    "copyright": "© Symbolic"
+  },
+  "SubmitPage": {
+    "meta_title": "Soumettre votre site — Symbolic",
+    "meta_description": "Rendez votre site web découvrable sur Symbolic Search.",
+    "title": "Faites apparaître votre site sur Symbolic",
+    "intro": "Symbolic affiche les résultats de l'index de Brave Search. Pour rendre votre site web découvrable sur Symbolic, soumettez-le au portail webmaster de Brave.",
+    "cta": "Soumettre à Brave Webmaster Tools →",
+    "note": "Les nouveaux sites apparaissent généralement dans les résultats en quelques jours. Assurez-vous que votre site dispose d'un sitemap.xml et d'un robots.txt pour de meilleurs résultats."
+  },
   "AdvertiseLayout": {
     "nav_dashboard": "Tableau de bord",
     "nav_my_ads": "Mes annonces"
