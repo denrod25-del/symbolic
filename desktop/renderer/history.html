@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>History — Symbolic</title>
+    <style>
+      :root {
+        --bg: #0a0a0f;
+        --surface: #12121a;
+        --border: #1e1e2e;
+        --accent: #7c6ff7;
+        --muted: #6b7280;
+        --text: #e2e8f0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+      }
+      .wrap {
+        max-width: 56rem;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+      }
+      header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        letter-spacing: -0.02em;
+      }
+      #clear {
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        padding: 0.4rem 0.85rem;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        cursor: pointer;
+      }
+      #clear:hover {
+        border-color: var(--accent);
+      }
+      .day {
+        margin: 1.5rem 0 0.5rem;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .time {
+        flex-shrink: 0;
+        width: 4rem;
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+      .link {
+        flex: 1;
+        color: var(--text);
+        text-decoration: none;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      .link:hover {
+        color: var(--accent);
+      }
+      .title {
+        font-size: 0.9rem;
+      }
+      .url {
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+      .empty {
+        margin-top: 3rem;
+        text-align: center;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>History</h1>
+        <button id="clear" type="button">Clear history</button>
+      </header>
+      <div id="list"></div>
+    </div>
+    <script src="history.js"></script>
+  </body>
+</html>

@@ -9,6 +9,7 @@ import { SearchLayout } from '@/components/SearchLayout';
 import { selectAds } from '@/libs/ads';
 import type { Ad } from '@/libs/ads';
 import { searchWeb } from '@/libs/brave';
+import { recordSearch } from '@/libs/searches';
 
 type SearchPageProps = {
   params: Promise<{ locale: string }>;
@@ -45,6 +46,10 @@ export default async function SearchPage(props: SearchPageProps) {
     searchWeb({ query, offset, safesearch }).catch(() => null),
     selectAds(query).catch((): Ad[] => []),
   ]);
+
+  if (offset === 0) {
+    await recordSearch(query);
+  }
 
   const results = searchResult;
   const error =

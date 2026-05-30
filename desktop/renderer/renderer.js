@@ -2,9 +2,12 @@
 
 const SYMBOLIC_ORIGIN = 'http://localhost:3000';
 const NEW_TAB_URL = 'newtab.html';
+const HISTORY_URL = 'history.html';
 const BOOKMARKS_KEY = 'symbolic_bookmarks';
 const RECENT_KEY = 'symbolic_recent';
+const HISTORY_KEY = 'symbolic_history';
 const RECENT_LIMIT = 10;
+const HISTORY_LIMIT = 500;
 
 const tabsEl = document.querySelector('#tabs');
 const viewsEl = document.querySelector('#views');
@@ -48,6 +51,8 @@ const resolveInput = (input) => {
 const isNewTabUrl = (url) =>
   !url || (url.startsWith('file://') && url.includes('newtab.html'));
 
+const isInternalUrl = (url) => !url || url.startsWith('file://');
+
 const activeTab = () => tabs.find((tab) => tab.id === activeId);
 
 const safeJsonParse = (raw, fallback) => {
@@ -66,6 +71,20 @@ const saveBookmarks = (list) => {
 };
 
 const loadRecent = () => safeJsonParse(localStorage.getItem(RECENT_KEY), []);
+
+const loadHistory = () => safeJsonParse(localStorage.getItem(HISTORY_KEY), []);
+
+const recordHistory = (url, title) => {
+  if (isInternalUrl(url)) {
+    return;
+  }
+  const list = loadHistory();
+  list.unshift({ url, title, visitedAt: Date.now() });
+  localStorage.setItem(
+    HISTORY_KEY,
+    JSON.stringify(list.slice(0, HISTORY_LIMIT))
+  );
+};
 
 const recordSearch = (query) => {
   const trimmed = query.trim();
@@ -223,6 +242,8 @@ function wireWebview(tab) {
     if (isNewTabUrl(event.url)) {
       tab.title = 'New Tab';
       tab.favicon = '';
+    } else {
+      recordHistory(event.url, tab.title);
     }
     if (tab.id === activeId) {
       syncActive();
@@ -389,6 +410,14 @@ const handleShortcut = (event) => {
   if (ctrl && key === 'd') {
     stop();
     addCurrentBookmark();
+    return;
+  }
+  if (ctrl && key === 'h') {
+    stop();
+    const tab = activeTab();
+    if (tab) {
+      tab.view.src = HISTORY_URL;
+    }
     return;
   }
   if (alt && key === 'ArrowLeft') {

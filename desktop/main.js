@@ -2,7 +2,7 @@
 
 const { app, BrowserWindow, ipcMain, session, shell } = require('electron');
 const path = require('node:path');
-const { BLOCKED_HOSTS } = require('./adblock');
+const { SEED_HOSTS, loadBlockedHosts } = require('./adblock');
 
 const PARTITION = 'persist:symbolic';
 
@@ -14,7 +14,7 @@ ipcMain.on('open-external', (_event, url) => {
   }
 });
 
-const blockedSet = new Set(BLOCKED_HOSTS);
+let blockedSet = new Set(SEED_HOSTS);
 
 const isBlockedHost = (hostname) => {
   const parts = hostname.split('.');
@@ -43,6 +43,16 @@ const setupAdblock = (ses) => {
   );
 };
 
+const refreshBlocklistAsync = () => {
+  loadBlockedHosts(app.getPath('userData'))
+    .then((next) => {
+      blockedSet = next;
+    })
+    .catch(() => {
+      // Keep the seed list.
+    });
+};
+
 const createWindow = () => {
   const win = new BrowserWindow({
     width: 1280,
@@ -66,6 +76,7 @@ const createWindow = () => {
 
 app.whenReady().then(() => {
   setupAdblock(session.fromPartition(PARTITION));
+  refreshBlocklistAsync();
   createWindow();
 
   app.on('activate', () => {
@@ -87,6 +98,7 @@ const HOST_SHORTCUTS = new Set([
   'l',
   'r',
   'd',
+  'h',
   'Tab',
   '1',
   '2',

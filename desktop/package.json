@@ -28,6 +28,8 @@
       "adblock.js",
       "renderer/**/*"
     ],
+    "compression": "maximum",
+    "publish": null,
     "mac": {
       "category": "public.app-category.productivity",
       "target": [

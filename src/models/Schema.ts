@@ -61,3 +61,9 @@ export const adClicks = pgTable('ad_clicks', {
   query: text('query').notNull(),
   clickedAt: timestamp('clicked_at').notNull().defaultNow(),
 });
+
+export const searches = pgTable('searches', {
+  id: serial('id').primaryKey(),
+  query: text('query').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});

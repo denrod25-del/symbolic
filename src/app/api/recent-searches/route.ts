@@ -1,24 +1,16 @@
 import { NextResponse } from 'next/server';
-
-const SAMPLE_RECENT = [
-  'privacy first browsers',
-  'symbolic search engine',
-  'best chromium alternatives',
-  'brave search api',
-  'next.js 16 release notes',
-  'electron webview tutorial',
-];
+import { recentSearches } from '@/libs/searches';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, OPTIONS',
 };
 
-export function GET() {
-  return NextResponse.json(
-    { recent: SAMPLE_RECENT },
-    { headers: CORS_HEADERS }
-  );
+export const dynamic = 'force-dynamic';
+
+export async function GET() {
+  const recent = await recentSearches();
+  return NextResponse.json({ recent }, { headers: CORS_HEADERS });
 }
 
 export function OPTIONS() {
