@@ -1,12 +1,13 @@
 import { Sfx } from '../audio/Sfx';
 import { Coin } from '../entities/Coin';
 import { Enemy } from '../entities/Enemy';
+import { MovingPlatform } from '../entities/MovingPlatform';
 import { Player } from '../entities/Player';
 import { DEFAULT_BINDINGS, Input } from '../input/Input';
-import { LEVEL_1 } from '../level/level1';
+import { LEVELS } from '../level/levels';
 import { TileMap } from '../level/TileMap';
 import { overlaps, type Rect } from '../physics/aabb';
-import { moveAndCollide } from '../physics/collision';
+import { moveAndCollide, resolveAgainstBox } from '../physics/collision';
 import { Camera } from './Camera';
 import {
   CANVAS_HEIGHT,
@@ -30,35 +31,52 @@ const CLOUDS = [
 /**
  * Owns the game state and the update/render split.
  *
- * Milestone 8 scope: a complete play loop — run to the goal flag to win, fall in
- * the pit or touch an enemy to die, press jump to restart. Render never mutates
- * state; update never touches the canvas.
+ * Runs a sequence of levels: reach the goal to advance, clear the last level to
+ * win, fall in a pit or touch an enemy to die. Render never mutates state; update
+ * never touches the canvas.
  */
 export class Game {
   private readonly input = new Input(DEFAULT_BINDINGS);
   private readonly sfx = new Sfx();
-  private readonly map = new TileMap(LEVEL_1);
   private readonly camera = new Camera(CANVAS_WIDTH, CANVAS_HEIGHT);
-  private readonly player: Player;
-  private readonly spawn: { x: number; y: number };
-  private readonly goalRect: Rect | null;
-  private readonly totalCoins: number;
+  private readonly player = new Player(0, 0);
 
-  private coins: Coin[];
-  private enemies: Enemy[];
+  private map!: TileMap;
+  private spawn = { x: 0, y: 0 };
+  private goalRect: Rect | null = null;
+  private coins: Coin[] = [];
+  private enemies: Enemy[] = [];
+  private platforms: MovingPlatform[] = [];
+  private riding: MovingPlatform | null = null;
+
+  private currentLevel = 0;
   private coinCount = 0;
   private state: GameState = 'title';
   private prevJump = false;
 
   constructor() {
     this.input.attach();
-    // Spawn so the player's feet sit on the bottom of the start tile.
-    const start = this.map.playerStart;
-    this.spawn = { x: start.x, y: start.y + TILE_SIZE - PLAYER_H };
-    this.player = new Player(this.spawn.x, this.spawn.y);
+    this.loadLevel(0);
+  }
+
+  /** Builds all per-level state from `LEVELS[index]` and repositions the player. */
+  private loadLevel(index: number) {
+    this.currentLevel = index;
+    const data = LEVELS[index];
+    if (!data) return;
+
+    this.map = new TileMap(data.layout);
+    const s = this.map.playerStart;
+    this.spawn = { x: s.x, y: s.y + TILE_SIZE - PLAYER_H };
+    this.player.x = this.spawn.x;
+    this.player.y = this.spawn.y;
+    this.player.vx = 0;
+    this.player.vy = 0;
+
     this.coins = this.map.coinSpawns.map((c) => new Coin(c.x, c.y));
     this.enemies = this.map.enemySpawns.map((e) => new Enemy(e.x, e.y));
-    this.totalCoins = this.coins.length;
+    this.platforms = data.platforms.map((p) => new MovingPlatform(p));
+    this.riding = null;
     this.goalRect = this.map.goal
       ? { x: this.map.goal.x, y: this.map.goal.y - TILE_SIZE, w: TILE_SIZE, h: TILE_SIZE * 2 }
       : null;
@@ -73,14 +91,28 @@ export class Game {
     this.prevJump = this.input.isDown('jump');
   }
 
-  private justPressedJump(): boolean {
-    return this.input.isDown('jump') && !this.prevJump;
-  }
-
   private updatePlaying(dt: number) {
+    for (const platform of this.platforms) platform.update(dt);
+
+    // Carry the player along with the platform they were riding last frame.
+    if (this.riding) {
+      this.player.x += this.riding.dx;
+      this.player.y += this.riding.dy;
+    }
+
     this.player.update(dt, this.input);
     if (this.player.justJumped) this.sfx.jump();
     moveAndCollide(this.player, this.map, dt);
+
+    // Resolve against moving platforms; remember any we're standing on.
+    this.riding = null;
+    for (const platform of this.platforms) {
+      if (resolveAgainstBox(this.player, platform) === 'top') {
+        this.player.onGround = true;
+        this.riding = platform;
+      }
+    }
+
     this.camera.follow(this.player, this.map.pixelWidth, this.map.pixelHeight);
 
     for (const coin of this.coins) {
@@ -96,7 +128,6 @@ export class Game {
       enemy.update(dt, this.map);
       if (!enemy.alive || !overlaps(this.player, enemy)) continue;
 
-      // Stomp: falling onto the enemy's upper half kills it and bounces you.
       const stomped =
         this.player.vy > 0 && this.player.y + this.player.h - enemy.y < enemy.h * 0.6;
       if (stomped) {
@@ -109,14 +140,20 @@ export class Game {
       }
     }
 
-    // Fell into the pit / off the bottom of the world.
     if (this.player.y > this.map.pixelHeight) {
       this.die();
       return;
     }
 
-    // Reached the goal.
     if (this.goalRect && overlaps(this.player, this.goalRect)) {
+      this.reachGoal();
+    }
+  }
+
+  private reachGoal() {
+    if (this.currentLevel + 1 < LEVELS.length) {
+      this.loadLevel(this.currentLevel + 1);
+    } else {
       this.state = 'won';
       this.sfx.win();
     }
@@ -127,14 +164,14 @@ export class Game {
     this.sfx.die();
   }
 
+  private justPressedJump(): boolean {
+    return this.input.isDown('jump') && !this.prevJump;
+  }
+
+  /** Starts a fresh run from the first level. */
   private restart() {
-    this.player.x = this.spawn.x;
-    this.player.y = this.spawn.y;
-    this.player.vx = 0;
-    this.player.vy = 0;
-    this.coins = this.map.coinSpawns.map((c) => new Coin(c.x, c.y));
-    this.enemies = this.map.enemySpawns.map((e) => new Enemy(e.x, e.y));
     this.coinCount = 0;
+    this.loadLevel(0);
     this.state = 'playing';
   }
 
@@ -145,6 +182,7 @@ export class Game {
     ctx.translate(-Math.round(this.camera.x), -Math.round(this.camera.y));
     this.map.draw(ctx);
     this.drawGoal(ctx);
+    for (const platform of this.platforms) platform.draw(ctx);
     for (const coin of this.coins) coin.draw(ctx);
     for (const enemy of this.enemies) enemy.draw(ctx);
     this.player.draw(ctx);
@@ -161,11 +199,11 @@ export class Game {
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    // Clouds drift slower than the foreground (parallax) and wrap across the view.
     ctx.fillStyle = COLORS.cloud;
     const parallax = this.camera.x * 0.4;
+    const span = CANVAS_WIDTH + 80;
     for (const cloud of CLOUDS) {
-      const x = ((cloud.x - parallax) % (CANVAS_WIDTH + 80) + CANVAS_WIDTH + 80) % (CANVAS_WIDTH + 80) - 40;
+      const x = (((cloud.x - parallax) % span) + span) % span - 40;
       this.drawCloud(ctx, x, cloud.y);
     }
   }
@@ -186,8 +224,6 @@ export class Game {
 
     ctx.fillStyle = COLORS.pole;
     ctx.fillRect(poleX, top, 2, TILE_SIZE * 2);
-
-    // Triangular flag.
     ctx.fillStyle = COLORS.goal;
     ctx.beginPath();
     ctx.moveTo(poleX, top);
@@ -197,15 +233,17 @@ export class Game {
     ctx.fill();
   }
 
-  /** Coin counter — a gold pip plus the running tally. */
   private renderHud(ctx: CanvasRenderingContext2D) {
     ctx.fillStyle = COLORS.coin;
     ctx.fillRect(10, 10, 10, 10);
     ctx.fillStyle = COLORS.text;
     ctx.font = '12px monospace';
-    ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
+    ctx.textAlign = 'left';
     ctx.fillText(`x ${this.coinCount}`, 26, 10);
+
+    ctx.textAlign = 'right';
+    ctx.fillText(`LV ${this.currentLevel + 1}/${LEVELS.length}`, CANVAS_WIDTH - 10, 10);
   }
 
   private renderOverlay(ctx: CanvasRenderingContext2D) {
@@ -233,7 +271,7 @@ export class Game {
 
     ctx.font = '11px monospace';
     if (this.state === 'won') {
-      ctx.fillText(`Coins: ${this.coinCount}/${this.totalCoins}`, cx, cy + 8);
+      ctx.fillText(`Coins collected: ${this.coinCount}`, cx, cy + 8);
     }
     ctx.fillText('Press Jump (Space) to play again', cx, cy + 24);
   }

@@ -8,6 +8,10 @@ export const TILE_SIZE = 16;
 /** Player hitbox size in pixels. Taller than one tile, one tile wide. */
 export const PLAYER_W = 16;
 export const PLAYER_H = 24;
+/** Player hitbox height when powered up (grown). */
+export const PLAYER_H_BIG = 32;
+/** Invincibility window (seconds) after taking a hit while powered. */
+export const HURT_INVULN = 1.5;
 
 /** Fixed simulation step: the physics loop always advances in 1/60s slices. */
 export const FIXED_DT = 1 / 60;
@@ -60,6 +64,11 @@ export const COLORS = {
   coinShine: '#fff3a0',
   enemy: '#7a4b2b',
   enemyFoot: '#4e2f18',
+  platform: '#d98a3d',
+  platformEdge: '#b06a25',
+  mushroomCap: '#e53125',
+  mushroomSpot: '#ffffff',
+  mushroomStem: '#ffe0b0',
   eye: '#ffffff',
   pupil: '#1a1a1a',
   goal: '#2ecc40',

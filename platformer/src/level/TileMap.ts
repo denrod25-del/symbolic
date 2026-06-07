@@ -15,6 +15,8 @@ export class TileMap {
   readonly coinSpawns: ReadonlyArray<{ x: number; y: number }>;
   /** Top-left pixel of each enemy tile, for spawning Enemy entities. */
   readonly enemySpawns: ReadonlyArray<{ x: number; y: number }>;
+  /** Top-left pixel of each mushroom tile, for spawning power-ups. */
+  readonly mushroomSpawns: ReadonlyArray<{ x: number; y: number }>;
   /** Top-left pixel of the goal tile, or null if the level has no goal. */
   readonly goal: { x: number; y: number } | null;
   private readonly tiles: Tile[];
@@ -33,6 +35,7 @@ export class TileMap {
     let goal: { x: number; y: number } | null = null;
     const coins: { x: number; y: number }[] = [];
     const enemies: { x: number; y: number }[] = [];
+    const mushrooms: { x: number; y: number }[] = [];
     layout.forEach((line, row) => {
       for (let col = 0; col < this.cols; col++) {
         const ch = line[col];
@@ -46,6 +49,8 @@ export class TileMap {
           coins.push({ x, y });
         } else if (ch === 'E') {
           enemies.push({ x, y });
+        } else if (ch === 'M') {
+          mushrooms.push({ x, y });
         } else if (ch === 'G') {
           goal = { x, y };
         }
@@ -54,6 +59,7 @@ export class TileMap {
     this.playerStart = start;
     this.coinSpawns = coins;
     this.enemySpawns = enemies;
+    this.mushroomSpawns = mushrooms;
     this.goal = goal;
   }
 

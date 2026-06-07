@@ -1,5 +1,6 @@
 import { TILE_SIZE } from '../core/constants';
 import type { TileMap } from '../level/TileMap';
+import { overlaps, type Rect } from './aabb';
 
 /** An axis-aligned box that moves through the world with a velocity. */
 export type Body = {
@@ -11,6 +12,38 @@ export type Body = {
   vy: number;
   onGround: boolean;
 };
+
+/**
+ * Pushes a body out of a solid box along the axis of least penetration (minimal
+ * translation vector) and zeroes the relevant velocity. Returns which side of
+ * the box the body ended up on, or null if they weren't overlapping. Used for
+ * moving platforms, where the solid isn't part of the tile grid.
+ */
+export function resolveAgainstBox(body: Body, box: Rect): 'top' | 'bottom' | 'side' | null {
+  if (!overlaps(body, box)) return null;
+
+  const fromLeft = body.x + body.w - box.x;
+  const fromRight = box.x + box.w - body.x;
+  const fromTop = body.y + body.h - box.y;
+  const fromBottom = box.y + box.h - body.y;
+
+  const minX = Math.min(fromLeft, fromRight);
+  const minY = Math.min(fromTop, fromBottom);
+
+  if (minX < minY) {
+    body.x += fromLeft < fromRight ? -fromLeft : fromRight;
+    body.vx = 0;
+    return 'side';
+  }
+  if (fromTop < fromBottom) {
+    body.y -= fromTop;
+    body.vy = 0;
+    return 'top';
+  }
+  body.y += fromBottom;
+  body.vy = 0;
+  return 'bottom';
+}
 
 /**
  * Moves a body through the tilemap one axis at a time, resolving overlaps with
