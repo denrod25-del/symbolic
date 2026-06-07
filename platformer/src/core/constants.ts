@@ -44,12 +44,26 @@ export const ENEMY_SPEED = 40; // patrol speed, px/s
 export const STOMP_BOUNCE = 250; // upward speed given to the player on a stomp, px/s
 
 export const COLORS = {
+  skyTop: '#7ec0ff',
+  skyBottom: '#5c94fc',
   sky: '#5c94fc',
+  cloud: 'rgba(255, 255, 255, 0.9)',
+  grass: '#5bbf3a',
+  grassDark: '#3f9e27',
+  dirt: '#9c5a3c',
+  dirtDark: '#7c4326',
   ground: '#9c5a3c',
   player: '#e52521',
+  playerSkin: '#ffcc99',
+  playerOveralls: '#2b59c3',
   coin: '#fbd000',
+  coinShine: '#fff3a0',
   enemy: '#7a4b2b',
+  enemyFoot: '#4e2f18',
+  eye: '#ffffff',
+  pupil: '#1a1a1a',
   goal: '#2ecc40',
+  pole: '#cccccc',
   overlay: 'rgba(0, 0, 0, 0.55)',
   text: '#ffffff',
 } as const;

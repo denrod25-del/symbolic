@@ -71,17 +71,27 @@ export class TileMap {
     return this.tiles[row * this.cols + col] === 'solid';
   }
 
-  draw(ctx: CanvasRenderingContext2D, cameraX = 0, cameraY = 0) {
-    ctx.fillStyle = COLORS.ground;
+  draw(ctx: CanvasRenderingContext2D) {
     for (let row = 0; row < this.rows; row++) {
       for (let col = 0; col < this.cols; col++) {
-        if (this.tiles[row * this.cols + col] === 'solid') {
-          ctx.fillRect(
-            col * TILE_SIZE - cameraX,
-            row * TILE_SIZE - cameraY,
-            TILE_SIZE,
-            TILE_SIZE,
-          );
+        if (this.tiles[row * this.cols + col] !== 'solid') continue;
+        const x = col * TILE_SIZE;
+        const y = row * TILE_SIZE;
+        const exposed = !this.isSolid(col, row - 1); // grass only on exposed tops
+
+        ctx.fillStyle = COLORS.dirt;
+        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+
+        // Subtle dirt speckle so large fills aren't flat.
+        ctx.fillStyle = COLORS.dirtDark;
+        ctx.fillRect(x + 3, y + 8, 2, 2);
+        ctx.fillRect(x + 10, y + 11, 2, 2);
+
+        if (exposed) {
+          ctx.fillStyle = COLORS.grass;
+          ctx.fillRect(x, y, TILE_SIZE, 5);
+          ctx.fillStyle = COLORS.grassDark;
+          ctx.fillRect(x, y + 5, TILE_SIZE, 1);
         }
       }
     }

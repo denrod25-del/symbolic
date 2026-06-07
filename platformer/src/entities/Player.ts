@@ -42,6 +42,10 @@ export class Player {
   vx = 0;
   vy = 0;
   onGround = false;
+  /** Last horizontal facing, for drawing. 1 = right, -1 = left. */
+  facing: 1 | -1 = 1;
+  /** Set true on the frame a jump fires, for the Game to play a sound. */
+  justJumped = false;
 
   /** Previous-frame jump key state, for edge detection. */
   private jumpHeld = false;
@@ -56,11 +60,15 @@ export class Player {
   }
 
   update(dt: number, input: Input) {
+    this.justJumped = false;
     this.updateHorizontal(dt, input);
     this.updateJump(dt, input);
 
     // Gravity, capped at terminal velocity.
     this.vy = Math.min(this.vy + GRAVITY * dt, MAX_FALL_SPEED);
+
+    if (this.vx > 5) this.facing = 1;
+    else if (this.vx < -5) this.facing = -1;
   }
 
   private updateHorizontal(dt: number, input: Input) {
@@ -92,6 +100,7 @@ export class Player {
       this.vy = -JUMP_SPEED;
       this.jumpBufferTimer = 0;
       this.coyoteTimer = 0; // consume so we can't jump twice off one window
+      this.justJumped = true;
     }
 
     // Variable height: releasing the key mid-rise cuts the upward velocity.
@@ -103,7 +112,32 @@ export class Player {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
+    const x = Math.round(this.x);
+    const y = Math.round(this.y);
+    const { w } = this;
+
+    // Cap + hair band.
     ctx.fillStyle = COLORS.player;
-    ctx.fillRect(Math.round(this.x), Math.round(this.y), this.w, this.h);
+    ctx.fillRect(x, y, w, 5);
+    ctx.fillRect(x + (this.facing === 1 ? w - 4 : 0), y + 3, 4, 2); // brim
+
+    // Face.
+    ctx.fillStyle = COLORS.playerSkin;
+    ctx.fillRect(x + 2, y + 5, w - 4, 6);
+
+    // Eye, on the facing side.
+    ctx.fillStyle = COLORS.pupil;
+    ctx.fillRect(x + (this.facing === 1 ? w - 5 : 3), y + 7, 2, 3);
+
+    // Shirt.
+    ctx.fillStyle = COLORS.player;
+    ctx.fillRect(x, y + 11, w, 4);
+
+    // Overalls + legs.
+    ctx.fillStyle = COLORS.playerOveralls;
+    ctx.fillRect(x + 1, y + 15, w - 2, this.h - 15);
+    ctx.fillStyle = COLORS.pupil;
+    ctx.fillRect(x + 2, y + this.h - 2, 4, 2);
+    ctx.fillRect(x + w - 6, y + this.h - 2, 4, 2);
   }
 }

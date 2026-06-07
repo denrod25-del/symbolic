@@ -29,7 +29,25 @@ export class Coin {
   draw(ctx: CanvasRenderingContext2D) {
     if (this.collected) return;
     const bobOffset = Math.sin(this.bob * 4) * 2;
+    const cx = this.x + this.w / 2;
+    const cy = this.y + this.h / 2 + bobOffset;
+    const r = this.w / 2;
+
+    // Horizontal "spin" — squash the width on a slow cycle.
+    const squash = Math.abs(Math.cos(this.bob * 2));
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(Math.max(0.25, squash), 1);
+
     ctx.fillStyle = COLORS.coin;
-    ctx.fillRect(Math.round(this.x), Math.round(this.y + bobOffset), this.w, this.h);
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = COLORS.coinShine;
+    ctx.beginPath();
+    ctx.arc(-r * 0.25, -r * 0.25, r * 0.35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
 }

@@ -1,3 +1,4 @@
+import { Sfx } from '../audio/Sfx';
 import { Coin } from '../entities/Coin';
 import { Enemy } from '../entities/Enemy';
 import { Player } from '../entities/Player';
@@ -16,7 +17,15 @@ import {
   TILE_SIZE,
 } from './constants';
 
-type GameState = 'playing' | 'won' | 'dead';
+type GameState = 'title' | 'playing' | 'won' | 'dead';
+
+/** Background clouds at fixed world positions, drawn with parallax. */
+const CLOUDS = [
+  { x: 60, y: 40 },
+  { x: 260, y: 70 },
+  { x: 460, y: 30 },
+  { x: 640, y: 80 },
+] as const;
 
 /**
  * Owns the game state and the update/render split.
@@ -27,6 +36,7 @@ type GameState = 'playing' | 'won' | 'dead';
  */
 export class Game {
   private readonly input = new Input(DEFAULT_BINDINGS);
+  private readonly sfx = new Sfx();
   private readonly map = new TileMap(LEVEL_1);
   private readonly camera = new Camera(CANVAS_WIDTH, CANVAS_HEIGHT);
   private readonly player: Player;
@@ -37,7 +47,7 @@ export class Game {
   private coins: Coin[];
   private enemies: Enemy[];
   private coinCount = 0;
-  private state: GameState = 'playing';
+  private state: GameState = 'title';
   private prevJump = false;
 
   constructor() {
@@ -63,8 +73,13 @@ export class Game {
     this.prevJump = this.input.isDown('jump');
   }
 
+  private justPressedJump(): boolean {
+    return this.input.isDown('jump') && !this.prevJump;
+  }
+
   private updatePlaying(dt: number) {
     this.player.update(dt, this.input);
+    if (this.player.justJumped) this.sfx.jump();
     moveAndCollide(this.player, this.map, dt);
     this.camera.follow(this.player, this.map.pixelWidth, this.map.pixelHeight);
 
@@ -73,6 +88,7 @@ export class Game {
       if (!coin.collected && overlaps(this.player, coin)) {
         coin.collected = true;
         this.coinCount += 1;
+        this.sfx.coin();
       }
     }
 
@@ -86,27 +102,29 @@ export class Game {
       if (stomped) {
         enemy.alive = false;
         this.player.vy = -STOMP_BOUNCE;
+        this.sfx.stomp();
       } else {
-        this.state = 'dead';
+        this.die();
         return;
       }
     }
 
     // Fell into the pit / off the bottom of the world.
     if (this.player.y > this.map.pixelHeight) {
-      this.state = 'dead';
+      this.die();
       return;
     }
 
     // Reached the goal.
     if (this.goalRect && overlaps(this.player, this.goalRect)) {
       this.state = 'won';
+      this.sfx.win();
     }
   }
 
-  /** Rising edge of the jump key, used to dismiss the win/lose screen. */
-  private justPressedJump(): boolean {
-    return this.input.isDown('jump') && !this.prevJump;
+  private die() {
+    this.state = 'dead';
+    this.sfx.die();
   }
 
   private restart() {
@@ -121,8 +139,7 @@ export class Game {
   }
 
   render(ctx: CanvasRenderingContext2D) {
-    ctx.fillStyle = COLORS.sky;
-    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    this.drawBackground(ctx);
 
     ctx.save();
     ctx.translate(-Math.round(this.camera.x), -Math.round(this.camera.y));
@@ -137,14 +154,47 @@ export class Game {
     if (this.state !== 'playing') this.renderOverlay(ctx);
   }
 
+  private drawBackground(ctx: CanvasRenderingContext2D) {
+    const sky = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT);
+    sky.addColorStop(0, COLORS.skyTop);
+    sky.addColorStop(1, COLORS.skyBottom);
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // Clouds drift slower than the foreground (parallax) and wrap across the view.
+    ctx.fillStyle = COLORS.cloud;
+    const parallax = this.camera.x * 0.4;
+    for (const cloud of CLOUDS) {
+      const x = ((cloud.x - parallax) % (CANVAS_WIDTH + 80) + CANVAS_WIDTH + 80) % (CANVAS_WIDTH + 80) - 40;
+      this.drawCloud(ctx, x, cloud.y);
+    }
+  }
+
+  private drawCloud(ctx: CanvasRenderingContext2D, x: number, y: number) {
+    ctx.beginPath();
+    ctx.arc(x, y, 10, 0, Math.PI * 2);
+    ctx.arc(x + 12, y + 2, 13, 0, Math.PI * 2);
+    ctx.arc(x + 26, y, 10, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
   private drawGoal(ctx: CanvasRenderingContext2D) {
     const goal = this.map.goal;
     if (!goal) return;
-    // Pole from one tile above the goal down to the ground, with a flag on top.
-    ctx.fillStyle = '#cccccc';
-    ctx.fillRect(goal.x + 7, goal.y - TILE_SIZE, 2, TILE_SIZE * 2);
+    const poleX = goal.x + 7;
+    const top = goal.y - TILE_SIZE;
+
+    ctx.fillStyle = COLORS.pole;
+    ctx.fillRect(poleX, top, 2, TILE_SIZE * 2);
+
+    // Triangular flag.
     ctx.fillStyle = COLORS.goal;
-    ctx.fillRect(goal.x + 9, goal.y - TILE_SIZE, 10, 7);
+    ctx.beginPath();
+    ctx.moveTo(poleX, top);
+    ctx.lineTo(poleX + 14, top + 4);
+    ctx.lineTo(poleX, top + 8);
+    ctx.closePath();
+    ctx.fill();
   }
 
   /** Coin counter — a gold pip plus the running tally. */
@@ -163,17 +213,28 @@ export class Game {
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
     const cx = CANVAS_WIDTH / 2;
+    const cy = CANVAS_HEIGHT / 2;
     ctx.fillStyle = COLORS.text;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
+    if (this.state === 'title') {
+      ctx.font = 'bold 26px monospace';
+      ctx.fillText('PLATFORMER', cx, cy - 24);
+      ctx.font = '11px monospace';
+      ctx.fillText('Arrows / WASD to move  -  Space to jump', cx, cy + 4);
+      ctx.fillText('Stomp enemies, grab coins, reach the flag', cx, cy + 20);
+      ctx.fillText('Press Space to start', cx, cy + 40);
+      return;
+    }
+
     ctx.font = 'bold 24px monospace';
-    ctx.fillText(this.state === 'won' ? 'YOU WIN!' : 'GAME OVER', cx, CANVAS_HEIGHT / 2 - 16);
+    ctx.fillText(this.state === 'won' ? 'YOU WIN!' : 'GAME OVER', cx, cy - 16);
 
     ctx.font = '11px monospace';
     if (this.state === 'won') {
-      ctx.fillText(`Coins: ${this.coinCount}/${this.totalCoins}`, cx, CANVAS_HEIGHT / 2 + 8);
+      ctx.fillText(`Coins: ${this.coinCount}/${this.totalCoins}`, cx, cy + 8);
     }
-    ctx.fillText('Press Jump (Space) to play again', cx, CANVAS_HEIGHT / 2 + 24);
+    ctx.fillText('Press Jump (Space) to play again', cx, cy + 24);
   }
 }

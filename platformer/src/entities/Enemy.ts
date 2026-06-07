@@ -56,7 +56,27 @@ export class Enemy {
 
   draw(ctx: CanvasRenderingContext2D) {
     if (!this.alive) return;
+    const x = Math.round(this.x);
+    const y = Math.round(this.y);
+    const { w, h } = this;
+
+    // Body (rounded-ish: trim the top corners).
     ctx.fillStyle = COLORS.enemy;
-    ctx.fillRect(Math.round(this.x), Math.round(this.y), this.w, this.h);
+    ctx.fillRect(x + 1, y, w - 2, h - 3);
+    ctx.fillRect(x, y + 2, w, h - 5);
+
+    // Feet.
+    ctx.fillStyle = COLORS.enemyFoot;
+    ctx.fillRect(x + 1, y + h - 3, 5, 3);
+    ctx.fillRect(x + w - 6, y + h - 3, 5, 3);
+
+    // Eyes looking the way it walks.
+    const eyeX = this.dir === 1 ? 1 : 0;
+    ctx.fillStyle = COLORS.eye;
+    ctx.fillRect(x + 3, y + 5, 4, 4);
+    ctx.fillRect(x + w - 7, y + 5, 4, 4);
+    ctx.fillStyle = COLORS.pupil;
+    ctx.fillRect(x + 4 + eyeX, y + 6, 2, 2);
+    ctx.fillRect(x + w - 6 + eyeX, y + 6, 2, 2);
   }
 }

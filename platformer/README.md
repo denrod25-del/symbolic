@@ -17,6 +17,18 @@ npm run build    # type-check + static build into dist/
 npm run preview  # serve the production build locally
 ```
 
+## Deploy
+
+A GitHub Actions workflow (`.github/workflows/deploy-platformer.yml`) builds this
+folder and publishes it to GitHub Pages. To turn it on:
+
+1. Repo **Settings -> Pages -> Source: GitHub Actions**.
+2. Push to `main` (or run the workflow manually via **Actions -> Deploy
+   platformer to GitHub Pages -> Run workflow**).
+
+The site lands at `https://<user>.github.io/<repo>/`. The Vite `base` is relative,
+so it works under that subpath without extra config.
+
 ## Tech & design decisions
 
 - **Raw HTML5 Canvas + TypeScript**, bundled with **Vite**. No game framework —
@@ -25,8 +37,9 @@ npm run preview  # serve the production build locally
   feel is frame-rate independent.
 - **Strict logic/render split**: `update(dt)` mutates state, `render(ctx)` only
   draws. This keeps the planned sprite skin a drop-in change.
-- **Rectangles first, art last**: everything is colored boxes until the final
-  polish pass swaps in a [Kenney](https://kenney.nl) CC0 pixel pack.
+- **Rectangles first, art last**: built entirely on colored boxes, then the
+  polish pass replaced them with procedural code-drawn sprites (no asset files).
+  The clean logic/render split made this a draw-method-only change.
 - **Tile-based level**: a string-art grid with tile-based AABB collision
   (arrives in milestone 3).
 - **Simple OOP** (`Game` owns the loop, map, camera, and entities) — no ECS.
@@ -49,7 +62,7 @@ gamepad. Sound is a stretch goal.
 - [x] **6. Coins + HUD** — collect coins, on-screen counter
 - [x] **7. Enemy + combat** — patrolling enemy, stomp to kill, side-contact death
 - [x] **8. Win/lose loop** — goal flag wins, pit/enemy death, press-jump to restart
-- [ ] **9. Polish** — Kenney skin, title/win/lose screens, sound (if time), deploy
+- [x] **9. Polish** — procedural sprites, title/win/lose screens, synth sound, GitHub Pages deploy
 
 ## Controls (from milestone 2)
 
