@@ -39,10 +39,15 @@ export const COYOTE_TIME = 0.1;
 /** Window (seconds) before landing in which a jump press is remembered. */
 export const JUMP_BUFFER_TIME = 0.1;
 
+/** Enemy tuning. */
+export const ENEMY_SPEED = 40; // patrol speed, px/s
+export const STOMP_BOUNCE = 250; // upward speed given to the player on a stomp, px/s
+
 export const COLORS = {
   sky: '#5c94fc',
   ground: '#9c5a3c',
   player: '#e52521',
   coin: '#fbd000',
+  enemy: '#7a4b2b',
   text: '#ffffff',
 } as const;
