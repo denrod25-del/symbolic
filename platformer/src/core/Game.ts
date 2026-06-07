@@ -3,6 +3,7 @@ import { DEFAULT_BINDINGS, Input } from '../input/Input';
 import { LEVEL_1 } from '../level/level1';
 import { TileMap } from '../level/TileMap';
 import { moveAndCollide } from '../physics/collision';
+import { Camera } from './Camera';
 import { CANVAS_HEIGHT, CANVAS_WIDTH, COLORS, PLAYER_H, TILE_SIZE } from './constants';
 
 /**
@@ -16,6 +17,7 @@ export class Game {
   private ticks = 0;
   private readonly input = new Input(DEFAULT_BINDINGS);
   private readonly map = new TileMap(LEVEL_1);
+  private readonly camera = new Camera(CANVAS_WIDTH, CANVAS_HEIGHT);
   private readonly player: Player;
 
   constructor() {
@@ -31,14 +33,22 @@ export class Game {
 
     this.player.update(dt, this.input);
     moveAndCollide(this.player, this.map, dt);
+    this.camera.follow(this.player, this.map.pixelWidth, this.map.pixelHeight);
   }
 
   render(ctx: CanvasRenderingContext2D) {
     ctx.fillStyle = COLORS.sky;
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+    // World space: shift everything by the camera offset (rounded to whole
+    // pixels to avoid tile seams / jitter), then draw the level and entities.
+    ctx.save();
+    ctx.translate(-Math.round(this.camera.x), -Math.round(this.camera.y));
     this.map.draw(ctx);
     this.player.draw(ctx);
+    ctx.restore();
+
+    // Screen space: the HUD stays put.
     this.renderDebug(ctx);
   }
 
