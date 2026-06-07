@@ -2,9 +2,11 @@ import {
   AIR_ACCEL,
   AIR_FRICTION,
   COLORS,
+  COYOTE_TIME,
   GRAVITY,
   GROUND_ACCEL,
   GROUND_FRICTION,
+  JUMP_BUFFER_TIME,
   JUMP_CUT_MULTIPLIER,
   JUMP_SPEED,
   MAX_FALL_SPEED,
@@ -24,9 +26,9 @@ function approach(current: number, target: number, maxDelta: number): number {
 /**
  * The player character.
  *
- * Milestone 5 stage B: horizontal acceleration & friction (ramp up, slide to a
- * stop, weaker air control) and a variable-height jump (release early to cut the
- * hop short). Stage C — coyote time & jump buffering — is still to come.
+ * Milestone 5 stages B & C: horizontal acceleration & friction (ramp up, slide
+ * to a stop, weaker air control), a variable-height jump (release early to cut
+ * the hop short), plus coyote time and jump buffering for forgiving controls.
  *
  * `update` only sets velocity. Position is integrated by `moveAndCollide`, which
  * also sets `onGround` — so `onGround` reflects the previous frame's collision,
@@ -43,6 +45,10 @@ export class Player {
 
   /** Previous-frame jump key state, for edge detection. */
   private jumpHeld = false;
+  /** Seconds of remaining grace to jump after leaving the ground. */
+  private coyoteTimer = 0;
+  /** Seconds remaining on a remembered jump press. */
+  private jumpBufferTimer = 0;
 
   constructor(x: number, y: number) {
     this.x = x;
@@ -51,7 +57,7 @@ export class Player {
 
   update(dt: number, input: Input) {
     this.updateHorizontal(dt, input);
-    this.updateJump(input);
+    this.updateJump(dt, input);
 
     // Gravity, capped at terminal velocity.
     this.vy = Math.min(this.vy + GRAVITY * dt, MAX_FALL_SPEED);
@@ -69,12 +75,23 @@ export class Player {
     }
   }
 
-  private updateJump(input: Input) {
-    const jump = input.isDown('jump');
+  private updateJump(dt: number, input: Input) {
+    // Coyote time: refilled while grounded, counts down once airborne.
+    this.coyoteTimer = this.onGround ? COYOTE_TIME : Math.max(0, this.coyoteTimer - dt);
 
-    // Jump on the rising edge of the key, only when grounded.
-    if (jump && !this.jumpHeld && this.onGround) {
+    // Jump buffer: a press is remembered for a short window.
+    const jump = input.isDown('jump');
+    if (jump && !this.jumpHeld) {
+      this.jumpBufferTimer = JUMP_BUFFER_TIME;
+    } else {
+      this.jumpBufferTimer = Math.max(0, this.jumpBufferTimer - dt);
+    }
+
+    // Fire when a buffered press meets an available (real or coyote) ground.
+    if (this.jumpBufferTimer > 0 && this.coyoteTimer > 0) {
       this.vy = -JUMP_SPEED;
+      this.jumpBufferTimer = 0;
+      this.coyoteTimer = 0; // consume so we can't jump twice off one window
     }
 
     // Variable height: releasing the key mid-rise cuts the upward velocity.

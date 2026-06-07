@@ -34,6 +34,10 @@ export const JUMP_SPEED = 330; // initial upward speed on jump, px/s (~60px / ~3
 export const MAX_FALL_SPEED = 420; // terminal velocity, px/s
 /** On releasing jump while still rising, cut upward velocity to this fraction. */
 export const JUMP_CUT_MULTIPLIER = 0.45;
+/** Grace window (seconds) to still jump just after walking off a ledge. */
+export const COYOTE_TIME = 0.1;
+/** Window (seconds) before landing in which a jump press is remembered. */
+export const JUMP_BUFFER_TIME = 0.1;
 
 export const COLORS = {
   sky: '#5c94fc',
