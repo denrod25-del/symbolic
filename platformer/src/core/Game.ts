@@ -2,6 +2,7 @@ import { Sfx } from '../audio/Sfx';
 import { Coin } from '../entities/Coin';
 import { Enemy } from '../entities/Enemy';
 import { MovingPlatform } from '../entities/MovingPlatform';
+import { Mushroom } from '../entities/Mushroom';
 import { Player } from '../entities/Player';
 import { DEFAULT_BINDINGS, Input } from '../input/Input';
 import { LEVELS } from '../level/levels';
@@ -9,14 +10,7 @@ import { TileMap } from '../level/TileMap';
 import { overlaps, type Rect } from '../physics/aabb';
 import { moveAndCollide, resolveAgainstBox } from '../physics/collision';
 import { Camera } from './Camera';
-import {
-  CANVAS_HEIGHT,
-  CANVAS_WIDTH,
-  COLORS,
-  PLAYER_H,
-  STOMP_BOUNCE,
-  TILE_SIZE,
-} from './constants';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, COLORS, STOMP_BOUNCE, TILE_SIZE } from './constants';
 
 type GameState = 'title' | 'playing' | 'won' | 'dead';
 
@@ -46,6 +40,7 @@ export class Game {
   private goalRect: Rect | null = null;
   private coins: Coin[] = [];
   private enemies: Enemy[] = [];
+  private mushrooms: Mushroom[] = [];
   private platforms: MovingPlatform[] = [];
   private riding: MovingPlatform | null = null;
 
@@ -67,7 +62,9 @@ export class Game {
 
     this.map = new TileMap(data.layout);
     const s = this.map.playerStart;
-    this.spawn = { x: s.x, y: s.y + TILE_SIZE - PLAYER_H };
+    // Place feet on the start tile; uses the current height so a powered player
+    // carried into the next level still lands correctly.
+    this.spawn = { x: s.x, y: s.y + TILE_SIZE - this.player.h };
     this.player.x = this.spawn.x;
     this.player.y = this.spawn.y;
     this.player.vx = 0;
@@ -75,6 +72,7 @@ export class Game {
 
     this.coins = this.map.coinSpawns.map((c) => new Coin(c.x, c.y));
     this.enemies = this.map.enemySpawns.map((e) => new Enemy(e.x, e.y));
+    this.mushrooms = this.map.mushroomSpawns.map((m) => new Mushroom(m.x, m.y));
     this.platforms = data.platforms.map((p) => new MovingPlatform(p));
     this.riding = null;
     this.goalRect = this.map.goal
@@ -124,6 +122,15 @@ export class Game {
       }
     }
 
+    for (const mushroom of this.mushrooms) {
+      mushroom.update(dt);
+      if (!mushroom.collected && overlaps(this.player, mushroom)) {
+        mushroom.collected = true;
+        this.player.grow();
+        this.sfx.powerup();
+      }
+    }
+
     for (const enemy of this.enemies) {
       enemy.update(dt, this.map);
       if (!enemy.alive || !overlaps(this.player, enemy)) continue;
@@ -135,8 +142,13 @@ export class Game {
         this.player.vy = -STOMP_BOUNCE;
         this.sfx.stomp();
       } else {
-        this.die();
-        return;
+        // Powered players shrink (with brief invincibility) instead of dying.
+        const result = this.player.hit();
+        if (result === 'died') {
+          this.die();
+          return;
+        }
+        if (result === 'shrank') this.sfx.hurt();
       }
     }
 
@@ -171,6 +183,7 @@ export class Game {
   /** Starts a fresh run from the first level. */
   private restart() {
     this.coinCount = 0;
+    this.player.depower();
     this.loadLevel(0);
     this.state = 'playing';
   }
@@ -184,6 +197,7 @@ export class Game {
     this.drawGoal(ctx);
     for (const platform of this.platforms) platform.draw(ctx);
     for (const coin of this.coins) coin.draw(ctx);
+    for (const mushroom of this.mushrooms) mushroom.draw(ctx);
     for (const enemy of this.enemies) enemy.draw(ctx);
     this.player.draw(ctx);
     ctx.restore();

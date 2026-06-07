@@ -6,12 +6,14 @@ import {
   GRAVITY,
   GROUND_ACCEL,
   GROUND_FRICTION,
+  HURT_INVULN,
   JUMP_BUFFER_TIME,
   JUMP_CUT_MULTIPLIER,
   JUMP_SPEED,
   MAX_FALL_SPEED,
   MAX_RUN_SPEED,
   PLAYER_H,
+  PLAYER_H_BIG,
   PLAYER_W,
 } from '../core/constants';
 import type { Input } from '../input/Input';
@@ -23,35 +25,32 @@ function approach(current: number, target: number, maxDelta: number): number {
   return current;
 }
 
+/** Outcome of taking a hit from an enemy. */
+export type HitResult = 'died' | 'shrank' | 'invincible';
+
 /**
- * The player character.
+ * The player character: acceleration/friction, weaker air control, a
+ * variable-height jump, coyote time, jump buffering — and a mushroom power-up
+ * that makes the player big and grants a one-hit buffer.
  *
- * Milestone 5 stages B & C: horizontal acceleration & friction (ramp up, slide
- * to a stop, weaker air control), a variable-height jump (release early to cut
- * the hop short), plus coyote time and jump buffering for forgiving controls.
- *
- * `update` only sets velocity. Position is integrated by `moveAndCollide`, which
- * also sets `onGround` — so `onGround` reflects the previous frame's collision,
- * which is what the jump check wants.
+ * `update` only sets velocity; position is integrated by the collision step,
+ * which sets `onGround`. Height changes with the power state (`h` getter), so
+ * the collision system sees the right hitbox automatically.
  */
 export class Player {
   x: number;
   y: number;
   readonly w = PLAYER_W;
-  readonly h = PLAYER_H;
   vx = 0;
   vy = 0;
   onGround = false;
-  /** Last horizontal facing, for drawing. 1 = right, -1 = left. */
   facing: 1 | -1 = 1;
-  /** Set true on the frame a jump fires, for the Game to play a sound. */
   justJumped = false;
 
-  /** Previous-frame jump key state, for edge detection. */
+  private big = false;
+  private hurtTimer = 0; // > 0 means temporarily invincible after a hit
   private jumpHeld = false;
-  /** Seconds of remaining grace to jump after leaving the ground. */
   private coyoteTimer = 0;
-  /** Seconds remaining on a remembered jump press. */
   private jumpBufferTimer = 0;
 
   constructor(x: number, y: number) {
@@ -59,12 +58,45 @@ export class Player {
     this.y = y;
   }
 
+  get h() {
+    return this.big ? PLAYER_H_BIG : PLAYER_H;
+  }
+
+  get powered() {
+    return this.big;
+  }
+
+  /** Grows the player (mushroom pickup), keeping their feet planted. */
+  grow() {
+    if (this.big) return;
+    this.big = true;
+    this.y -= PLAYER_H_BIG - PLAYER_H;
+  }
+
+  /** Resets to the small, non-invincible state (used when starting a fresh run). */
+  depower() {
+    this.big = false;
+    this.hurtTimer = 0;
+  }
+
+  /** Applies an enemy hit: shrink if big, die if small, no-op while invincible. */
+  hit(): HitResult {
+    if (this.hurtTimer > 0) return 'invincible';
+    if (this.big) {
+      this.big = false;
+      this.y += PLAYER_H_BIG - PLAYER_H;
+      this.hurtTimer = HURT_INVULN;
+      return 'shrank';
+    }
+    return 'died';
+  }
+
   update(dt: number, input: Input) {
     this.justJumped = false;
+    this.hurtTimer = Math.max(0, this.hurtTimer - dt);
     this.updateHorizontal(dt, input);
     this.updateJump(dt, input);
 
-    // Gravity, capped at terminal velocity.
     this.vy = Math.min(this.vy + GRAVITY * dt, MAX_FALL_SPEED);
 
     if (this.vx > 5) this.facing = 1;
@@ -84,10 +116,8 @@ export class Player {
   }
 
   private updateJump(dt: number, input: Input) {
-    // Coyote time: refilled while grounded, counts down once airborne.
     this.coyoteTimer = this.onGround ? COYOTE_TIME : Math.max(0, this.coyoteTimer - dt);
 
-    // Jump buffer: a press is remembered for a short window.
     const jump = input.isDown('jump');
     if (jump && !this.jumpHeld) {
       this.jumpBufferTimer = JUMP_BUFFER_TIME;
@@ -95,15 +125,13 @@ export class Player {
       this.jumpBufferTimer = Math.max(0, this.jumpBufferTimer - dt);
     }
 
-    // Fire when a buffered press meets an available (real or coyote) ground.
     if (this.jumpBufferTimer > 0 && this.coyoteTimer > 0) {
       this.vy = -JUMP_SPEED;
       this.jumpBufferTimer = 0;
-      this.coyoteTimer = 0; // consume so we can't jump twice off one window
+      this.coyoteTimer = 0;
       this.justJumped = true;
     }
 
-    // Variable height: releasing the key mid-rise cuts the upward velocity.
     if (!jump && this.jumpHeld && this.vy < 0) {
       this.vy *= JUMP_CUT_MULTIPLIER;
     }
@@ -112,32 +140,36 @@ export class Player {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
+    // Blink while invincible after a hit.
+    if (this.hurtTimer > 0 && Math.floor(this.hurtTimer * 20) % 2 === 0) return;
+
     const x = Math.round(this.x);
     const y = Math.round(this.y);
-    const { w } = this;
+    const { w, h } = this;
+    const s = h / PLAYER_H; // vertical scale: 1 when small, taller when big
+    const at = (v: number) => y + Math.round(v * s);
+    const sz = (v: number) => Math.round(v * s);
 
-    // Cap + hair band.
+    // Cap + brim.
     ctx.fillStyle = COLORS.player;
-    ctx.fillRect(x, y, w, 5);
-    ctx.fillRect(x + (this.facing === 1 ? w - 4 : 0), y + 3, 4, 2); // brim
+    ctx.fillRect(x, y, w, sz(5));
+    ctx.fillRect(x + (this.facing === 1 ? w - 4 : 0), at(3), 4, sz(2));
 
-    // Face.
+    // Face + eye on the facing side.
     ctx.fillStyle = COLORS.playerSkin;
-    ctx.fillRect(x + 2, y + 5, w - 4, 6);
-
-    // Eye, on the facing side.
+    ctx.fillRect(x + 2, at(5), w - 4, sz(6));
     ctx.fillStyle = COLORS.pupil;
-    ctx.fillRect(x + (this.facing === 1 ? w - 5 : 3), y + 7, 2, 3);
+    ctx.fillRect(x + (this.facing === 1 ? w - 5 : 3), at(7), 2, sz(3));
 
     // Shirt.
     ctx.fillStyle = COLORS.player;
-    ctx.fillRect(x, y + 11, w, 4);
+    ctx.fillRect(x, at(11), w, sz(4));
 
-    // Overalls + legs.
+    // Overalls + feet.
     ctx.fillStyle = COLORS.playerOveralls;
-    ctx.fillRect(x + 1, y + 15, w - 2, this.h - 15);
+    ctx.fillRect(x + 1, at(15), w - 2, y + h - at(15));
     ctx.fillStyle = COLORS.pupil;
-    ctx.fillRect(x + 2, y + this.h - 2, 4, 2);
-    ctx.fillRect(x + w - 6, y + this.h - 2, 4, 2);
+    ctx.fillRect(x + 2, y + h - 2, 4, 2);
+    ctx.fillRect(x + w - 6, y + h - 2, 4, 2);
   }
 }

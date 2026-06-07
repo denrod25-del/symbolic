@@ -30,6 +30,16 @@ export class Sfx {
     this.tone({ from: 220, to: 70, dur: 0.12, type: 'square', gain: 0.22 });
   }
 
+  powerup() {
+    [392, 523, 659, 784].forEach((freq, i) => {
+      this.tone({ from: freq, to: freq, dur: 0.08, type: 'square', gain: 0.18, delay: i * 0.07 });
+    });
+  }
+
+  hurt() {
+    this.tone({ from: 300, to: 120, dur: 0.25, type: 'square', gain: 0.2 });
+  }
+
   die() {
     this.tone({ from: 440, to: 90, dur: 0.5, type: 'sawtooth', gain: 0.22 });
   }

@@ -49,8 +49,10 @@ so it works under that subpath without extra config.
 **In (MVP):** follow-camera, run + jump with good feel, tile collision,
 coins + HUD, one stompable enemy, death/respawn, win on reaching the goal flag.
 
-**Out:** power-ups, multiple levels, level editor, mobile/touch, lives, timer,
-gamepad. Sound is a stretch goal.
+**Extras (post-MVP):** a second level with level progression, moving platforms
+(that carry the player), and a mushroom power-up (grow + one-hit buffer).
+
+**Out:** level editor, mobile/touch, lives, timer, gamepad.
 
 ## Milestones
 
@@ -63,6 +65,12 @@ gamepad. Sound is a stretch goal.
 - [x] **7. Enemy + combat** — patrolling enemy, stomp to kill, side-contact death
 - [x] **8. Win/lose loop** — goal flag wins, pit/enemy death, press-jump to restart
 - [x] **9. Polish** — procedural sprites, title/win/lose screens, synth sound, GitHub Pages deploy
+
+### Post-MVP extras
+
+- [x] Second level + level progression (`src/level/levels.ts`)
+- [x] Moving platforms with rider carry (`src/entities/MovingPlatform.ts`)
+- [x] Mushroom power-up: grow / shrink-on-hit / brief invincibility (`src/entities/Mushroom.ts`)
 
 ## Controls (from milestone 2)
 
