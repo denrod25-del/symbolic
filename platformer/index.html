@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Platformer</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #1a1a2e;
+        display: grid;
+        place-items: center;
+      }
+      /* Scale the low-res canvas up with crisp (non-blurry) pixels. */
+      #game {
+        image-rendering: pixelated;
+        width: min(95vw, 960px);
+        height: auto;
+        box-shadow: 0 0 0 2px #000;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="game"></canvas>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
