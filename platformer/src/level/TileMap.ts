@@ -11,6 +11,8 @@ export class TileMap {
   readonly cols: number;
   readonly rows: number;
   readonly playerStart: { x: number; y: number };
+  /** Top-left pixel of each coin tile, for spawning Coin entities. */
+  readonly coinSpawns: ReadonlyArray<{ x: number; y: number }>;
   private readonly tiles: Tile[];
 
   constructor(layout: readonly string[]) {
@@ -24,6 +26,7 @@ export class TileMap {
     this.tiles = new Array<Tile>(this.cols * this.rows).fill('empty');
 
     let start = { x: TILE_SIZE, y: TILE_SIZE };
+    const coins: { x: number; y: number }[] = [];
     layout.forEach((line, row) => {
       for (let col = 0; col < this.cols; col++) {
         const ch = line[col];
@@ -31,12 +34,15 @@ export class TileMap {
           this.tiles[row * this.cols + col] = 'solid';
         } else if (ch === 'P') {
           start = { x: col * TILE_SIZE, y: row * TILE_SIZE };
+        } else if (ch === 'C') {
+          coins.push({ x: col * TILE_SIZE, y: row * TILE_SIZE });
         }
-        // C / E / G are recognised by the legend but treated as empty until
-        // milestones 6–8 wire up coins, enemies, and the goal.
+        // E / G are recognised by the legend but treated as empty until
+        // milestones 7–8 wire up enemies and the goal.
       }
     });
     this.playerStart = start;
+    this.coinSpawns = coins;
   }
 
   get pixelWidth() {

@@ -43,5 +43,6 @@ export const COLORS = {
   sky: '#5c94fc',
   ground: '#9c5a3c',
   player: '#e52521',
+  coin: '#fbd000',
   text: '#ffffff',
 } as const;

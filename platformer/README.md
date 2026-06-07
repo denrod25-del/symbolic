@@ -46,7 +46,7 @@ gamepad. Sound is a stretch goal.
 - [x] **3. Tilemap + collision** — parse string-art map, axis-separated AABB tile collision
 - [x] **4. Camera** — follow player, clamp to level bounds
 - [x] **5. Feel B→C** — momentum, variable jump, coyote time, jump buffering
-- [ ] **6. Coins + HUD** — collect coins, on-screen counter
+- [x] **6. Coins + HUD** — collect coins, on-screen counter
 - [ ] **7. Enemy + combat** — patrolling enemy, stomp to kill, side-contact death
 - [ ] **8. Win/lose loop** — goal flag wins, pit/enemy death respawns
 - [ ] **9. Polish** — Kenney skin, title/win/lose screens, sound (if time), deploy
