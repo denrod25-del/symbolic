@@ -15,8 +15,19 @@ export const FIXED_DT = 1 / 60;
  */
 export const MAX_FRAME_TIME = 0.25;
 
+/**
+ * Movement tuning (milestone 2 — "basic" feel).
+ * Units: pixels and seconds. Momentum, friction, and variable jump height are
+ * intentionally deferred to milestone 5; these are deliberately simple.
+ */
+export const MOVE_SPEED = 130; // horizontal speed, px/s (instant on/off)
+export const GRAVITY = 900; // downward acceleration, px/s^2
+export const JUMP_SPEED = 330; // initial upward speed on jump, px/s (~60px / ~3.7 tiles)
+export const MAX_FALL_SPEED = 420; // terminal velocity, px/s
+
 export const COLORS = {
   sky: '#5c94fc',
+  ground: '#9c5a3c',
   player: '#e52521',
   text: '#ffffff',
 } as const;

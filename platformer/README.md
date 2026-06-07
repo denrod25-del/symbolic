@@ -42,7 +42,7 @@ gamepad. Sound is a stretch goal.
 ## Milestones
 
 - [x] **1. Skeleton** — Vite + TS, fixed-timestep loop, canvas, placeholder box
-- [ ] **2. Movement A** — run + basic jump + gravity, wired input
+- [x] **2. Movement A** — run + basic jump + gravity, wired input (on a temporary floor)
 - [ ] **3. Tilemap + collision** — parse string-art map, AABB tile collision
 - [ ] **4. Camera** — follow player, clamp to level bounds
 - [ ] **5. Feel B→C** — momentum, variable jump, coyote time, jump buffering
