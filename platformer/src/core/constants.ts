@@ -20,14 +20,20 @@ export const FIXED_DT = 1 / 60;
 export const MAX_FRAME_TIME = 0.25;
 
 /**
- * Movement tuning (milestone 2 — "basic" feel).
- * Units: pixels and seconds. Momentum, friction, and variable jump height are
- * intentionally deferred to milestone 5; these are deliberately simple.
+ * Movement tuning (milestone 5, stage B — momentum + variable jump).
+ * Units: pixels and seconds. Coyote time / jump buffering are stage C.
  */
-export const MOVE_SPEED = 130; // horizontal speed, px/s (instant on/off)
+export const MAX_RUN_SPEED = 130; // top horizontal speed, px/s
+export const GROUND_ACCEL = 1000; // how fast you ramp up to speed on the ground
+export const GROUND_FRICTION = 1300; // how fast you slow to a stop on the ground
+export const AIR_ACCEL = 650; // weaker steering while airborne
+export const AIR_FRICTION = 250; // you keep most momentum in the air
+
 export const GRAVITY = 900; // downward acceleration, px/s^2
 export const JUMP_SPEED = 330; // initial upward speed on jump, px/s (~60px / ~3.7 tiles)
 export const MAX_FALL_SPEED = 420; // terminal velocity, px/s
+/** On releasing jump while still rising, cut upward velocity to this fraction. */
+export const JUMP_CUT_MULTIPLIER = 0.45;
 
 export const COLORS = {
   sky: '#5c94fc',

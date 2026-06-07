@@ -45,7 +45,7 @@ gamepad. Sound is a stretch goal.
 - [x] **2. Movement A** — run + basic jump + gravity, wired input (on a temporary floor)
 - [x] **3. Tilemap + collision** — parse string-art map, axis-separated AABB tile collision
 - [x] **4. Camera** — follow player, clamp to level bounds
-- [ ] **5. Feel B→C** — momentum, variable jump, coyote time, jump buffering
+- [~] **5. Feel B→C** — momentum + variable jump done (B); coyote time + jump buffering next (C)
 - [ ] **6. Coins + HUD** — collect coins, on-screen counter
 - [ ] **7. Enemy + combat** — patrolling enemy, stomp to kill, side-contact death
 - [ ] **8. Win/lose loop** — goal flag wins, pit/enemy death respawns
