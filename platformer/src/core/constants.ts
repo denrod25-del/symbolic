@@ -49,5 +49,7 @@ export const COLORS = {
   player: '#e52521',
   coin: '#fbd000',
   enemy: '#7a4b2b',
+  goal: '#2ecc40',
+  overlay: 'rgba(0, 0, 0, 0.55)',
   text: '#ffffff',
 } as const;

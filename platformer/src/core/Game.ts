@@ -4,7 +4,7 @@ import { Player } from '../entities/Player';
 import { DEFAULT_BINDINGS, Input } from '../input/Input';
 import { LEVEL_1 } from '../level/level1';
 import { TileMap } from '../level/TileMap';
-import { overlaps } from '../physics/aabb';
+import { overlaps, type Rect } from '../physics/aabb';
 import { moveAndCollide } from '../physics/collision';
 import { Camera } from './Camera';
 import {
@@ -16,11 +16,14 @@ import {
   TILE_SIZE,
 } from './constants';
 
+type GameState = 'playing' | 'won' | 'dead';
+
 /**
  * Owns the game state and the update/render split.
  *
- * Milestone 3 scope: a player with gravity and a basic jump, colliding against a
- * tile-based level. Render never mutates state; update never touches the canvas.
+ * Milestone 8 scope: a complete play loop — run to the goal flag to win, fall in
+ * the pit or touch an enemy to die, press jump to restart. Render never mutates
+ * state; update never touches the canvas.
  */
 export class Game {
   private readonly input = new Input(DEFAULT_BINDINGS);
@@ -28,9 +31,14 @@ export class Game {
   private readonly camera = new Camera(CANVAS_WIDTH, CANVAS_HEIGHT);
   private readonly player: Player;
   private readonly spawn: { x: number; y: number };
-  private readonly coins: Coin[];
-  private readonly enemies: Enemy[];
+  private readonly goalRect: Rect | null;
+  private readonly totalCoins: number;
+
+  private coins: Coin[];
+  private enemies: Enemy[];
   private coinCount = 0;
+  private state: GameState = 'playing';
+  private prevJump = false;
 
   constructor() {
     this.input.attach();
@@ -40,9 +48,22 @@ export class Game {
     this.player = new Player(this.spawn.x, this.spawn.y);
     this.coins = this.map.coinSpawns.map((c) => new Coin(c.x, c.y));
     this.enemies = this.map.enemySpawns.map((e) => new Enemy(e.x, e.y));
+    this.totalCoins = this.coins.length;
+    this.goalRect = this.map.goal
+      ? { x: this.map.goal.x, y: this.map.goal.y - TILE_SIZE, w: TILE_SIZE, h: TILE_SIZE * 2 }
+      : null;
   }
 
   update(dt: number) {
+    if (this.state === 'playing') {
+      this.updatePlaying(dt);
+    } else if (this.justPressedJump()) {
+      this.restart();
+    }
+    this.prevJump = this.input.isDown('jump');
+  }
+
+  private updatePlaying(dt: number) {
     this.player.update(dt, this.input);
     moveAndCollide(this.player, this.map, dt);
     this.camera.follow(this.player, this.map.pixelWidth, this.map.pixelHeight);
@@ -60,44 +81,70 @@ export class Game {
       if (!enemy.alive || !overlaps(this.player, enemy)) continue;
 
       // Stomp: falling onto the enemy's upper half kills it and bounces you.
-      // Any other contact kills the player.
       const stomped =
         this.player.vy > 0 && this.player.y + this.player.h - enemy.y < enemy.h * 0.6;
       if (stomped) {
         enemy.alive = false;
         this.player.vy = -STOMP_BOUNCE;
       } else {
-        this.respawn();
-        break;
+        this.state = 'dead';
+        return;
       }
+    }
+
+    // Fell into the pit / off the bottom of the world.
+    if (this.player.y > this.map.pixelHeight) {
+      this.state = 'dead';
+      return;
+    }
+
+    // Reached the goal.
+    if (this.goalRect && overlaps(this.player, this.goalRect)) {
+      this.state = 'won';
     }
   }
 
-  /** Sends the player back to the start. Full death/win loop arrives in milestone 8. */
-  private respawn() {
+  /** Rising edge of the jump key, used to dismiss the win/lose screen. */
+  private justPressedJump(): boolean {
+    return this.input.isDown('jump') && !this.prevJump;
+  }
+
+  private restart() {
     this.player.x = this.spawn.x;
     this.player.y = this.spawn.y;
     this.player.vx = 0;
     this.player.vy = 0;
+    this.coins = this.map.coinSpawns.map((c) => new Coin(c.x, c.y));
+    this.enemies = this.map.enemySpawns.map((e) => new Enemy(e.x, e.y));
+    this.coinCount = 0;
+    this.state = 'playing';
   }
 
   render(ctx: CanvasRenderingContext2D) {
     ctx.fillStyle = COLORS.sky;
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    // World space: shift everything by the camera offset (rounded to whole
-    // pixels to avoid tile seams / jitter), then draw the level and entities.
     ctx.save();
     ctx.translate(-Math.round(this.camera.x), -Math.round(this.camera.y));
     this.map.draw(ctx);
+    this.drawGoal(ctx);
     for (const coin of this.coins) coin.draw(ctx);
     for (const enemy of this.enemies) enemy.draw(ctx);
     this.player.draw(ctx);
     ctx.restore();
 
-    // Screen space: the HUD stays put.
     this.renderHud(ctx);
-    this.renderDebug(ctx);
+    if (this.state !== 'playing') this.renderOverlay(ctx);
+  }
+
+  private drawGoal(ctx: CanvasRenderingContext2D) {
+    const goal = this.map.goal;
+    if (!goal) return;
+    // Pole from one tile above the goal down to the ground, with a flag on top.
+    ctx.fillStyle = '#cccccc';
+    ctx.fillRect(goal.x + 7, goal.y - TILE_SIZE, 2, TILE_SIZE * 2);
+    ctx.fillStyle = COLORS.goal;
+    ctx.fillRect(goal.x + 9, goal.y - TILE_SIZE, 10, 7);
   }
 
   /** Coin counter — a gold pip plus the running tally. */
@@ -106,16 +153,27 @@ export class Game {
     ctx.fillRect(10, 10, 10, 10);
     ctx.fillStyle = COLORS.text;
     ctx.font = '12px monospace';
+    ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     ctx.fillText(`x ${this.coinCount}`, 26, 10);
   }
 
-  /** Debug readout for tuning physics. */
-  private renderDebug(ctx: CanvasRenderingContext2D) {
+  private renderOverlay(ctx: CanvasRenderingContext2D) {
+    ctx.fillStyle = COLORS.overlay;
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    const cx = CANVAS_WIDTH / 2;
     ctx.fillStyle = COLORS.text;
-    ctx.font = '10px monospace';
-    ctx.textBaseline = 'top';
-    ctx.fillText(`vx: ${this.player.vx.toFixed(0)}  vy: ${this.player.vy.toFixed(0)}`, 10, 28);
-    ctx.fillText(`grounded: ${this.player.onGround}`, 10, 40);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    ctx.font = 'bold 24px monospace';
+    ctx.fillText(this.state === 'won' ? 'YOU WIN!' : 'GAME OVER', cx, CANVAS_HEIGHT / 2 - 16);
+
+    ctx.font = '11px monospace';
+    if (this.state === 'won') {
+      ctx.fillText(`Coins: ${this.coinCount}/${this.totalCoins}`, cx, CANVAS_HEIGHT / 2 + 8);
+    }
+    ctx.fillText('Press Jump (Space) to play again', cx, CANVAS_HEIGHT / 2 + 24);
   }
 }

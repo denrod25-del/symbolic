@@ -15,6 +15,8 @@ export class TileMap {
   readonly coinSpawns: ReadonlyArray<{ x: number; y: number }>;
   /** Top-left pixel of each enemy tile, for spawning Enemy entities. */
   readonly enemySpawns: ReadonlyArray<{ x: number; y: number }>;
+  /** Top-left pixel of the goal tile, or null if the level has no goal. */
+  readonly goal: { x: number; y: number } | null;
   private readonly tiles: Tile[];
 
   constructor(layout: readonly string[]) {
@@ -28,6 +30,7 @@ export class TileMap {
     this.tiles = new Array<Tile>(this.cols * this.rows).fill('empty');
 
     let start = { x: TILE_SIZE, y: TILE_SIZE };
+    let goal: { x: number; y: number } | null = null;
     const coins: { x: number; y: number }[] = [];
     const enemies: { x: number; y: number }[] = [];
     layout.forEach((line, row) => {
@@ -43,14 +46,15 @@ export class TileMap {
           coins.push({ x, y });
         } else if (ch === 'E') {
           enemies.push({ x, y });
+        } else if (ch === 'G') {
+          goal = { x, y };
         }
-        // G is recognised by the legend but treated as empty until milestone 8
-        // wires up the goal.
       }
     });
     this.playerStart = start;
     this.coinSpawns = coins;
     this.enemySpawns = enemies;
+    this.goal = goal;
   }
 
   get pixelWidth() {

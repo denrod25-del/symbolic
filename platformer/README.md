@@ -48,7 +48,7 @@ gamepad. Sound is a stretch goal.
 - [x] **5. Feel B→C** — momentum, variable jump, coyote time, jump buffering
 - [x] **6. Coins + HUD** — collect coins, on-screen counter
 - [x] **7. Enemy + combat** — patrolling enemy, stomp to kill, side-contact death
-- [ ] **8. Win/lose loop** — goal flag wins, pit/enemy death respawns
+- [x] **8. Win/lose loop** — goal flag wins, pit/enemy death, press-jump to restart
 - [ ] **9. Polish** — Kenney skin, title/win/lose screens, sound (if time), deploy
 
 ## Controls (from milestone 2)
