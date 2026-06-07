@@ -4,25 +4,27 @@ import {
   JUMP_SPEED,
   MAX_FALL_SPEED,
   MOVE_SPEED,
+  PLAYER_H,
+  PLAYER_W,
 } from '../core/constants';
 import type { Input } from '../input/Input';
 
 /**
  * The player character.
  *
- * Milestone 2 scope: instant horizontal velocity, gravity, and a basic
+ * Milestone 2–3 scope: instant horizontal velocity, gravity, and a basic
  * press-to-jump. Deliberately *not* implemented yet (milestone 5): acceleration/
  * friction, variable jump height, coyote time, jump buffering.
  *
- * `update` only computes and integrates velocity. Collision resolution (snapping
- * the player out of solid tiles, setting `onGround`) is the caller's job — a
- * temporary floor today, real tile collision in milestone 3.
+ * `update` only sets velocity. Position is integrated by `moveAndCollide`, which
+ * also sets `onGround` — so `onGround` here reflects the previous frame's
+ * collision result, which is exactly what the jump check wants.
  */
 export class Player {
   x: number;
   y: number;
-  readonly w = 16;
-  readonly h = 24;
+  readonly w = PLAYER_W;
+  readonly h = PLAYER_H;
   vx = 0;
   vy = 0;
   onGround = false;
@@ -44,16 +46,11 @@ export class Player {
     const jump = input.isDown('jump');
     if (jump && !this.jumpHeld && this.onGround) {
       this.vy = -JUMP_SPEED;
-      this.onGround = false;
     }
     this.jumpHeld = jump;
 
     // Gravity, capped at terminal velocity.
     this.vy = Math.min(this.vy + GRAVITY * dt, MAX_FALL_SPEED);
-
-    // Integrate position.
-    this.x += this.vx * dt;
-    this.y += this.vy * dt;
   }
 
   draw(ctx: CanvasRenderingContext2D) {

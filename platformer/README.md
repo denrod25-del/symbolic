@@ -43,7 +43,7 @@ gamepad. Sound is a stretch goal.
 
 - [x] **1. Skeleton** — Vite + TS, fixed-timestep loop, canvas, placeholder box
 - [x] **2. Movement A** — run + basic jump + gravity, wired input (on a temporary floor)
-- [ ] **3. Tilemap + collision** — parse string-art map, AABB tile collision
+- [x] **3. Tilemap + collision** — parse string-art map, axis-separated AABB tile collision
 - [ ] **4. Camera** — follow player, clamp to level bounds
 - [ ] **5. Feel B→C** — momentum, variable jump, coyote time, jump buffering
 - [ ] **6. Coins + HUD** — collect coins, on-screen counter

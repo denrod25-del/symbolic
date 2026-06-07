@@ -1,27 +1,28 @@
 import { Player } from '../entities/Player';
 import { DEFAULT_BINDINGS, Input } from '../input/Input';
-import { CANVAS_HEIGHT, CANVAS_WIDTH, COLORS, TILE_SIZE } from './constants';
-
-/**
- * TEMPORARY ground line. Lets gravity and jumping be tested before real
- * tile-based collision lands in milestone 3, at which point this is removed.
- */
-const FLOOR_Y = CANVAS_HEIGHT - TILE_SIZE * 2;
+import { LEVEL_1 } from '../level/level1';
+import { TileMap } from '../level/TileMap';
+import { moveAndCollide } from '../physics/collision';
+import { CANVAS_HEIGHT, CANVAS_WIDTH, COLORS, PLAYER_H, TILE_SIZE } from './constants';
 
 /**
  * Owns the game state and the update/render split.
  *
- * Milestone 2 scope: a movable player with gravity and a basic jump, resting on
- * a temporary floor. Render never mutates state; update never touches the canvas.
+ * Milestone 3 scope: a player with gravity and a basic jump, colliding against a
+ * tile-based level. Render never mutates state; update never touches the canvas.
  */
 export class Game {
   private elapsed = 0;
   private ticks = 0;
   private readonly input = new Input(DEFAULT_BINDINGS);
-  private readonly player = new Player(48, FLOOR_Y - 24);
+  private readonly map = new TileMap(LEVEL_1);
+  private readonly player: Player;
 
   constructor() {
     this.input.attach();
+    // Spawn so the player's feet sit on the bottom of the start tile.
+    const start = this.map.playerStart;
+    this.player = new Player(start.x, start.y + TILE_SIZE - PLAYER_H);
   }
 
   update(dt: number) {
@@ -29,34 +30,14 @@ export class Game {
     this.ticks += 1;
 
     this.player.update(dt, this.input);
-    this.resolveTempGround();
-    this.clampToScreen();
-  }
-
-  /** TEMPORARY: a single floor line. Replaced by tile collision in milestone 3. */
-  private resolveTempGround() {
-    const feet = this.player.y + this.player.h;
-    if (feet >= FLOOR_Y) {
-      this.player.y = FLOOR_Y - this.player.h;
-      this.player.vy = 0;
-      this.player.onGround = true;
-    } else {
-      this.player.onGround = false;
-    }
-  }
-
-  /** TEMPORARY: keep the player on-screen horizontally until a real level exists. */
-  private clampToScreen() {
-    this.player.x = Math.max(0, Math.min(this.player.x, CANVAS_WIDTH - this.player.w));
+    moveAndCollide(this.player, this.map, dt);
   }
 
   render(ctx: CanvasRenderingContext2D) {
     ctx.fillStyle = COLORS.sky;
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    ctx.fillStyle = COLORS.ground;
-    ctx.fillRect(0, FLOOR_Y, CANVAS_WIDTH, CANVAS_HEIGHT - FLOOR_Y);
-
+    this.map.draw(ctx);
     this.player.draw(ctx);
     this.renderDebug(ctx);
   }

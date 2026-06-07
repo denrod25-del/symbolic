@@ -5,6 +5,10 @@ export const CANVAS_HEIGHT = 240;
 /** Size of one tile in pixels. The level grid is built from these. */
 export const TILE_SIZE = 16;
 
+/** Player hitbox size in pixels. Taller than one tile, one tile wide. */
+export const PLAYER_W = 16;
+export const PLAYER_H = 24;
+
 /** Fixed simulation step: the physics loop always advances in 1/60s slices. */
 export const FIXED_DT = 1 / 60;
 
