@@ -1,0 +1,9 @@
+# Obsidian per-machine state — not worth versioning
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.trash/
+
+# OS noise
+.DS_Store
+Thumbs.db
