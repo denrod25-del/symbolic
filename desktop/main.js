@@ -8,6 +8,21 @@ const PARTITION = 'persist:symbolic';
 
 app.setName('Symbolic');
 
+const ICON_PATH = path.join(
+  __dirname,
+  'build',
+  process.platform === 'win32' ? 'icon.ico' : 'icon.png'
+);
+
+// Options applied to every separate window Symbolic spawns, so popup windows
+// carry the Symbolic logo + branding instead of a bare default window.
+const brandedWindowOptions = () => ({
+  title: 'Symbolic',
+  backgroundColor: '#0a0a0f',
+  autoHideMenuBar: true,
+  icon: ICON_PATH,
+});
+
 ipcMain.on('open-external', (_event, url) => {
   if (typeof url === 'string' && /^https?:\/\//i.test(url)) {
     shell.openExternal(url);
@@ -61,11 +76,7 @@ const createWindow = () => {
     minHeight: 480,
     backgroundColor: '#0a0a0f',
     title: 'Symbolic',
-    icon: path.join(
-      __dirname,
-      'build',
-      process.platform === 'win32' ? 'icon.ico' : 'icon.png'
-    ),
+    icon: ICON_PATH,
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -76,6 +87,16 @@ const createWindow = () => {
   });
 
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+
+  // The chrome itself should never navigate away; any link dropped on it opens
+  // externally. (Scoped to the main window so popup windows stay functional.)
+  win.webContents.on('will-navigate', (event, url) => {
+    if (!url.startsWith('file://')) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
+  });
+
   return win;
 };
 
