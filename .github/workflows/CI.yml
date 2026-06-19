@@ -7,6 +7,36 @@ on:
     branches: [main]
 
 jobs:
+  # Secrets are not available in job-level `if:` conditions, so expose their
+  # presence as outputs that downstream jobs can gate on. Jobs that need
+  # secrets absent from this repo (forks, contributors) then skip cleanly
+  # instead of failing.
+  check-secrets:
+    name: Check required secrets
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      has-e2e: ${{ steps.check.outputs.has-e2e }}
+      has-crowdin: ${{ steps.check.outputs.has-crowdin }}
+    steps:
+      - id: check
+        env:
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+        run: |
+          if [ -n "$CLERK_SECRET_KEY" ] && [ -n "$CHROMATIC_PROJECT_TOKEN" ]; then
+            echo "has-e2e=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-e2e=false" >> "$GITHUB_OUTPUT"
+          fi
+          if [ -n "$CROWDIN_PROJECT_ID" ] && [ -n "$CROWDIN_PERSONAL_TOKEN" ]; then
+            echo "has-crowdin=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-crowdin=false" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
     strategy:
       matrix:
@@ -167,7 +197,9 @@ jobs:
     name: Run E2E tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build]
+    needs: [build, check-secrets]
+    # Skip when Clerk/Chromatic secrets are unavailable (e.g. forks).
+    if: needs.check-secrets.outputs.has-e2e == 'true'
 
     steps:
       - uses: actions/checkout@v6
@@ -211,8 +243,10 @@ jobs:
     name: GitHub PR synchronize with Crowdin
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    needs: [check-secrets]
 
-    if: github.event_name == 'pull_request'
+    # Skip when Crowdin secrets are unavailable (e.g. forks).
+    if: github.event_name == 'pull_request' && needs.check-secrets.outputs.has-crowdin == 'true'
 
     steps:
       - uses: actions/checkout@v6
