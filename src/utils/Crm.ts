@@ -44,3 +44,37 @@ export function isCrmAppointmentStatus(
 ): value is CrmAppointmentStatus {
   return (CRM_APPOINTMENT_STATUSES as readonly string[]).includes(value);
 }
+
+/** Channels a message can be sent through. */
+export const CRM_MESSAGE_CHANNELS = ['sms', 'email'] as const;
+
+export type CrmMessageChannel = (typeof CRM_MESSAGE_CHANNELS)[number];
+
+/**
+ * Narrows an arbitrary string to a known message channel.
+ * @param value - The candidate channel string.
+ * @returns Whether the value is a valid `CrmMessageChannel`.
+ */
+export function isCrmMessageChannel(value: string): value is CrmMessageChannel {
+  return (CRM_MESSAGE_CHANNELS as readonly string[]).includes(value);
+}
+
+/** Delivery states a message can hold across its lifecycle. */
+export const CRM_MESSAGE_STATUSES = [
+  'queued',
+  'sent',
+  'delivered',
+  'failed',
+  'received',
+] as const;
+
+export type CrmMessageStatus = (typeof CRM_MESSAGE_STATUSES)[number];
+
+/**
+ * Narrows an arbitrary string to a known message status.
+ * @param value - The candidate status string.
+ * @returns Whether the value is a valid `CrmMessageStatus`.
+ */
+export function isCrmMessageStatus(value: string): value is CrmMessageStatus {
+  return (CRM_MESSAGE_STATUSES as readonly string[]).includes(value);
+}

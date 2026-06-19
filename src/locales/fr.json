@@ -222,7 +222,8 @@
     "nav_dashboard": "Tableau de bord",
     "nav_contacts": "Contacts",
     "nav_pipeline": "Pipeline",
-    "nav_calendar": "Calendrier"
+    "nav_calendar": "Calendrier",
+    "nav_inbox": "Messagerie"
   },
   "CrmDashboardPage": {
     "greeting": "Bienvenue, {name} 👋",
@@ -312,5 +313,32 @@
     "delete_confirm": "Supprimer ce rendez-vous ?",
     "delete_yes": "Oui",
     "delete_cancel": "Annuler"
+  },
+  "CrmInboxPage": {
+    "title": "Messagerie",
+    "no_contacts": "Ajoutez un contact pour démarrer une conversation.",
+    "add_contacts_link": "Aller aux contacts",
+    "no_messages": "Aucun message"
+  },
+  "CrmThreadPage": {
+    "back": "← Messagerie",
+    "no_details": "Aucune coordonnée",
+    "empty": "Aucun message. Envoyez le premier ci-dessous.",
+    "channel_sms": "SMS",
+    "channel_email": "E-mail",
+    "status_queued": "En file",
+    "status_sent": "Envoyé",
+    "status_delivered": "Remis",
+    "status_failed": "Échec",
+    "status_received": "Reçu"
+  },
+  "CrmComposer": {
+    "channel_sms": "SMS",
+    "channel_email": "E-mail",
+    "subject_placeholder": "Objet",
+    "body_placeholder": "Écrivez un message...",
+    "stub_hint": "Envoi via le fournisseur si configuré, sinon simulé.",
+    "sending": "Envoi...",
+    "send": "Envoyer"
   }
 }

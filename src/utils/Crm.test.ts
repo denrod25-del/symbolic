@@ -3,6 +3,7 @@ import {
   CRM_OPEN_STAGES,
   CRM_STAGES,
   isCrmAppointmentStatus,
+  isCrmMessageChannel,
   isCrmStage,
 } from './Crm';
 
@@ -37,6 +38,17 @@ describe('Crm', () => {
 
     it('rejects an unknown status', () => {
       expect(isCrmAppointmentStatus('rescheduled')).toBe(false);
+    });
+  });
+
+  describe('isCrmMessageChannel', () => {
+    it('accepts sms and email channels', () => {
+      expect(isCrmMessageChannel('sms')).toBe(true);
+      expect(isCrmMessageChannel('email')).toBe(true);
+    });
+
+    it('rejects an unsupported channel', () => {
+      expect(isCrmMessageChannel('whatsapp')).toBe(false);
     });
   });
 });

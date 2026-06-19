@@ -8,6 +8,11 @@ export const Env = createEnv({
     BRAVE_API_BASE_URL: z.url().optional(),
     CLERK_SECRET_KEY: z.string().min(1),
     ADMIN_EMAILS: z.string().optional(),
+    RESEND_API_KEY: z.string().optional(),
+    RESEND_FROM_EMAIL: z.string().optional(),
+    TWILIO_ACCOUNT_SID: z.string().optional(),
+    TWILIO_AUTH_TOKEN: z.string().optional(),
+    TWILIO_FROM_NUMBER: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().optional(),
@@ -26,6 +31,11 @@ export const Env = createEnv({
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     ADMIN_EMAILS: process.env.ADMIN_EMAILS,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
+    TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
+    TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
+    TWILIO_FROM_NUMBER: process.env.TWILIO_FROM_NUMBER,
   },
   skipValidation: process.env.NODE_ENV === 'test',
 });

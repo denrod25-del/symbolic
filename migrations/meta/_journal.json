@@ -43,6 +43,13 @@
       "when": 1781880186836,
       "tag": "0005_optimal_pestilence",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1781880792231,
+      "tag": "0006_young_vermin",
+      "breakpoints": true
     }
   ]
 }

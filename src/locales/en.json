@@ -222,7 +222,8 @@
     "nav_dashboard": "Dashboard",
     "nav_contacts": "Contacts",
     "nav_pipeline": "Pipeline",
-    "nav_calendar": "Calendar"
+    "nav_calendar": "Calendar",
+    "nav_inbox": "Inbox"
   },
   "CrmDashboardPage": {
     "greeting": "Welcome, {name} 👋",
@@ -312,5 +313,32 @@
     "delete_confirm": "Delete this appointment?",
     "delete_yes": "Yes",
     "delete_cancel": "Cancel"
+  },
+  "CrmInboxPage": {
+    "title": "Inbox",
+    "no_contacts": "Add a contact to start a conversation.",
+    "add_contacts_link": "Go to contacts",
+    "no_messages": "No messages yet"
+  },
+  "CrmThreadPage": {
+    "back": "← Inbox",
+    "no_details": "No contact details",
+    "empty": "No messages yet. Send the first one below.",
+    "channel_sms": "SMS",
+    "channel_email": "Email",
+    "status_queued": "Queued",
+    "status_sent": "Sent",
+    "status_delivered": "Delivered",
+    "status_failed": "Failed",
+    "status_received": "Received"
+  },
+  "CrmComposer": {
+    "channel_sms": "SMS",
+    "channel_email": "Email",
+    "subject_placeholder": "Subject",
+    "body_placeholder": "Write a message...",
+    "stub_hint": "Sends via provider when configured, otherwise simulated.",
+    "sending": "Sending...",
+    "send": "Send"
   }
 }

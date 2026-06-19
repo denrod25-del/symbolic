@@ -99,6 +99,21 @@ export const crmOpportunities = pgTable('crm_opportunities', {
     .notNull(),
 });
 
+export const crmMessages = pgTable('crm_messages', {
+  id: serial('id').primaryKey(),
+  ownerClerkUserId: text('owner_clerk_user_id').notNull(),
+  contactId: integer('contact_id')
+    .notNull()
+    .references(() => crmContacts.id, { onDelete: 'cascade' }),
+  channel: text('channel').notNull(),
+  direction: text('direction').notNull(),
+  subject: text('subject'),
+  body: text('body').notNull(),
+  status: text('status').notNull().default('queued'),
+  providerId: text('provider_id'),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+});
+
 export const crmAppointments = pgTable('crm_appointments', {
   id: serial('id').primaryKey(),
   ownerClerkUserId: text('owner_clerk_user_id').notNull(),
