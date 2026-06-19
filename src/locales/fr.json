@@ -221,7 +221,8 @@
   "CrmLayout": {
     "nav_dashboard": "Tableau de bord",
     "nav_contacts": "Contacts",
-    "nav_pipeline": "Pipeline"
+    "nav_pipeline": "Pipeline",
+    "nav_calendar": "Calendrier"
   },
   "CrmDashboardPage": {
     "greeting": "Bienvenue, {name} 👋",
@@ -229,8 +230,10 @@
     "contacts_label": "Contacts",
     "open_label": "Opportunités ouvertes",
     "value_label": "Valeur du pipeline",
+    "upcoming_label": "Rendez-vous à venir",
     "manage_contacts": "Gérer les contacts",
-    "view_pipeline": "Voir le pipeline"
+    "view_pipeline": "Voir le pipeline",
+    "open_calendar": "Ouvrir le calendrier"
   },
   "CrmContactsPage": {
     "title": "Contacts",
@@ -270,5 +273,44 @@
     "stage_qualified": "Qualifié",
     "stage_won": "Gagné",
     "stage_lost": "Perdu"
+  },
+  "CrmCalendarPage": {
+    "title": "Calendrier",
+    "book_heading": "Réserver un rendez-vous",
+    "upcoming_heading": "À venir",
+    "upcoming_empty": "Aucun rendez-vous à venir.",
+    "past_heading": "Passés et annulés",
+    "past_empty": "Rien pour le moment."
+  },
+  "CrmAppointmentForm": {
+    "title": "Titre",
+    "date": "Date",
+    "time": "Heure",
+    "duration": "Durée",
+    "duration_15": "15 minutes",
+    "duration_30": "30 minutes",
+    "duration_45": "45 minutes",
+    "duration_60": "1 heure",
+    "duration_90": "1,5 heure",
+    "contact": "Contact",
+    "no_contact": "Aucun contact",
+    "notes": "Notes",
+    "invalid_datetime": "Saisissez une date et une heure valides",
+    "saving": "Enregistrement...",
+    "save": "Enregistrer",
+    "book": "Réserver le rendez-vous",
+    "cancel": "Annuler"
+  },
+  "CrmAppointmentList": {
+    "status_scheduled": "Planifié",
+    "status_completed": "Terminé",
+    "status_cancelled": "Annulé",
+    "reschedule": "Reprogrammer",
+    "complete": "Marquer comme terminé",
+    "cancel_appointment": "Annuler",
+    "delete": "Supprimer",
+    "delete_confirm": "Supprimer ce rendez-vous ?",
+    "delete_yes": "Oui",
+    "delete_cancel": "Annuler"
   }
 }

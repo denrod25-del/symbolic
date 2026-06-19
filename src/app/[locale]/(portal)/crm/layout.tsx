@@ -48,6 +48,12 @@ export default async function CrmLayout(props: {
             >
               {t('nav_pipeline')}
             </Link>
+            <Link
+              href={`/${locale}/crm/calendar`}
+              className="text-sm text-white/60 hover:text-white"
+            >
+              {t('nav_calendar')}
+            </Link>
           </div>
         </div>
         <UserButton />

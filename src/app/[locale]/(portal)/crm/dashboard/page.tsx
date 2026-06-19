@@ -1,10 +1,14 @@
 import { currentUser } from '@clerk/nextjs/server';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq, gte, inArray } from 'drizzle-orm';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { db } from '@/libs/DB';
-import { crmContacts, crmOpportunities } from '@/models/Schema';
+import {
+  crmAppointments,
+  crmContacts,
+  crmOpportunities,
+} from '@/models/Schema';
 import { CRM_OPEN_STAGES } from '@/utils/Crm';
 
 export default async function CrmDashboardPage(props: {
@@ -36,6 +40,17 @@ export default async function CrmDashboardPage(props: {
       )
     );
 
+  const upcomingRows = await db
+    .select({ id: crmAppointments.id })
+    .from(crmAppointments)
+    .where(
+      and(
+        eq(crmAppointments.ownerClerkUserId, user.id),
+        eq(crmAppointments.status, 'scheduled'),
+        gte(crmAppointments.startAt, new Date())
+      )
+    );
+
   const openCount = openRows.length;
   const pipelineValue = openRows.reduce((sum, row) => sum + row.value, 0);
   const pipelinePounds = (pipelineValue / 100).toLocaleString('en-GB', {
@@ -50,7 +65,7 @@ export default async function CrmDashboardPage(props: {
         {name ? t('greeting', { name }) : t('greeting_anon')}
       </h1>
 
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="rounded-lg border border-white/10 bg-white/5 p-6">
           <p className="mb-1 text-sm text-white/50">{t('contacts_label')}</p>
           <p className="text-3xl font-bold">{contactRows.length}</p>
@@ -63,9 +78,13 @@ export default async function CrmDashboardPage(props: {
           <p className="mb-1 text-sm text-white/50">{t('value_label')}</p>
           <p className="text-3xl font-bold">{pipelinePounds}</p>
         </div>
+        <div className="rounded-lg border border-white/10 bg-white/5 p-6">
+          <p className="mb-1 text-sm text-white/50">{t('upcoming_label')}</p>
+          <p className="text-3xl font-bold">{upcomingRows.length}</p>
+        </div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <Link
           href={`/${locale}/crm/contacts`}
           className="rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-500"
@@ -77,6 +96,12 @@ export default async function CrmDashboardPage(props: {
           className="rounded-lg bg-white/5 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10"
         >
           {t('view_pipeline')}
+        </Link>
+        <Link
+          href={`/${locale}/crm/calendar`}
+          className="rounded-lg bg-white/5 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10"
+        >
+          {t('open_calendar')}
         </Link>
       </div>
     </div>

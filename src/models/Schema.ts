@@ -98,3 +98,21 @@ export const crmOpportunities = pgTable('crm_opportunities', {
     .$onUpdate(() => new Date())
     .notNull(),
 });
+
+export const crmAppointments = pgTable('crm_appointments', {
+  id: serial('id').primaryKey(),
+  ownerClerkUserId: text('owner_clerk_user_id').notNull(),
+  contactId: integer('contact_id').references(() => crmContacts.id, {
+    onDelete: 'set null',
+  }),
+  title: text('title').notNull(),
+  startAt: timestamp('start_at', { mode: 'date' }).notNull(),
+  endAt: timestamp('end_at', { mode: 'date' }).notNull(),
+  status: text('status').notNull().default('scheduled'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});

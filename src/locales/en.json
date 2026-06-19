@@ -221,7 +221,8 @@
   "CrmLayout": {
     "nav_dashboard": "Dashboard",
     "nav_contacts": "Contacts",
-    "nav_pipeline": "Pipeline"
+    "nav_pipeline": "Pipeline",
+    "nav_calendar": "Calendar"
   },
   "CrmDashboardPage": {
     "greeting": "Welcome, {name} 👋",
@@ -229,8 +230,10 @@
     "contacts_label": "Contacts",
     "open_label": "Open opportunities",
     "value_label": "Pipeline value",
+    "upcoming_label": "Upcoming bookings",
     "manage_contacts": "Manage contacts",
-    "view_pipeline": "View pipeline"
+    "view_pipeline": "View pipeline",
+    "open_calendar": "Open calendar"
   },
   "CrmContactsPage": {
     "title": "Contacts",
@@ -270,5 +273,44 @@
     "stage_qualified": "Qualified",
     "stage_won": "Won",
     "stage_lost": "Lost"
+  },
+  "CrmCalendarPage": {
+    "title": "Calendar",
+    "book_heading": "Book an appointment",
+    "upcoming_heading": "Upcoming",
+    "upcoming_empty": "No upcoming appointments.",
+    "past_heading": "Past & cancelled",
+    "past_empty": "Nothing here yet."
+  },
+  "CrmAppointmentForm": {
+    "title": "Title",
+    "date": "Date",
+    "time": "Time",
+    "duration": "Duration",
+    "duration_15": "15 minutes",
+    "duration_30": "30 minutes",
+    "duration_45": "45 minutes",
+    "duration_60": "1 hour",
+    "duration_90": "1.5 hours",
+    "contact": "Contact",
+    "no_contact": "No contact",
+    "notes": "Notes",
+    "invalid_datetime": "Enter a valid date and time",
+    "saving": "Saving...",
+    "save": "Save changes",
+    "book": "Book appointment",
+    "cancel": "Cancel"
+  },
+  "CrmAppointmentList": {
+    "status_scheduled": "Scheduled",
+    "status_completed": "Completed",
+    "status_cancelled": "Cancelled",
+    "reschedule": "Reschedule",
+    "complete": "Mark complete",
+    "cancel_appointment": "Cancel",
+    "delete": "Delete",
+    "delete_confirm": "Delete this appointment?",
+    "delete_yes": "Yes",
+    "delete_cancel": "Cancel"
   }
 }
