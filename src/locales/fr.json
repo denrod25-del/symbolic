@@ -217,5 +217,58 @@
     "pause": "Mettre en pause",
     "resume": "Reprendre",
     "delete": "Supprimer"
+  },
+  "CrmLayout": {
+    "nav_dashboard": "Tableau de bord",
+    "nav_contacts": "Contacts",
+    "nav_pipeline": "Pipeline"
+  },
+  "CrmDashboardPage": {
+    "greeting": "Bienvenue, {name} 👋",
+    "greeting_anon": "Bienvenue 👋",
+    "contacts_label": "Contacts",
+    "open_label": "Opportunités ouvertes",
+    "value_label": "Valeur du pipeline",
+    "manage_contacts": "Gérer les contacts",
+    "view_pipeline": "Voir le pipeline"
+  },
+  "CrmContactsPage": {
+    "title": "Contacts",
+    "add_heading": "Ajouter un contact",
+    "empty": "Aucun contact pour le moment. Ajoutez le premier ci-dessus.",
+    "no_details": "Aucune coordonnée"
+  },
+  "CrmContactForm": {
+    "name": "Nom",
+    "company": "Entreprise",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "notes": "Notes",
+    "saving": "Enregistrement...",
+    "save": "Enregistrer",
+    "add": "Ajouter le contact",
+    "cancel": "Annuler"
+  },
+  "CrmContactRowActions": {
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "delete_confirm": "Supprimer ce contact ?",
+    "delete_yes": "Oui",
+    "delete_cancel": "Annuler"
+  },
+  "CrmPipelinePage": {
+    "title": "Pipeline",
+    "add_heading": "Ajouter une opportunité",
+    "field_title": "Titre de l'opportunité",
+    "no_contact": "Aucun contact",
+    "adding": "Ajout...",
+    "add": "Ajouter",
+    "stage_empty": "Rien pour le moment",
+    "delete": "Supprimer",
+    "stage_lead": "Prospect",
+    "stage_contacted": "Contacté",
+    "stage_qualified": "Qualifié",
+    "stage_won": "Gagné",
+    "stage_lost": "Perdu"
   }
 }

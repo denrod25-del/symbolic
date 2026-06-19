@@ -217,5 +217,58 @@
     "pause": "Pause",
     "resume": "Resume",
     "delete": "Delete"
+  },
+  "CrmLayout": {
+    "nav_dashboard": "Dashboard",
+    "nav_contacts": "Contacts",
+    "nav_pipeline": "Pipeline"
+  },
+  "CrmDashboardPage": {
+    "greeting": "Welcome, {name} 👋",
+    "greeting_anon": "Welcome 👋",
+    "contacts_label": "Contacts",
+    "open_label": "Open opportunities",
+    "value_label": "Pipeline value",
+    "manage_contacts": "Manage contacts",
+    "view_pipeline": "View pipeline"
+  },
+  "CrmContactsPage": {
+    "title": "Contacts",
+    "add_heading": "Add a contact",
+    "empty": "No contacts yet. Add your first one above.",
+    "no_details": "No contact details"
+  },
+  "CrmContactForm": {
+    "name": "Name",
+    "company": "Company",
+    "email": "Email",
+    "phone": "Phone",
+    "notes": "Notes",
+    "saving": "Saving...",
+    "save": "Save changes",
+    "add": "Add contact",
+    "cancel": "Cancel"
+  },
+  "CrmContactRowActions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "delete_confirm": "Delete this contact?",
+    "delete_yes": "Yes",
+    "delete_cancel": "Cancel"
+  },
+  "CrmPipelinePage": {
+    "title": "Pipeline",
+    "add_heading": "Add an opportunity",
+    "field_title": "Opportunity title",
+    "no_contact": "No contact",
+    "adding": "Adding...",
+    "add": "Add",
+    "stage_empty": "Nothing here yet",
+    "delete": "Delete",
+    "stage_lead": "Lead",
+    "stage_contacted": "Contacted",
+    "stage_qualified": "Qualified",
+    "stage_won": "Won",
+    "stage_lost": "Lost"
   }
 }

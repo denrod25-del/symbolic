@@ -65,3 +65,36 @@ export const adClicks = pgTable('ad_clicks', {
   query: text('query').notNull(),
   clickedAt: timestamp('clicked_at').notNull().defaultNow(),
 });
+
+// CRM module: contacts and sales pipeline, scoped per Clerk user (tenant).
+
+export const crmContacts = pgTable('crm_contacts', {
+  id: serial('id').primaryKey(),
+  ownerClerkUserId: text('owner_clerk_user_id').notNull(),
+  name: text('name').notNull(),
+  email: text('email'),
+  phone: text('phone'),
+  company: text('company'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const crmOpportunities = pgTable('crm_opportunities', {
+  id: serial('id').primaryKey(),
+  ownerClerkUserId: text('owner_clerk_user_id').notNull(),
+  contactId: integer('contact_id').references(() => crmContacts.id, {
+    onDelete: 'set null',
+  }),
+  title: text('title').notNull(),
+  stage: text('stage').notNull().default('lead'),
+  value: integer('value').notNull().default(0),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
