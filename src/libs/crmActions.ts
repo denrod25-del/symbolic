@@ -43,6 +43,29 @@ function revalidateCrm(locale: string) {
 }
 
 /**
+ * Checks whether a contact belongs to the given user.
+ * @param userId - The signed-in user's Clerk ID.
+ * @param contactId - The contact to verify ownership of.
+ * @returns Whether the contact exists and is owned by the user.
+ */
+async function ownsContact(
+  userId: string,
+  contactId: number
+): Promise<boolean> {
+  const [row] = await db
+    .select({ id: crmContacts.id })
+    .from(crmContacts)
+    .where(
+      and(
+        eq(crmContacts.id, contactId),
+        eq(crmContacts.ownerClerkUserId, userId)
+      )
+    )
+    .limit(1);
+  return Boolean(row);
+}
+
+/**
  * Creates a contact owned by the signed-in user.
  * @param data - Validated contact form fields.
  * @param locale - Current locale used to revalidate CRM paths.
@@ -180,6 +203,10 @@ export async function createOpportunity(
   }
 
   const { title, contactId, valuePounds } = parsed.data;
+
+  if (contactId !== undefined && !(await ownsContact(user.id, contactId))) {
+    return { error: 'Contact not found' };
+  }
 
   await db.insert(crmOpportunities).values({
     ownerClerkUserId: user.id,

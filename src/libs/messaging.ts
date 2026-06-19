@@ -110,7 +110,9 @@ function resolveProvider(channel: CrmMessageChannel): MessageProvider {
       ? resendProvider
       : stubProvider;
   }
-  return Env.TWILIO_ACCOUNT_SID && Env.TWILIO_AUTH_TOKEN
+  return Env.TWILIO_ACCOUNT_SID &&
+    Env.TWILIO_AUTH_TOKEN &&
+    Env.TWILIO_FROM_NUMBER
     ? twilioProvider
     : stubProvider;
 }

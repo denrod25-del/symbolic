@@ -4,7 +4,7 @@ import { currentUser } from '@clerk/nextjs/server';
 import { and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import * as z from 'zod';
-import { crmAppointments } from '@/models/Schema';
+import { crmAppointments, crmContacts } from '@/models/Schema';
 import { CRM_APPOINTMENT_STATUSES } from '@/utils/Crm';
 import { db } from './DB';
 import { runWorkflows } from './workflows';
@@ -34,6 +34,29 @@ function revalidateBooking(locale: string) {
 }
 
 /**
+ * Checks whether a contact belongs to the given user.
+ * @param userId - The signed-in user's Clerk ID.
+ * @param contactId - The contact to verify ownership of.
+ * @returns Whether the contact exists and is owned by the user.
+ */
+async function ownsContact(
+  userId: string,
+  contactId: number
+): Promise<boolean> {
+  const [row] = await db
+    .select({ id: crmContacts.id })
+    .from(crmContacts)
+    .where(
+      and(
+        eq(crmContacts.id, contactId),
+        eq(crmContacts.ownerClerkUserId, userId)
+      )
+    )
+    .limit(1);
+  return Boolean(row);
+}
+
+/**
  * Books an appointment for the signed-in user, deriving the end time from the
  * chosen duration.
  * @param data - Validated appointment form fields.
@@ -56,6 +79,10 @@ export async function createAppointment(
 
   const { title, contactId, startAt, durationMinutes, notes } = parsed.data;
   const endAt = new Date(startAt.getTime() + durationMinutes * 60_000);
+
+  if (contactId !== undefined && !(await ownsContact(user.id, contactId))) {
+    return { error: 'Contact not found' };
+  }
 
   await db.insert(crmAppointments).values({
     ownerClerkUserId: user.id,
@@ -101,6 +128,10 @@ export async function updateAppointment(
 
   const { title, contactId, startAt, durationMinutes, notes } = parsed.data;
   const endAt = new Date(startAt.getTime() + durationMinutes * 60_000);
+
+  if (contactId !== undefined && !(await ownsContact(user.id, contactId))) {
+    return { error: 'Contact not found' };
+  }
 
   const updated = await db
     .update(crmAppointments)
