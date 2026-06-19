@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { crmContacts, crmOpportunities } from '@/models/Schema';
 import { CRM_STAGES } from '@/utils/Crm';
 import { db } from './DB';
+import { runWorkflows } from './workflows';
 
 const contactFormSchema = z.object({
   name: z.string().min(1).max(120),
@@ -63,14 +64,25 @@ export async function createContact(
 
   const { name, email, phone, company, notes } = parsed.data;
 
-  await db.insert(crmContacts).values({
-    ownerClerkUserId: user.id,
-    name,
-    email: emptyToNull(email),
-    phone: emptyToNull(phone),
-    company: emptyToNull(company),
-    notes: emptyToNull(notes),
-  });
+  const [created] = await db
+    .insert(crmContacts)
+    .values({
+      ownerClerkUserId: user.id,
+      name,
+      email: emptyToNull(email),
+      phone: emptyToNull(phone),
+      company: emptyToNull(company),
+      notes: emptyToNull(notes),
+    })
+    .returning({ id: crmContacts.id });
+
+  if (created) {
+    await runWorkflows({
+      type: 'contact_created',
+      ownerClerkUserId: user.id,
+      contactId: created.id,
+    });
+  }
 
   revalidateCrm(locale);
   return { success: true };
@@ -202,7 +214,7 @@ export async function moveOpportunity(
     return { error: 'Invalid stage' };
   }
 
-  await db
+  const [moved] = await db
     .update(crmOpportunities)
     .set({ stage })
     .where(
@@ -210,7 +222,17 @@ export async function moveOpportunity(
         eq(crmOpportunities.id, id),
         eq(crmOpportunities.ownerClerkUserId, user.id)
       )
-    );
+    )
+    .returning({ contactId: crmOpportunities.contactId });
+
+  if (moved) {
+    await runWorkflows({
+      type: 'opportunity_stage_changed',
+      ownerClerkUserId: user.id,
+      contactId: moved.contactId,
+      stage,
+    });
+  }
 
   revalidateCrm(locale);
   return undefined;

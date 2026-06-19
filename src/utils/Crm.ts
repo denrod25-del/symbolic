@@ -78,3 +78,60 @@ export type CrmMessageStatus = (typeof CRM_MESSAGE_STATUSES)[number];
 export function isCrmMessageStatus(value: string): value is CrmMessageStatus {
   return (CRM_MESSAGE_STATUSES as readonly string[]).includes(value);
 }
+
+/** Events that can start an automation workflow. */
+export const CRM_WORKFLOW_TRIGGERS = [
+  'contact_created',
+  'opportunity_stage_changed',
+  'appointment_booked',
+] as const;
+
+export type CrmWorkflowTrigger = (typeof CRM_WORKFLOW_TRIGGERS)[number];
+
+/** Actions a workflow can run when its trigger fires. */
+export const CRM_WORKFLOW_ACTIONS = [
+  'send_message',
+  'create_opportunity',
+] as const;
+
+export type CrmWorkflowAction = (typeof CRM_WORKFLOW_ACTIONS)[number];
+
+/**
+ * Narrows an arbitrary string to a known workflow trigger.
+ * @param value - The candidate trigger string.
+ * @returns Whether the value is a valid `CrmWorkflowTrigger`.
+ */
+export function isCrmWorkflowTrigger(
+  value: string
+): value is CrmWorkflowTrigger {
+  return (CRM_WORKFLOW_TRIGGERS as readonly string[]).includes(value);
+}
+
+/**
+ * Narrows an arbitrary string to a known workflow action.
+ * @param value - The candidate action string.
+ * @returns Whether the value is a valid `CrmWorkflowAction`.
+ */
+export function isCrmWorkflowAction(value: string): value is CrmWorkflowAction {
+  return (CRM_WORKFLOW_ACTIONS as readonly string[]).includes(value);
+}
+
+/** Outcomes recorded for a single workflow execution. */
+export const CRM_WORKFLOW_RUN_STATUSES = [
+  'success',
+  'failed',
+  'skipped',
+] as const;
+
+export type CrmWorkflowRunStatus = (typeof CRM_WORKFLOW_RUN_STATUSES)[number];
+
+/**
+ * Narrows an arbitrary string to a known workflow run status.
+ * @param value - The candidate status string.
+ * @returns Whether the value is a valid `CrmWorkflowRunStatus`.
+ */
+export function isCrmWorkflowRunStatus(
+  value: string
+): value is CrmWorkflowRunStatus {
+  return (CRM_WORKFLOW_RUN_STATUSES as readonly string[]).includes(value);
+}

@@ -5,6 +5,8 @@ import {
   isCrmAppointmentStatus,
   isCrmMessageChannel,
   isCrmStage,
+  isCrmWorkflowAction,
+  isCrmWorkflowTrigger,
 } from './Crm';
 
 describe('Crm', () => {
@@ -49,6 +51,26 @@ describe('Crm', () => {
 
     it('rejects an unsupported channel', () => {
       expect(isCrmMessageChannel('whatsapp')).toBe(false);
+    });
+  });
+
+  describe('isCrmWorkflowTrigger', () => {
+    it('accepts a known trigger', () => {
+      expect(isCrmWorkflowTrigger('opportunity_stage_changed')).toBe(true);
+    });
+
+    it('rejects an unknown trigger', () => {
+      expect(isCrmWorkflowTrigger('contact_deleted')).toBe(false);
+    });
+  });
+
+  describe('isCrmWorkflowAction', () => {
+    it('accepts a known action', () => {
+      expect(isCrmWorkflowAction('send_message')).toBe(true);
+    });
+
+    it('rejects an unknown action', () => {
+      expect(isCrmWorkflowAction('charge_card')).toBe(false);
     });
   });
 });

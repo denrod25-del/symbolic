@@ -1,6 +1,7 @@
 import {
   boolean,
   integer,
+  jsonb,
   pgTable,
   serial,
   text,
@@ -130,4 +131,42 @@ export const crmAppointments = pgTable('crm_appointments', {
     .defaultNow()
     .$onUpdate(() => new Date())
     .notNull(),
+});
+
+// Workflow automation: trigger/action rules and their execution log.
+
+export const crmWorkflows = pgTable('crm_workflows', {
+  id: serial('id').primaryKey(),
+  ownerClerkUserId: text('owner_clerk_user_id').notNull(),
+  name: text('name').notNull(),
+  triggerType: text('trigger_type').notNull(),
+  triggerConfig: jsonb('trigger_config')
+    .$type<Record<string, unknown>>()
+    .notNull()
+    .default({}),
+  actionType: text('action_type').notNull(),
+  actionConfig: jsonb('action_config')
+    .$type<Record<string, unknown>>()
+    .notNull()
+    .default({}),
+  active: boolean('active').notNull().default(true),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const crmWorkflowRuns = pgTable('crm_workflow_runs', {
+  id: serial('id').primaryKey(),
+  ownerClerkUserId: text('owner_clerk_user_id').notNull(),
+  workflowId: integer('workflow_id')
+    .notNull()
+    .references(() => crmWorkflows.id, { onDelete: 'cascade' }),
+  contactId: integer('contact_id').references(() => crmContacts.id, {
+    onDelete: 'set null',
+  }),
+  status: text('status').notNull(),
+  detail: text('detail'),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
 });

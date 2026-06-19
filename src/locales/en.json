@@ -223,7 +223,8 @@
     "nav_contacts": "Contacts",
     "nav_pipeline": "Pipeline",
     "nav_calendar": "Calendar",
-    "nav_inbox": "Inbox"
+    "nav_inbox": "Inbox",
+    "nav_automations": "Automations"
   },
   "CrmDashboardPage": {
     "greeting": "Welcome, {name} 👋",
@@ -340,5 +341,53 @@
     "stub_hint": "Sends via provider when configured, otherwise simulated.",
     "sending": "Sending...",
     "send": "Send"
+  },
+  "CrmAutomationsPage": {
+    "title": "Automations",
+    "subtitle": "Run an action automatically when something happens in your CRM.",
+    "create_heading": "New automation",
+    "active_heading": "Your automations",
+    "empty": "No automations yet. Create one above.",
+    "badge_active": "Active",
+    "badge_paused": "Paused",
+    "trigger_contact_created": "Contact created",
+    "trigger_opportunity_stage_changed": "Opportunity stage changed",
+    "trigger_appointment_booked": "Appointment booked",
+    "action_send_message": "Send a message",
+    "action_create_opportunity": "Create an opportunity",
+    "runs_heading": "Recent activity",
+    "runs_empty": "No runs yet.",
+    "run_status_success": "Success",
+    "run_status_failed": "Failed",
+    "run_status_skipped": "Skipped"
+  },
+  "CrmWorkflowForm": {
+    "name": "Name",
+    "name_placeholder": "e.g. Welcome new leads",
+    "trigger": "When this happens",
+    "trigger_contact_created": "Contact created",
+    "trigger_opportunity_stage_changed": "Opportunity stage changed",
+    "trigger_appointment_booked": "Appointment booked",
+    "trigger_stage": "Only for stage",
+    "any_stage": "Any stage",
+    "action": "Do this",
+    "action_send_message": "Send a message",
+    "action_create_opportunity": "Create an opportunity",
+    "channel": "Channel",
+    "channel_sms": "SMS",
+    "channel_email": "Email",
+    "subject_placeholder": "Subject",
+    "body_placeholder": "Message to send...",
+    "opportunity_title_placeholder": "Opportunity title",
+    "creating": "Creating...",
+    "create": "Create automation"
+  },
+  "CrmWorkflowRowActions": {
+    "pause": "Pause",
+    "resume": "Resume",
+    "delete": "Delete",
+    "delete_confirm": "Delete this automation?",
+    "delete_yes": "Yes",
+    "delete_cancel": "Cancel"
   }
 }

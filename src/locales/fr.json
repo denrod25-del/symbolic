@@ -223,7 +223,8 @@
     "nav_contacts": "Contacts",
     "nav_pipeline": "Pipeline",
     "nav_calendar": "Calendrier",
-    "nav_inbox": "Messagerie"
+    "nav_inbox": "Messagerie",
+    "nav_automations": "Automatisations"
   },
   "CrmDashboardPage": {
     "greeting": "Bienvenue, {name} 👋",
@@ -340,5 +341,53 @@
     "stub_hint": "Envoi via le fournisseur si configuré, sinon simulé.",
     "sending": "Envoi...",
     "send": "Envoyer"
+  },
+  "CrmAutomationsPage": {
+    "title": "Automatisations",
+    "subtitle": "Exécutez une action automatiquement lorsqu'un événement se produit dans votre CRM.",
+    "create_heading": "Nouvelle automatisation",
+    "active_heading": "Vos automatisations",
+    "empty": "Aucune automatisation. Créez-en une ci-dessus.",
+    "badge_active": "Active",
+    "badge_paused": "En pause",
+    "trigger_contact_created": "Contact créé",
+    "trigger_opportunity_stage_changed": "Étape d'opportunité modifiée",
+    "trigger_appointment_booked": "Rendez-vous réservé",
+    "action_send_message": "Envoyer un message",
+    "action_create_opportunity": "Créer une opportunité",
+    "runs_heading": "Activité récente",
+    "runs_empty": "Aucune exécution.",
+    "run_status_success": "Réussi",
+    "run_status_failed": "Échec",
+    "run_status_skipped": "Ignoré"
+  },
+  "CrmWorkflowForm": {
+    "name": "Nom",
+    "name_placeholder": "ex. Accueillir les nouveaux prospects",
+    "trigger": "Quand ceci arrive",
+    "trigger_contact_created": "Contact créé",
+    "trigger_opportunity_stage_changed": "Étape d'opportunité modifiée",
+    "trigger_appointment_booked": "Rendez-vous réservé",
+    "trigger_stage": "Uniquement pour l'étape",
+    "any_stage": "Toutes les étapes",
+    "action": "Faire ceci",
+    "action_send_message": "Envoyer un message",
+    "action_create_opportunity": "Créer une opportunité",
+    "channel": "Canal",
+    "channel_sms": "SMS",
+    "channel_email": "E-mail",
+    "subject_placeholder": "Objet",
+    "body_placeholder": "Message à envoyer...",
+    "opportunity_title_placeholder": "Titre de l'opportunité",
+    "creating": "Création...",
+    "create": "Créer l'automatisation"
+  },
+  "CrmWorkflowRowActions": {
+    "pause": "Mettre en pause",
+    "resume": "Reprendre",
+    "delete": "Supprimer",
+    "delete_confirm": "Supprimer cette automatisation ?",
+    "delete_yes": "Oui",
+    "delete_cancel": "Annuler"
   }
 }

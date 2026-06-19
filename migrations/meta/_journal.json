@@ -50,6 +50,13 @@
       "when": 1781880792231,
       "tag": "0006_young_vermin",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1781884148299,
+      "tag": "0007_round_calypso",
+      "breakpoints": true
     }
   ]
 }

@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { crmAppointments } from '@/models/Schema';
 import { CRM_APPOINTMENT_STATUSES } from '@/utils/Crm';
 import { db } from './DB';
+import { runWorkflows } from './workflows';
 
 const appointmentFormSchema = z.object({
   title: z.string().min(1).max(120),
@@ -64,6 +65,12 @@ export async function createAppointment(
     endAt,
     status: 'scheduled',
     notes: emptyToNull(notes),
+  });
+
+  await runWorkflows({
+    type: 'appointment_booked',
+    ownerClerkUserId: user.id,
+    contactId: contactId ?? null,
   });
 
   revalidateBooking(locale);
