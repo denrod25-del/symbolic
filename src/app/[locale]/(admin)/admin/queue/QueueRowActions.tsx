@@ -49,7 +49,9 @@ export function QueueRowActions(props: {
       <div className="flex flex-col gap-2">
         <textarea
           value={reason}
-          onChange={(event) =>{  setReason(event.target.value); }}
+          onChange={(event) => {
+            setReason(event.target.value);
+          }}
           placeholder={props.labels.reasonPlaceholder}
           className="rounded border border-white/15 bg-white/5 px-2 py-1 text-sm"
           rows={2}
@@ -66,7 +68,9 @@ export function QueueRowActions(props: {
           </button>
           <button
             type="button"
-            onClick={() =>{  setRejecting(false); }}
+            onClick={() => {
+              setRejecting(false);
+            }}
             className="rounded border border-white/15 px-3 py-1 text-xs hover:bg-white/5"
           >
             {props.labels.cancel}
@@ -89,7 +93,9 @@ export function QueueRowActions(props: {
         </button>
         <button
           type="button"
-          onClick={() =>{  setRejecting(true); }}
+          onClick={() => {
+            setRejecting(true);
+          }}
           className="rounded border border-red-500/40 px-3 py-1 text-xs font-semibold text-red-300 hover:bg-red-500/10"
         >
           {props.labels.reject}

@@ -7,6 +7,36 @@ on:
     branches: [main]
 
 jobs:
+  # Secrets are not available in job-level `if:` conditions, so expose their
+  # presence as outputs that downstream jobs can gate on. Jobs that need
+  # secrets absent from this repo (forks, contributors) then skip cleanly
+  # instead of failing.
+  check-secrets:
+    name: Check required secrets
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      has-e2e: ${{ steps.check.outputs.has-e2e }}
+      has-crowdin: ${{ steps.check.outputs.has-crowdin }}
+    steps:
+      - id: check
+        env:
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+          CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+        run: |
+          if [ -n "$CLERK_SECRET_KEY" ] && [ -n "$CHROMATIC_PROJECT_TOKEN" ]; then
+            echo "has-e2e=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-e2e=false" >> "$GITHUB_OUTPUT"
+          fi
+          if [ -n "$CROWDIN_PROJECT_ID" ] && [ -n "$CROWDIN_PERSONAL_TOKEN" ]; then
+            echo "has-crowdin=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-crowdin=false" >> "$GITHUB_OUTPUT"
+          fi
+
   build:
     strategy:
       matrix:
@@ -38,6 +68,9 @@ jobs:
         env:
           NEXT_PUBLIC_SENTRY_DISABLED: 'true' # Only upload Sentry source maps in deployment
           NEXT_PUBLIC_APP_URL: http://localhost:3008
+          # Required by Env.ts validation at build time; falls back to a
+          # placeholder so the build runs without the secret configured.
+          BRAVE_SEARCH_API_KEY: ${{ secrets.BRAVE_SEARCH_API_KEY || 'ci-build-placeholder' }}
 
       - if: matrix.node-version == '24.x' && success()
         name: Cache Next.js build output
@@ -57,6 +90,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    # Database-backed unit tests connect to DATABASE_URL (127.0.0.1:5432).
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v6
 
@@ -65,10 +114,16 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Run unit tests
+      - name: Apply database migrations
+        run: npm run db:migrate
+
+      - name: Run node unit tests
+        run: npm run test -- --project unit --coverage
+
+      - name: Run UI component tests
         uses: docker://mcr.microsoft.com/playwright:v1.58.2
         with:
-          args: npm run test -- --coverage
+          args: sh -c "HOME=/root npm run test -- --project ui"
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v6
@@ -142,7 +197,9 @@ jobs:
     name: Run E2E tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build]
+    needs: [build, check-secrets]
+    # Skip when Clerk/Chromatic secrets are unavailable (e.g. forks).
+    if: needs.check-secrets.outputs.has-e2e == 'true'
 
     steps:
       - uses: actions/checkout@v6
@@ -186,8 +243,10 @@ jobs:
     name: GitHub PR synchronize with Crowdin
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    needs: [check-secrets]
 
-    if: github.event_name == 'pull_request'
+    # Skip when Crowdin secrets are unavailable (e.g. forks).
+    if: github.event_name == 'pull_request' && needs.check-secrets.outputs.has-crowdin == 'true'
 
     steps:
       - uses: actions/checkout@v6
