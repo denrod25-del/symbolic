@@ -7,9 +7,11 @@ import pandas as pd
 
 from cso_predictor.config import CONFIG, Config, Outfall
 from cso_predictor.features import make_features
+from cso_predictor.hydraulic import predict_series as hydraulic_predict
 from cso_predictor.ingestion import fetch_rainfall_forecast
 from cso_predictor.model import load_model, predict_proba
 from cso_predictor.recommend import Recommendation, recommend_all
+from cso_predictor.tuning import load_tuned_bands
 
 
 def estimate_tank_levels(rain: pd.Series, outfall: Outfall) -> pd.Series:
@@ -31,6 +33,8 @@ def run_cycle(
     *,
     hours: int = 24,
     allow_network: bool = True,
+    engine: str = "ml",
+    tuned: bool = False,
     config: Config = CONFIG,
 ) -> list[Recommendation]:
     """Run one prediction cycle and return recommendations per outfall.
@@ -38,8 +42,11 @@ def run_cycle(
     Headline risk for each outfall is the peak predicted probability across the
     forecast horizon; the tank level used for recommendations is taken at that
     peak hour.
+
+    `engine` selects "ml" (trained classifier) or "hydraulic" (physics-based,
+    no model needed). `tuned` loads per-outfall thresholds from the backtest.
     """
-    bundle = load_model()
+    bundle = load_model() if engine == "ml" else None
     forecast = fetch_rainfall_forecast(hours=hours, allow_network=allow_network)
 
     probabilities: dict[str, float] = {}
@@ -48,10 +55,18 @@ def run_cycle(
         rain = forecast[outfall.id]
         tank = estimate_tank_levels(rain, outfall)
         features = make_features(rain, tank, outfall, config=config)
-        proba = predict_proba(bundle, features)
+        if engine == "hydraulic":
+            proba = hydraulic_predict(rain, tank, outfall, config=config)
+        elif engine == "ml":
+            proba = predict_proba(bundle, features)
+        else:
+            raise ValueError(f"Unknown engine: {engine!r} (use 'ml' or 'hydraulic')")
 
         peak = int(np.argmax(proba))
         probabilities[outfall.id] = float(proba[peak])
         tank_at_peak[outfall.id] = float(tank.iloc[peak])
 
-    return recommend_all(probabilities, tank_at_peak, config=config)
+    bands_by_id = load_tuned_bands(config=config) if tuned else None
+    return recommend_all(
+        probabilities, tank_at_peak, config=config, bands_by_id=bands_by_id
+    )

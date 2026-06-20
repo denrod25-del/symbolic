@@ -18,9 +18,14 @@ def main() -> None:
     parser.add_argument("--hours", type=int, default=24, help="forecast horizon to scan")
     parser.add_argument("--offline", action="store_true",
                         help="skip the rainfall API and use a synthetic storm")
+    parser.add_argument("--engine", choices=["ml", "hydraulic"], default="ml",
+                        help="prediction engine (ml = trained model, hydraulic = physics)")
+    parser.add_argument("--tuned", action="store_true",
+                        help="use per-outfall thresholds from artifacts/backtest.json")
     args = parser.parse_args()
 
-    recs = run_cycle(hours=args.hours, allow_network=not args.offline)
+    recs = run_cycle(hours=args.hours, allow_network=not args.offline,
+                     engine=args.engine, tuned=args.tuned)
 
     print("\nCombined-Sewer Overflow risk (peak over forecast)\n" + "=" * 52)
     for r in recs:

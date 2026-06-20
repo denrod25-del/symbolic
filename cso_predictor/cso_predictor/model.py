@@ -14,6 +14,7 @@ import joblib
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.inspection import permutation_importance
 from sklearn.metrics import average_precision_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 
@@ -22,6 +23,13 @@ from cso_predictor.features import build_feature_columns
 
 ARTIFACT_DIR = Path(__file__).resolve().parent.parent / "artifacts"
 MODEL_PATH = ARTIFACT_DIR / "model.joblib"
+
+try:  # LightGBM is an optional drop-in upgrade for the classifier.
+    from lightgbm import LGBMClassifier
+
+    HAS_LIGHTGBM = True
+except ImportError:  # pragma: no cover - depends on environment
+    HAS_LIGHTGBM = False
 
 
 @dataclass
@@ -44,7 +52,17 @@ class Metrics:
         }
 
 
-def _make_estimator(config: Config) -> HistGradientBoostingClassifier:
+def _make_estimator(config: Config):
+    """Return the boosting classifier, preferring LightGBM when installed."""
+    if HAS_LIGHTGBM:
+        return LGBMClassifier(
+            n_estimators=400,
+            learning_rate=0.05,
+            num_leaves=31,
+            class_weight="balanced",  # CSO events are rare
+            random_state=config.random_seed,
+            verbosity=-1,
+        )
     return HistGradientBoostingClassifier(
         max_iter=300,
         learning_rate=0.06,
@@ -53,6 +71,11 @@ def _make_estimator(config: Config) -> HistGradientBoostingClassifier:
         class_weight="balanced",  # CSO events are rare
         random_state=config.random_seed,
     )
+
+
+def backend_name() -> str:
+    """Name of the active classifier backend."""
+    return "lightgbm" if HAS_LIGHTGBM else "sklearn-histgbm"
 
 
 def train(x: pd.DataFrame, y: pd.Series, *, config: Config = CONFIG):
@@ -96,3 +119,22 @@ def predict_proba(bundle, features: pd.DataFrame) -> np.ndarray:
     model = bundle["model"]
     ordered = features[bundle["features"]]
     return model.predict_proba(ordered)[:, 1]
+
+
+def feature_importance(
+    model, x: pd.DataFrame, y: pd.Series, *, config: Config = CONFIG
+) -> dict[str, float]:
+    """Permutation importance per feature, normalised to sum to 1.
+
+    Model-agnostic (works for LightGBM and HistGBM); measures the drop in
+    average-precision when each feature is shuffled.
+    """
+    result = permutation_importance(
+        model, x, y, n_repeats=5, random_state=config.random_seed,
+        scoring="average_precision",
+    )
+    raw = np.clip(result.importances_mean, 0.0, None)
+    total = raw.sum()
+    weights = raw / total if total > 0 else raw
+    ranked = sorted(zip(x.columns, weights), key=lambda kv: kv[1], reverse=True)
+    return {name: round(float(weight), 4) for name, weight in ranked}

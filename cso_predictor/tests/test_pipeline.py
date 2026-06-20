@@ -34,6 +34,13 @@ def test_train_and_run_cycle_offline(tmp_path):
     assert all(0.0 <= r.probability <= 1.0 for r in recs)
 
 
+def test_hydraulic_engine_runs_without_a_trained_model():
+    # The hydraulic engine needs no model artifact.
+    recs = run_cycle(hours=24, allow_network=False, engine="hydraulic")
+    assert len(recs) == len(CONFIG.outfalls)
+    assert all(0.0 <= r.probability <= 1.0 for r in recs)
+
+
 def test_predict_proba_in_unit_range():
     history = generate_history(hours=24 * 60)
     x, y = make_training_matrix(history)

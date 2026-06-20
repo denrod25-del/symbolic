@@ -5,9 +5,12 @@ scikit-learn>=1.3
 joblib>=1.3
 requests>=2.31
 
+# Recommended: drop-in upgrade for the classifier (auto-detected by model.py)
+lightgbm>=4.0
+
 # Optional surfaces (install as needed)
 # fastapi>=0.110
 # uvicorn>=0.29
 # streamlit>=1.33
 # plotly>=5.20
-# lightgbm>=4.0    # drop-in upgrade for the classifier, see model.py
+# pyswmm>=2.0      # swap the hydraulic engine for a calibrated SWMM network

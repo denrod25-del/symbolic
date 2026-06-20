@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from cso_predictor.config import CONFIG, Config, Outfall
+from cso_predictor.tuning import Bands, default_bands
 
 
 @dataclass
@@ -27,13 +28,12 @@ class Recommendation:
         }
 
 
-def _risk_band(prob: float, config: Config) -> str:
-    t = config.thresholds
-    if prob >= t.alert:
+def _risk_band(prob: float, bands: Bands) -> str:
+    if prob >= bands.alert:
         return "high"
-    if prob >= t.act:
+    if prob >= bands.act:
         return "elevated"
-    if prob >= t.monitor:
+    if prob >= bands.watch:
         return "watch"
     return "low"
 
@@ -44,9 +44,15 @@ def recommend(
     tank_level_m3: float,
     *,
     config: Config = CONFIG,
+    bands: Bands | None = None,
 ) -> Recommendation:
-    """Turn a single outfall's predicted probability + state into actions."""
-    risk = _risk_band(probability, config)
+    """Turn a single outfall's predicted probability + state into actions.
+
+    `bands` overrides the global config thresholds (e.g. tuned per-outfall
+    values from a backtest); defaults to the config bands when omitted.
+    """
+    bands = bands or default_bands(config)
+    risk = _risk_band(probability, bands)
     t = config.thresholds
     actions: list[str] = []
 
@@ -81,11 +87,19 @@ def recommend_all(
     tank_levels: dict[str, float],
     *,
     config: Config = CONFIG,
+    bands_by_id: dict[str, Bands] | None = None,
 ) -> list[Recommendation]:
-    """Build recommendations for every configured outfall, highest risk first."""
+    """Build recommendations for every configured outfall, highest risk first.
+
+    `bands_by_id` supplies per-outfall thresholds (e.g. from `load_tuned_bands`);
+    outfalls without an entry use the global config bands.
+    """
     by_id = {o.id: o for o in config.outfalls}
     recs = [
-        recommend(by_id[oid], prob, tank_levels.get(oid, 0.0), config=config)
+        recommend(
+            by_id[oid], prob, tank_levels.get(oid, 0.0), config=config,
+            bands=(bands_by_id or {}).get(oid),
+        )
         for oid, prob in probabilities.items()
         if oid in by_id
     ]
