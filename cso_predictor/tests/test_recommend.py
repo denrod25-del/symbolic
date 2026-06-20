@@ -19,12 +19,21 @@ def test_low_probability_recommends_monitor_only():
     assert rec.actions == ["Monitor — no action required"]
 
 
-def test_high_probability_includes_drawdown_and_alert():
-    rec = recommend(_outfall("CSO-01"), probability=0.9, tank_level_m3=0.0)
+def test_high_probability_with_stored_volume_includes_drawdown_and_alert():
+    # A part-full tank has pumpable volume, so drawdown is actionable.
+    outfall = _outfall("CSO-01")
+    rec = recommend(outfall, probability=0.9, tank_level_m3=outfall.tank_capacity_m3)
     assert rec.risk == "high"
     joined = " ".join(rec.actions)
     assert "draw down" in joined
     assert "pre-alert" in joined
+
+
+def test_high_probability_empty_tank_skips_drawdown():
+    # An empty tank already provides buffer; do not advise drawing it down.
+    rec = recommend(_outfall("CSO-01"), probability=0.9, tank_level_m3=0.0)
+    assert all("draw down" not in a for a in rec.actions)
+    assert any("free buffer" in a for a in rec.actions)
 
 
 def test_outfall_without_reroute_omits_diversion():

@@ -33,8 +33,10 @@ class Thresholds:
     monitor: float = 0.30
     act: float = 0.50
     alert: float = 0.70
-    # Minimum free tank volume (m^3) worth drawing down preemptively.
+    # Minimum free tank volume (m^3) to count as a useful existing buffer.
     min_headroom_m3: float = 50.0
+    # Minimum stored (pumpable) volume (m^3) worth drawing down preemptively.
+    min_pumpable_m3: float = 50.0
 
 
 @dataclass(frozen=True)

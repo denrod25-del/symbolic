@@ -98,9 +98,27 @@ def train(x: pd.DataFrame, y: pd.Series, *, config: Config = CONFIG):
     return model, metrics
 
 
-def save_model(model, path: Path = MODEL_PATH) -> Path:
+def _fitted_feature_names(model) -> list[str] | None:
+    """Recover the feature names the estimator was actually fit on, if available."""
+    names = getattr(model, "feature_names_in_", None)
+    if names is not None:
+        return list(names)
+    names = getattr(model, "feature_name_", None)  # LightGBM
+    if names is not None:
+        return list(names)
+    return None
+
+
+def save_model(model, path: Path = MODEL_PATH, *, features: list[str] | None = None) -> Path:
+    """Persist the model with the exact feature schema it was trained on.
+
+    Prefers explicit `features`, then the fitted estimator's recorded names, and
+    only falls back to the default columns so a non-default `Config` (e.g. custom
+    `rain_windows_h`) cannot desync the saved schema from the model.
+    """
+    schema = features or _fitted_feature_names(model) or build_feature_columns()
     path.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump({"model": model, "features": build_feature_columns()}, path)
+    joblib.dump({"model": model, "features": schema}, path)
     return path
 
 

@@ -29,7 +29,7 @@ def main() -> None:
 
     print(f"Training classifier (backend: {backend_name()})...")
     model, metrics = train(x, y)
-    path = save_model(model)
+    path = save_model(model, features=list(x.columns))
 
     ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
     metrics_path = ARTIFACT_DIR / "metrics.json"

@@ -61,13 +61,21 @@ def recommend(
         return Recommendation(outfall.id, outfall.name, probability, risk,
                               outfall.lead_time_h, actions)
 
-    headroom = outfall.tank_capacity_m3 - tank_level_m3
-    if outfall.tank_capacity_m3 > 0 and headroom >= t.min_headroom_m3:
-        actions.append(
-            f"Pre-empt: draw down storage tank now (~{headroom:.0f} m^3 free)"
-        )
-    elif outfall.tank_capacity_m3 > 0:
-        actions.append("Storage near full — limited buffer, prioritise diversion")
+    if outfall.tank_capacity_m3 > 0:
+        stored = max(0.0, tank_level_m3)
+        headroom = outfall.tank_capacity_m3 - stored
+        if stored >= t.min_pumpable_m3:
+            # Pumping out stored water creates buffer ahead of the storm.
+            actions.append(
+                f"Pre-empt: draw down storage tank now "
+                f"(~{stored:.0f} m^3 stored) to free capacity"
+            )
+        elif headroom >= t.min_headroom_m3:
+            actions.append(
+                f"Storage has ~{headroom:.0f} m^3 free buffer — monitor level"
+            )
+        else:
+            actions.append("Storage near full, little pumpable — prioritise diversion")
 
     if outfall.can_reroute and risk in ("elevated", "high"):
         actions.append("Open interconnector to divert flow to spare capacity")
