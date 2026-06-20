@@ -41,6 +41,9 @@ python scripts/train.py
 
 # 2. run one prediction cycle (prints per-outfall risk + recommended actions)
 python scripts/predict.py
+
+# 3. backtest + tune decision thresholds (writes artifacts/backtest.json)
+python scripts/backtest.py
 ```
 
 Optional surfaces:
@@ -68,6 +71,20 @@ streamlit run dashboard/app.py
    not accuracy.
 4. **Recommend** maps probability + asset state to concrete preemptive actions
    with the available lead time.
+
+## Backtesting & threshold tuning
+
+`scripts/backtest.py` replays an independent (unseen-seed) storm history and
+scores predictions against a **lead-time-aware** label: an alarm at time *t* is
+only credited if it fires at least the outfall's `lead_time_h` ahead of an
+actual spill — i.e. early enough to act on. It sweeps decision thresholds and,
+per outfall, recommends the threshold that maximises recall subject to a
+precision floor (`--min-precision`, default 0.5), writing the full sweep to
+`artifacts/backtest.json`.
+
+Use the recommended thresholds to set the `monitor / act / alert` bands in
+`config.py`. Outfalls with very few historical events (e.g. CSO-03 in the demo)
+surface as low-confidence — a real, useful finding rather than a hidden risk.
 
 ## Notes
 

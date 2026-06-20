@@ -15,13 +15,20 @@ import pandas as pd
 from cso_predictor.config import CONFIG, Config
 
 
-def generate_history(hours: int = 24 * 365, *, config: Config = CONFIG) -> pd.DataFrame:
+def generate_history(
+    hours: int = 24 * 365,
+    *,
+    config: Config = CONFIG,
+    seed: int | None = None,
+) -> pd.DataFrame:
     """Return a long-format history with one row per (timestamp, outfall).
 
-    Columns: timestamp, outfall_id, rain_mm, tank_level_m3, overflow.
-    `overflow` is 1 if the outfall spills within the next `horizon_h` hours.
+    Columns: timestamp, outfall_id, rain_mm, tank_level_m3, spill, overflow.
+    `spill` is 1 when the outfall spills in that hour; `overflow` is 1 when a
+    spill occurs within the next `horizon_h` hours (the model's training label).
+    Pass `seed` to draw an independent history (e.g. a held-out backtest set).
     """
-    rng = np.random.default_rng(config.random_seed)
+    rng = np.random.default_rng(config.random_seed if seed is None else seed)
     start = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
     start -= timedelta(hours=hours)
     index = pd.DatetimeIndex([start + timedelta(hours=h) for h in range(hours)])
@@ -56,6 +63,7 @@ def generate_history(hours: int = 24 * 365, *, config: Config = CONFIG) -> pd.Da
             "outfall_id": outfall.id,
             "rain_mm": np.round(rain, 3),
             "tank_level_m3": np.round(tank, 2),
+            "spill": spill.astype(int),
             "overflow": label.astype(int),
         }))
 
