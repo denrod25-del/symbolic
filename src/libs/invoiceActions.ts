@@ -52,6 +52,21 @@ export async function convertQuoteToInvoice(
     return { error: 'Only accepted quotes can be invoiced' };
   }
 
+  const [existing] = await db
+    .select({ id: crmInvoices.id })
+    .from(crmInvoices)
+    .where(
+      and(
+        eq(crmInvoices.quoteId, quote.id),
+        eq(crmInvoices.ownerClerkUserId, user.id)
+      )
+    )
+    .limit(1);
+
+  if (existing) {
+    return { success: true };
+  }
+
   const dueAt = new Date(Date.now() + INVOICE_DUE_DAYS * 24 * 60 * 60 * 1000);
 
   await db.insert(crmInvoices).values({

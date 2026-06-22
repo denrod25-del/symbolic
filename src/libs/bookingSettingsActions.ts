@@ -28,13 +28,18 @@ const bookingSettingsSchema = z.object({
 
 type BookingSettingsData = z.input<typeof bookingSettingsSchema>;
 
-const requestBookingSchema = z.object({
-  name: z.string().min(1).max(120),
-  email: z.union([z.email(), z.literal('')]).default(''),
-  phone: z.string().max(40).default(''),
-  startAt: z.coerce.date(),
-  notes: z.string().max(2000).default(''),
-});
+const requestBookingSchema = z
+  .object({
+    name: z.string().min(1).max(120),
+    email: z.union([z.email(), z.literal('')]).default(''),
+    phone: z.string().max(40).default(''),
+    startAt: z.coerce.date(),
+    notes: z.string().max(2000).default(''),
+  })
+  .refine((data) => data.email !== '' || data.phone.trim() !== '', {
+    message: 'Add an email or phone number',
+    path: ['phone'],
+  });
 
 type RequestBookingData = z.input<typeof requestBookingSchema>;
 
