@@ -222,6 +222,7 @@
     "nav_dashboard": "Tableau de bord",
     "nav_contacts": "Contacts",
     "nav_pipeline": "Pipeline",
+    "nav_quotes": "Devis",
     "nav_calendar": "Calendrier",
     "nav_inbox": "Messagerie",
     "nav_automations": "Automatisations"
@@ -232,9 +233,11 @@
     "contacts_label": "Contacts",
     "open_label": "Opportunités ouvertes",
     "value_label": "Valeur du pipeline",
+    "quotes_label": "Devis",
     "upcoming_label": "Rendez-vous à venir",
     "manage_contacts": "Gérer les contacts",
     "view_pipeline": "Voir le pipeline",
+    "view_quotes": "Voir les devis",
     "open_calendar": "Ouvrir le calendrier"
   },
   "CrmContactsPage": {
@@ -275,6 +278,43 @@
     "stage_qualified": "Qualifié",
     "stage_won": "Gagné",
     "stage_lost": "Perdu"
+  },
+  "CrmQuotesPage": {
+    "title": "Devis",
+    "add_heading": "Créer un devis",
+    "empty": "Aucun devis pour le moment. Créez le premier ci-dessus.",
+    "line_count": "{count, plural, one {# ligne} other {# lignes}}",
+    "status_draft": "Brouillon",
+    "status_sent": "Envoyé",
+    "status_accepted": "Accepté",
+    "status_declined": "Refusé"
+  },
+  "CrmQuoteForm": {
+    "title": "Titre du devis",
+    "contact": "Contact",
+    "no_contact": "Aucun contact",
+    "line_items": "Lignes",
+    "description": "Description",
+    "quantity": "Qté",
+    "unit_price": "Prix unitaire (£)",
+    "remove": "Retirer",
+    "add_line": "+ Ajouter une ligne",
+    "notes": "Notes",
+    "total": "Total",
+    "saving": "Enregistrement...",
+    "save": "Enregistrer",
+    "add": "Créer le devis",
+    "cancel": "Annuler"
+  },
+  "CrmQuoteRowActions": {
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "mark_sent": "Marquer envoyé",
+    "mark_accepted": "Marquer accepté",
+    "mark_declined": "Marquer refusé",
+    "delete_confirm": "Supprimer ce devis ?",
+    "delete_yes": "Oui",
+    "delete_cancel": "Annuler"
   },
   "CrmCalendarPage": {
     "title": "Calendrier",

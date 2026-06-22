@@ -8,6 +8,7 @@ import {
   crmAppointments,
   crmContacts,
   crmOpportunities,
+  crmQuotes,
 } from '@/models/Schema';
 import { CRM_OPEN_STAGES } from '@/utils/Crm';
 
@@ -51,6 +52,11 @@ export default async function CrmDashboardPage(props: {
       )
     );
 
+  const quoteRows = await db
+    .select({ id: crmQuotes.id })
+    .from(crmQuotes)
+    .where(eq(crmQuotes.ownerClerkUserId, user.id));
+
   const openCount = openRows.length;
   const pipelineValue = openRows.reduce((sum, row) => sum + row.value, 0);
   const pipelinePounds = (pipelineValue / 100).toLocaleString('en-GB', {
@@ -65,7 +71,7 @@ export default async function CrmDashboardPage(props: {
         {name ? t('greeting', { name }) : t('greeting_anon')}
       </h1>
 
-      <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         <div className="rounded-lg border border-white/10 bg-white/5 p-6">
           <p className="mb-1 text-sm text-white/50">{t('contacts_label')}</p>
           <p className="text-3xl font-bold">{contactRows.length}</p>
@@ -77,6 +83,10 @@ export default async function CrmDashboardPage(props: {
         <div className="rounded-lg border border-white/10 bg-white/5 p-6">
           <p className="mb-1 text-sm text-white/50">{t('value_label')}</p>
           <p className="text-3xl font-bold">{pipelinePounds}</p>
+        </div>
+        <div className="rounded-lg border border-white/10 bg-white/5 p-6">
+          <p className="mb-1 text-sm text-white/50">{t('quotes_label')}</p>
+          <p className="text-3xl font-bold">{quoteRows.length}</p>
         </div>
         <div className="rounded-lg border border-white/10 bg-white/5 p-6">
           <p className="mb-1 text-sm text-white/50">{t('upcoming_label')}</p>
@@ -96,6 +106,12 @@ export default async function CrmDashboardPage(props: {
           className="rounded-lg bg-white/5 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10"
         >
           {t('view_pipeline')}
+        </Link>
+        <Link
+          href={`/${locale}/crm/quotes`}
+          className="rounded-lg bg-white/5 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10"
+        >
+          {t('view_quotes')}
         </Link>
         <Link
           href={`/${locale}/crm/calendar`}

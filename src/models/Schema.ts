@@ -7,6 +7,7 @@ import {
   text,
   timestamp,
 } from 'drizzle-orm/pg-core';
+import type { CrmQuoteLineItem } from '@/utils/Crm';
 
 // This file defines the structure of your database tables using the Drizzle ORM.
 
@@ -125,6 +126,29 @@ export const crmAppointments = pgTable('crm_appointments', {
   startAt: timestamp('start_at', { mode: 'date' }).notNull(),
   endAt: timestamp('end_at', { mode: 'date' }).notNull(),
   status: text('status').notNull().default('scheduled'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+// Quotes: priced estimates with line items, convertible to invoices.
+
+export const crmQuotes = pgTable('crm_quotes', {
+  id: serial('id').primaryKey(),
+  ownerClerkUserId: text('owner_clerk_user_id').notNull(),
+  contactId: integer('contact_id').references(() => crmContacts.id, {
+    onDelete: 'set null',
+  }),
+  title: text('title').notNull(),
+  status: text('status').notNull().default('draft'),
+  lineItems: jsonb('line_items')
+    .$type<CrmQuoteLineItem[]>()
+    .notNull()
+    .default([]),
+  total: integer('total').notNull().default(0),
   notes: text('notes'),
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { mode: 'date' })

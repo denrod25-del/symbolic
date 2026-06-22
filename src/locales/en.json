@@ -222,6 +222,7 @@
     "nav_dashboard": "Dashboard",
     "nav_contacts": "Contacts",
     "nav_pipeline": "Pipeline",
+    "nav_quotes": "Quotes",
     "nav_calendar": "Calendar",
     "nav_inbox": "Inbox",
     "nav_automations": "Automations"
@@ -232,9 +233,11 @@
     "contacts_label": "Contacts",
     "open_label": "Open opportunities",
     "value_label": "Pipeline value",
+    "quotes_label": "Quotes",
     "upcoming_label": "Upcoming bookings",
     "manage_contacts": "Manage contacts",
     "view_pipeline": "View pipeline",
+    "view_quotes": "View quotes",
     "open_calendar": "Open calendar"
   },
   "CrmContactsPage": {
@@ -275,6 +278,43 @@
     "stage_qualified": "Qualified",
     "stage_won": "Won",
     "stage_lost": "Lost"
+  },
+  "CrmQuotesPage": {
+    "title": "Quotes",
+    "add_heading": "Create a quote",
+    "empty": "No quotes yet. Create your first one above.",
+    "line_count": "{count, plural, one {# line item} other {# line items}}",
+    "status_draft": "Draft",
+    "status_sent": "Sent",
+    "status_accepted": "Accepted",
+    "status_declined": "Declined"
+  },
+  "CrmQuoteForm": {
+    "title": "Quote title",
+    "contact": "Contact",
+    "no_contact": "No contact",
+    "line_items": "Line items",
+    "description": "Description",
+    "quantity": "Qty",
+    "unit_price": "Unit price (£)",
+    "remove": "Remove",
+    "add_line": "+ Add line item",
+    "notes": "Notes",
+    "total": "Total",
+    "saving": "Saving...",
+    "save": "Save changes",
+    "add": "Create quote",
+    "cancel": "Cancel"
+  },
+  "CrmQuoteRowActions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "mark_sent": "Mark sent",
+    "mark_accepted": "Mark accepted",
+    "mark_declined": "Mark declined",
+    "delete_confirm": "Delete this quote?",
+    "delete_yes": "Yes",
+    "delete_cancel": "Cancel"
   },
   "CrmCalendarPage": {
     "title": "Calendar",

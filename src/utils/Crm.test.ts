@@ -4,9 +4,11 @@ import {
   CRM_STAGES,
   isCrmAppointmentStatus,
   isCrmMessageChannel,
+  isCrmQuoteStatus,
   isCrmStage,
   isCrmWorkflowAction,
   isCrmWorkflowTrigger,
+  quoteLineItemsTotal,
 } from './Crm';
 
 describe('Crm', () => {
@@ -71,6 +73,31 @@ describe('Crm', () => {
 
     it('rejects an unknown action', () => {
       expect(isCrmWorkflowAction('charge_card')).toBe(false);
+    });
+  });
+
+  describe('isCrmQuoteStatus', () => {
+    it('accepts a known quote status', () => {
+      expect(isCrmQuoteStatus('accepted')).toBe(true);
+    });
+
+    it('rejects an unknown status', () => {
+      expect(isCrmQuoteStatus('expired')).toBe(false);
+    });
+  });
+
+  describe('quoteLineItemsTotal', () => {
+    it('sums quantity times unit price across line items', () => {
+      const total = quoteLineItemsTotal([
+        { description: 'Call-out', quantity: 1, unitPrice: 5000 },
+        { description: 'Labour', quantity: 3, unitPrice: 4500 },
+      ]);
+
+      expect(total).toBe(18_500);
+    });
+
+    it('returns zero for no line items', () => {
+      expect(quoteLineItemsTotal([])).toBe(0);
     });
   });
 });
