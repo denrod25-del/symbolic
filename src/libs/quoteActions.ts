@@ -8,6 +8,7 @@ import { crmContacts, crmQuotes } from '@/models/Schema';
 import type { CrmQuoteLineItem } from '@/utils/Crm';
 import { isCrmQuoteStatus, quoteLineItemsTotal } from '@/utils/Crm';
 import { db } from './DB';
+import { generateEstimate } from './estimator';
 
 const lineItemSchema = z.object({
   description: z.string().min(1).max(200),
@@ -23,6 +24,14 @@ const quoteFormSchema = z.object({
 });
 
 type QuoteFormData = z.input<typeof quoteFormSchema>;
+
+const estimatePromptSchema = z.string().min(1).max(1000);
+
+type SuggestedLineItem = {
+  description: string;
+  quantity: number;
+  unitPricePounds: number;
+};
 
 function emptyToNull(value: string): string | null {
   const trimmed = value.trim();
@@ -201,6 +210,42 @@ export async function setQuoteStatus(
 
   revalidateQuotes(locale);
   return undefined;
+}
+
+/**
+ * Drafts quote line items from a job description for the signed-in user. Uses
+ * Anthropic when configured, otherwise a simulated estimate.
+ * @param prompt - The job description to estimate.
+ * @returns Suggested line items priced in pounds, or an error message.
+ */
+export async function suggestQuoteLineItems(
+  prompt: string
+): Promise<
+  { success: true; lineItems: SuggestedLineItem[] } | { error: string }
+> {
+  const user = await currentUser();
+  if (!user) {
+    return { error: 'Not authenticated' };
+  }
+
+  const parsed = estimatePromptSchema.safeParse(prompt);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Invalid input' };
+  }
+
+  const result = await generateEstimate({ prompt: parsed.data });
+  if (result.status === 'failed') {
+    return { error: 'Could not generate an estimate' };
+  }
+
+  return {
+    success: true,
+    lineItems: result.lineItems.map((item) => ({
+      description: item.description,
+      quantity: item.quantity,
+      unitPricePounds: item.unitPrice / 100,
+    })),
+  };
 }
 
 /**

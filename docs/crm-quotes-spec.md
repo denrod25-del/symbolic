@@ -65,6 +65,18 @@ Next: `convertQuoteToInvoice(quoteId)` (gated on `status === 'accepted'`),
 - Next: `/crm/invoices`, a "Convert to invoice" action on accepted quotes, and a
   public quote-accept page (ties into the future online-booking work).
 
+## AI estimator (built)
+`src/libs/estimator.ts` mirrors the provider pattern: a `stub` returns a
+heuristic estimate; the `anthropic` provider calls the Claude Messages API
+(`claude-opus-4-8`) with a forced `propose_line_items` tool call for structured
+output when `ANTHROPIC_API_KEY` is set. `suggestQuoteLineItems` exposes it to the
+quote form's "Draft with AI" panel, which fills the line items from a job
+description. Errors resolve to a failed result, never throw.
+
+> Implementation note: this calls Anthropic over `fetch` to match the existing
+> `messaging.ts` / `payments.ts` provider style and avoid a new dependency. The
+> official `@anthropic-ai/sdk` is the alternative if we'd rather adopt it.
+
 ## Automation hooks (later)
 The existing workflow engine (`src/libs/workflows.ts`) gets new triggers
 (`quote_accepted`, `invoice_paid`) and actions (`create_invoice`,

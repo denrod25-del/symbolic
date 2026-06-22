@@ -3,7 +3,11 @@
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { createQuote, updateQuote } from '@/libs/quoteActions';
+import {
+  createQuote,
+  suggestQuoteLineItems,
+  updateQuote,
+} from '@/libs/quoteActions';
 
 type LineItemFields = {
   description: string;
@@ -65,7 +69,34 @@ export function QuoteForm(props: QuoteFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiPending, setAiPending] = useState(false);
   const [data, setData] = useState<QuoteFields>(() => initialFields(props));
+
+  async function handleEstimate() {
+    if (aiPrompt.trim() === '') {
+      return;
+    }
+    setError(null);
+    setAiPending(true);
+    try {
+      const result = await suggestQuoteLineItems(aiPrompt);
+      if ('error' in result) {
+        setError(result.error);
+        return;
+      }
+      setData((prev) => ({
+        ...prev,
+        lineItems: result.lineItems.map((item) => ({
+          description: item.description,
+          quantity: String(item.quantity),
+          unitPricePounds: item.unitPricePounds.toFixed(2),
+        })),
+      }));
+    } finally {
+      setAiPending(false);
+    }
+  }
 
   function setField(field: 'title' | 'contactId' | 'notes', value: string) {
     setData((prev) => ({ ...prev, [field]: value }));
@@ -183,6 +214,29 @@ export function QuoteForm(props: QuoteFormProps) {
             ))}
           </select>
         </label>
+      </div>
+
+      <div className="space-y-2 rounded-lg border border-white/10 bg-white/5 p-3">
+        <span className="block text-sm text-white/60">{t('ai_heading')}</span>
+        <textarea
+          value={aiPrompt}
+          onChange={(e) => {
+            setAiPrompt(e.target.value);
+          }}
+          placeholder={t('ai_placeholder')}
+          rows={2}
+          className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+        />
+        <button
+          type="button"
+          onClick={async () => {
+            await handleEstimate();
+          }}
+          disabled={aiPending}
+          className="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20 disabled:opacity-50"
+        >
+          {aiPending ? t('ai_generating') : t('ai_generate')}
+        </button>
       </div>
 
       <div className="space-y-3">
