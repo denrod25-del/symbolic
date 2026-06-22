@@ -8,8 +8,8 @@ server actions, next-intl, Drizzle, money stored as integer minor units).
 
 ## Status
 
-- **Quotes — scaffolded in this change** (schema, actions, UI, i18n, tests).
-- Invoices — specced below, not yet built.
+- **Quotes — built** (schema, actions, UI, i18n, tests).
+- **Invoices — built** (convert from accepted quote, status lifecycle, UI).
 - Payments — specced below, not yet built.
 
 ## Data model
@@ -29,10 +29,12 @@ table: a quote is always read and written as a whole, so a single row keeps the
 forms and queries simple. `total` is denormalised so list/dashboard views never
 join or recompute.
 
-### `crm_invoices` (next)
+### `crm_invoices` (built)
 - Mirrors `crm_quotes` plus: `quoteId` → `crm_quotes` (`set null`), `status`
   (`draft | sent | paid | void`), `dueAt`, `amountPaid`.
-- Created by converting an **accepted** quote (copy title + line items + total).
+- Created by converting an **accepted** quote (copies title, contact, line
+  items, total; due in 14 days). Marking an invoice `paid` settles `amountPaid`
+  to the full total.
 
 ### Payments (next)
 - Reuse the existing messaging layer to send a payment link via the inbox.

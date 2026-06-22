@@ -119,6 +119,20 @@ export function quoteLineItemsTotal(
   );
 }
 
+/** Lifecycle states for a customer invoice. */
+export const CRM_INVOICE_STATUSES = ['draft', 'sent', 'paid', 'void'] as const;
+
+export type CrmInvoiceStatus = (typeof CRM_INVOICE_STATUSES)[number];
+
+/**
+ * Narrows an arbitrary string to a known invoice status.
+ * @param value - The candidate status string.
+ * @returns Whether the value is a valid `CrmInvoiceStatus`.
+ */
+export function isCrmInvoiceStatus(value: string): value is CrmInvoiceStatus {
+  return (CRM_INVOICE_STATUSES as readonly string[]).includes(value);
+}
+
 /** Events that can start an automation workflow. */
 export const CRM_WORKFLOW_TRIGGERS = [
   'contact_created',

@@ -157,6 +157,34 @@ export const crmQuotes = pgTable('crm_quotes', {
     .notNull(),
 });
 
+// Invoices: created by converting an accepted quote, tracked through payment.
+
+export const crmInvoices = pgTable('crm_invoices', {
+  id: serial('id').primaryKey(),
+  ownerClerkUserId: text('owner_clerk_user_id').notNull(),
+  quoteId: integer('quote_id').references(() => crmQuotes.id, {
+    onDelete: 'set null',
+  }),
+  contactId: integer('contact_id').references(() => crmContacts.id, {
+    onDelete: 'set null',
+  }),
+  title: text('title').notNull(),
+  status: text('status').notNull().default('draft'),
+  lineItems: jsonb('line_items')
+    .$type<CrmQuoteLineItem[]>()
+    .notNull()
+    .default([]),
+  total: integer('total').notNull().default(0),
+  amountPaid: integer('amount_paid').notNull().default(0),
+  dueAt: timestamp('due_at', { mode: 'date' }),
+  notes: text('notes'),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
 // Workflow automation: trigger/action rules and their execution log.
 
 export const crmWorkflows = pgTable('crm_workflows', {

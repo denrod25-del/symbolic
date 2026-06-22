@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { convertQuoteToInvoice } from '@/libs/invoiceActions';
 import { deleteQuote, setQuoteStatus } from '@/libs/quoteActions';
 import type { CrmQuoteStatus } from '@/utils/Crm';
 import { QuoteForm } from './QuoteForm';
@@ -39,6 +40,11 @@ export function QuoteRowActions(props: QuoteRowActionsProps) {
   async function handleDelete() {
     await deleteQuote(props.quote.id, props.locale);
     router.refresh();
+  }
+
+  async function handleConvert() {
+    await convertQuoteToInvoice(props.quote.id, props.locale);
+    router.push(`/${props.locale}/crm/invoices`);
   }
 
   async function handleStatus(status: QuoteStatusAction) {
@@ -87,6 +93,17 @@ export function QuoteRowActions(props: QuoteRowActionsProps) {
 
   return (
     <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
+      {props.quote.status === 'accepted' ? (
+        <button
+          type="button"
+          onClick={async () => {
+            await handleConvert();
+          }}
+          className="text-sm font-medium text-emerald-400 hover:text-emerald-300"
+        >
+          {t('convert')}
+        </button>
+      ) : null}
       {nextStatuses[props.quote.status].map((status) => (
         <button
           key={status}

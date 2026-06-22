@@ -64,6 +64,13 @@
       "when": 1782138656999,
       "tag": "0008_absent_vanisher",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1782139452492,
+      "tag": "0009_new_wonder_man",
+      "breakpoints": true
     }
   ]
 }

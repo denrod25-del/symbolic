@@ -3,6 +3,7 @@ import {
   CRM_OPEN_STAGES,
   CRM_STAGES,
   isCrmAppointmentStatus,
+  isCrmInvoiceStatus,
   isCrmMessageChannel,
   isCrmQuoteStatus,
   isCrmStage,
@@ -83,6 +84,16 @@ describe('Crm', () => {
 
     it('rejects an unknown status', () => {
       expect(isCrmQuoteStatus('expired')).toBe(false);
+    });
+  });
+
+  describe('isCrmInvoiceStatus', () => {
+    it('accepts a known invoice status', () => {
+      expect(isCrmInvoiceStatus('paid')).toBe(true);
+    });
+
+    it('rejects an unknown status', () => {
+      expect(isCrmInvoiceStatus('refunded')).toBe(false);
     });
   });
 

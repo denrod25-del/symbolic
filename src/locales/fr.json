@@ -223,6 +223,7 @@
     "nav_contacts": "Contacts",
     "nav_pipeline": "Pipeline",
     "nav_quotes": "Devis",
+    "nav_invoices": "Factures",
     "nav_calendar": "Calendrier",
     "nav_inbox": "Messagerie",
     "nav_automations": "Automatisations"
@@ -234,10 +235,12 @@
     "open_label": "Opportunités ouvertes",
     "value_label": "Valeur du pipeline",
     "quotes_label": "Devis",
+    "outstanding_label": "En attente",
     "upcoming_label": "Rendez-vous à venir",
     "manage_contacts": "Gérer les contacts",
     "view_pipeline": "Voir le pipeline",
     "view_quotes": "Voir les devis",
+    "view_invoices": "Voir les factures",
     "open_calendar": "Ouvrir le calendrier"
   },
   "CrmContactsPage": {
@@ -309,10 +312,29 @@
   "CrmQuoteRowActions": {
     "edit": "Modifier",
     "delete": "Supprimer",
+    "convert": "Convertir en facture",
     "mark_sent": "Marquer envoyé",
     "mark_accepted": "Marquer accepté",
     "mark_declined": "Marquer refusé",
     "delete_confirm": "Supprimer ce devis ?",
+    "delete_yes": "Oui",
+    "delete_cancel": "Annuler"
+  },
+  "CrmInvoicesPage": {
+    "title": "Factures",
+    "empty": "Aucune facture. Convertissez un devis accepté pour en créer une.",
+    "due": "Échéance {date}",
+    "status_draft": "Brouillon",
+    "status_sent": "Envoyée",
+    "status_paid": "Payée",
+    "status_void": "Annulée"
+  },
+  "CrmInvoiceRowActions": {
+    "delete": "Supprimer",
+    "mark_sent": "Marquer envoyée",
+    "mark_paid": "Marquer payée",
+    "mark_void": "Annuler",
+    "delete_confirm": "Supprimer cette facture ?",
     "delete_yes": "Oui",
     "delete_cancel": "Annuler"
   },
