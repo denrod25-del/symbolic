@@ -324,6 +324,7 @@
     "title": "Invoices",
     "empty": "No invoices yet. Convert an accepted quote to create one.",
     "due": "Due {date}",
+    "pay_link": "Payment link",
     "status_draft": "Draft",
     "status_sent": "Sent",
     "status_paid": "Paid",
@@ -331,6 +332,7 @@
   },
   "CrmInvoiceRowActions": {
     "delete": "Delete",
+    "create_link": "Create payment link",
     "mark_sent": "Mark sent",
     "mark_paid": "Mark paid",
     "mark_void": "Void",

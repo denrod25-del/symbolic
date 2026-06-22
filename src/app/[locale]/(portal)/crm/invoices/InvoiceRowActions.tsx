@@ -3,7 +3,11 @@
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { deleteInvoice, setInvoiceStatus } from '@/libs/invoiceActions';
+import {
+  createInvoicePaymentLink,
+  deleteInvoice,
+  setInvoiceStatus,
+} from '@/libs/invoiceActions';
 import type { CrmInvoiceStatus } from '@/utils/Crm';
 
 type InvoiceRowActionsProps = {
@@ -11,6 +15,7 @@ type InvoiceRowActionsProps = {
   invoice: {
     id: number;
     status: CrmInvoiceStatus;
+    hasPaymentLink: boolean;
   };
 };
 
@@ -39,6 +44,15 @@ export function InvoiceRowActions(props: InvoiceRowActionsProps) {
     router.refresh();
   }
 
+  async function handlePaymentLink() {
+    await createInvoicePaymentLink(props.invoice.id, props.locale);
+    router.refresh();
+  }
+
+  const canCreateLink =
+    !props.invoice.hasPaymentLink &&
+    (props.invoice.status === 'draft' || props.invoice.status === 'sent');
+
   if (isConfirmingDelete) {
     return (
       <div className="flex shrink-0 items-center gap-2">
@@ -65,6 +79,17 @@ export function InvoiceRowActions(props: InvoiceRowActionsProps) {
 
   return (
     <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
+      {canCreateLink ? (
+        <button
+          type="button"
+          onClick={async () => {
+            await handlePaymentLink();
+          }}
+          className="text-sm font-medium text-indigo-400 hover:text-indigo-300"
+        >
+          {t('create_link')}
+        </button>
+      ) : null}
       {nextStatuses[props.invoice.status].map((status) => (
         <button
           key={status}

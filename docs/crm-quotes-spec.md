@@ -10,7 +10,9 @@ server actions, next-intl, Drizzle, money stored as integer minor units).
 
 - **Quotes — built** (schema, actions, UI, i18n, tests).
 - **Invoices — built** (convert from accepted quote, status lifecycle, UI).
-- Payments — specced below, not yet built.
+- **Payments — built** (provider layer: simulated link by default, Stripe
+  Checkout when `STRIPE_SECRET_KEY` is set). Webhook-driven auto-settlement is
+  the remaining production piece — see below.
 
 ## Data model
 
@@ -36,11 +38,17 @@ join or recompute.
   items, total; due in 14 days). Marking an invoice `paid` settles `amountPaid`
   to the full total.
 
-### Payments (next)
-- Reuse the existing messaging layer to send a payment link via the inbox.
-- Add a `payments` provider in `src/libs/` mirroring `messaging.ts`: simulated
-  when no keys, Stripe when `STRIPE_*` keys are set (all env via `Env.ts`).
-- A Stripe webhook marks the invoice `paid` and sets `amountPaid`.
+### Payments (built)
+- `src/libs/payments.ts` mirrors `messaging.ts`: a `stub` provider returns a
+  simulated link; the `stripe` provider creates a Checkout Session via REST when
+  `STRIPE_SECRET_KEY` is set. Errors resolve to a failed result, never throw.
+- `createInvoicePaymentLink` stores the link URL + provider ref on the invoice
+  and marks it `sent`; the UI surfaces the link and a "Create payment link"
+  action.
+- **Remaining for production:** a Stripe webhook route to auto-mark the invoice
+  `paid` and set `amountPaid` on `checkout.session.completed`. Until then,
+  settlement is the manual "Mark paid" action. Sending the link through the
+  inbox (reusing `dispatchMessage`) is a small follow-up.
 
 ## Server actions (`src/libs/quoteActions.ts`, built)
 `createQuote`, `updateQuote`, `deleteQuote`, `setQuoteStatus` — all verify

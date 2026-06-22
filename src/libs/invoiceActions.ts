@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { crmInvoices, crmQuotes } from '@/models/Schema';
 import { isCrmInvoiceStatus } from '@/utils/Crm';
 import { db } from './DB';
+import { createPaymentLink } from './payments';
 
 /** Days until a freshly converted invoice is due. */
 const INVOICE_DUE_DAYS = 14;
@@ -114,6 +115,64 @@ export async function setInvoiceStatus(
 
   revalidateInvoices(locale);
   return undefined;
+}
+
+/**
+ * Creates a hosted payment link for an invoice and marks it as sent. Uses
+ * Stripe when configured, otherwise a simulated link.
+ * @param id - The invoice's database ID.
+ * @param locale - Current locale used to revalidate CRM paths.
+ * @returns Success indicator or an error message.
+ */
+export async function createInvoicePaymentLink(
+  id: number,
+  locale: string
+): Promise<{ success: true } | { error: string }> {
+  const user = await currentUser();
+  if (!user) {
+    return { error: 'Not authenticated' };
+  }
+
+  const [invoice] = await db
+    .select()
+    .from(crmInvoices)
+    .where(
+      and(eq(crmInvoices.id, id), eq(crmInvoices.ownerClerkUserId, user.id))
+    )
+    .limit(1);
+
+  if (!invoice) {
+    return { error: 'Invoice not found' };
+  }
+
+  if (invoice.status === 'paid' || invoice.status === 'void') {
+    return { error: 'Invoice is already settled' };
+  }
+
+  const result = await createPaymentLink({
+    invoiceId: invoice.id,
+    title: invoice.title,
+    currency: 'gbp',
+    lineItems: invoice.lineItems,
+  });
+
+  if (result.status === 'failed') {
+    return { error: 'Could not create payment link' };
+  }
+
+  await db
+    .update(crmInvoices)
+    .set({
+      status: 'sent',
+      paymentUrl: result.url,
+      paymentRef: result.providerId,
+    })
+    .where(
+      and(eq(crmInvoices.id, id), eq(crmInvoices.ownerClerkUserId, user.id))
+    );
+
+  revalidateInvoices(locale);
+  return { success: true };
 }
 
 /**

@@ -13,6 +13,7 @@ export const Env = createEnv({
     TWILIO_ACCOUNT_SID: z.string().optional(),
     TWILIO_AUTH_TOKEN: z.string().optional(),
     TWILIO_FROM_NUMBER: z.string().optional(),
+    STRIPE_SECRET_KEY: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().optional(),
@@ -36,6 +37,7 @@ export const Env = createEnv({
     TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
     TWILIO_FROM_NUMBER: process.env.TWILIO_FROM_NUMBER,
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
   },
   skipValidation: process.env.NODE_ENV === 'test',
 });

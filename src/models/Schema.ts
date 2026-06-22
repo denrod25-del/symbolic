@@ -177,6 +177,8 @@ export const crmInvoices = pgTable('crm_invoices', {
   total: integer('total').notNull().default(0),
   amountPaid: integer('amount_paid').notNull().default(0),
   dueAt: timestamp('due_at', { mode: 'date' }),
+  paymentUrl: text('payment_url'),
+  paymentRef: text('payment_ref'),
   notes: text('notes'),
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { mode: 'date' })

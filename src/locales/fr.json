@@ -324,6 +324,7 @@
     "title": "Factures",
     "empty": "Aucune facture. Convertissez un devis accepté pour en créer une.",
     "due": "Échéance {date}",
+    "pay_link": "Lien de paiement",
     "status_draft": "Brouillon",
     "status_sent": "Envoyée",
     "status_paid": "Payée",
@@ -331,6 +332,7 @@
   },
   "CrmInvoiceRowActions": {
     "delete": "Supprimer",
+    "create_link": "Créer un lien de paiement",
     "mark_sent": "Marquer envoyée",
     "mark_paid": "Marquer payée",
     "mark_void": "Annuler",

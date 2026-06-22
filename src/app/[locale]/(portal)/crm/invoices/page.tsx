@@ -73,10 +73,24 @@ export default async function CrmInvoicesPage(props: {
                     {due ? ` · ${t('due', { date: due })}` : ''}
                     {contactName ? ` · ${contactName}` : ''}
                   </p>
+                  {invoice.paymentUrl ? (
+                    <a
+                      href={invoice.paymentUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1 inline-block text-sm text-indigo-400 hover:underline"
+                    >
+                      {t('pay_link')}
+                    </a>
+                  ) : null}
                 </div>
                 <InvoiceRowActions
                   locale={locale}
-                  invoice={{ id: invoice.id, status }}
+                  invoice={{
+                    id: invoice.id,
+                    status,
+                    hasPaymentLink: Boolean(invoice.paymentUrl),
+                  }}
                 />
               </li>
             );

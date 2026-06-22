@@ -71,6 +71,13 @@
       "when": 1782139452492,
       "tag": "0009_new_wonder_man",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1782140650213,
+      "tag": "0010_flaky_shocker",
+      "breakpoints": true
     }
   ]
 }
