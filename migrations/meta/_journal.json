@@ -78,6 +78,13 @@
       "when": 1782140650213,
       "tag": "0010_flaky_shocker",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1782147561951,
+      "tag": "0011_same_shooting_star",
+      "breakpoints": true
     }
   ]
 }

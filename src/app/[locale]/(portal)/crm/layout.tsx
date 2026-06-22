@@ -67,6 +67,12 @@ export default async function CrmLayout(props: {
               {t('nav_calendar')}
             </Link>
             <Link
+              href={`/${locale}/crm/booking`}
+              className="text-sm text-white/60 hover:text-white"
+            >
+              {t('nav_booking')}
+            </Link>
+            <Link
               href={`/${locale}/crm/inbox`}
               className="text-sm text-white/60 hover:text-white"
             >

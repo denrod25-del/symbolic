@@ -145,6 +145,12 @@ export default async function CrmDashboardPage(props: {
           {t('view_invoices')}
         </Link>
         <Link
+          href={`/${locale}/crm/booking`}
+          className="rounded-lg bg-white/5 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10"
+        >
+          {t('booking_page')}
+        </Link>
+        <Link
           href={`/${locale}/crm/calendar`}
           className="rounded-lg bg-white/5 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10"
         >

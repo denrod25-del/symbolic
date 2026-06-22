@@ -187,6 +187,24 @@ export const crmInvoices = pgTable('crm_invoices', {
     .notNull(),
 });
 
+// Online booking: a public self-service page per owner, feeding the calendar.
+
+export const crmBookingSettings = pgTable('crm_booking_settings', {
+  id: serial('id').primaryKey(),
+  ownerClerkUserId: text('owner_clerk_user_id').notNull().unique(),
+  slug: text('slug').notNull().unique(),
+  businessName: text('business_name'),
+  enabled: boolean('enabled').notNull().default(true),
+  defaultDurationMinutes: integer('default_duration_minutes')
+    .notNull()
+    .default(60),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
 // Workflow automation: trigger/action rules and their execution log.
 
 export const crmWorkflows = pgTable('crm_workflows', {

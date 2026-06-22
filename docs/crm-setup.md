@@ -13,6 +13,7 @@ pipeline, calendar and booking, the messaging inbox, and workflow automation.
 | Quotes | `/crm/quotes` | Create line-item estimates and move them draft → sent → accepted / declined |
 | Invoices | `/crm/invoices` | Convert accepted quotes to invoices and track draft → sent → paid / void |
 | Calendar | `/crm/calendar` | Book, reschedule, complete, and cancel appointments |
+| Booking | `/crm/booking` | Share a public self-service link that books into the calendar |
 | Inbox | `/crm/inbox` | Per-contact SMS and email conversations |
 | Automations | `/crm/automations` | No-code trigger → action rules with a run log |
 

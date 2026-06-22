@@ -225,6 +225,7 @@
     "nav_quotes": "Devis",
     "nav_invoices": "Factures",
     "nav_calendar": "Calendrier",
+    "nav_booking": "Réservation",
     "nav_inbox": "Messagerie",
     "nav_automations": "Automatisations"
   },
@@ -241,6 +242,7 @@
     "view_pipeline": "Voir le pipeline",
     "view_quotes": "Voir les devis",
     "view_invoices": "Voir les factures",
+    "booking_page": "Page de réservation",
     "open_calendar": "Ouvrir le calendrier"
   },
   "CrmContactsPage": {
@@ -382,6 +384,38 @@
     "delete_confirm": "Supprimer ce rendez-vous ?",
     "delete_yes": "Oui",
     "delete_cancel": "Annuler"
+  },
+  "CrmBookingPage": {
+    "title": "Réservation en ligne",
+    "subtitle": "Partagez votre lien pour que les clients réservent eux-mêmes.",
+    "link_heading": "Votre lien de réservation public",
+    "settings_heading": "Paramètres"
+  },
+  "CrmBookingSettingsForm": {
+    "business_name": "Nom de l'entreprise",
+    "default_duration": "Durée par défaut du rendez-vous",
+    "minutes": "{count, plural, one {# minute} other {# minutes}}",
+    "enabled": "Accepter les réservations en ligne",
+    "saving": "Enregistrement...",
+    "save": "Enregistrer les paramètres"
+  },
+  "PublicBookingPage": {
+    "title": "Réserver un rendez-vous",
+    "title_named": "Réserver avec {name}",
+    "subtitle": "Choisissez un créneau et nous confirmerons votre rendez-vous.",
+    "unavailable": "La réservation en ligne n'est pas disponible."
+  },
+  "PublicBookingForm": {
+    "name": "Votre nom",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "date": "Date",
+    "time": "Heure",
+    "notes": "Quelque chose à signaler ?",
+    "invalid_datetime": "Choisissez une date et une heure valides",
+    "book": "Demander une réservation",
+    "booking": "Réservation...",
+    "confirmation": "Merci ! Votre demande de réservation a été envoyée."
   },
   "CrmInboxPage": {
     "title": "Messagerie",
