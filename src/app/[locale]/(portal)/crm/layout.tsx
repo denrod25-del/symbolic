@@ -49,10 +49,28 @@ export default async function CrmLayout(props: {
               {t('nav_pipeline')}
             </Link>
             <Link
+              href={`/${locale}/crm/quotes`}
+              className="text-sm text-white/60 hover:text-white"
+            >
+              {t('nav_quotes')}
+            </Link>
+            <Link
+              href={`/${locale}/crm/invoices`}
+              className="text-sm text-white/60 hover:text-white"
+            >
+              {t('nav_invoices')}
+            </Link>
+            <Link
               href={`/${locale}/crm/calendar`}
               className="text-sm text-white/60 hover:text-white"
             >
               {t('nav_calendar')}
+            </Link>
+            <Link
+              href={`/${locale}/crm/booking`}
+              className="text-sm text-white/60 hover:text-white"
+            >
+              {t('nav_booking')}
             </Link>
             <Link
               href={`/${locale}/crm/inbox`}

@@ -57,6 +57,34 @@
       "when": 1781884148299,
       "tag": "0007_round_calypso",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1782138656999,
+      "tag": "0008_absent_vanisher",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1782139452492,
+      "tag": "0009_new_wonder_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1782140650213,
+      "tag": "0010_flaky_shocker",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1782147561951,
+      "tag": "0011_same_shooting_star",
+      "breakpoints": true
     }
   ]
 }

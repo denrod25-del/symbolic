@@ -10,7 +10,10 @@ pipeline, calendar and booking, the messaging inbox, and workflow automation.
 | Dashboard | `/crm/dashboard` | Contacts, open opportunities, pipeline value, upcoming bookings |
 | Contacts | `/crm/contacts` | Create, edit, and delete contacts |
 | Pipeline | `/crm/pipeline` | Five-stage kanban (Lead → Contacted → Qualified → Won / Lost) |
+| Quotes | `/crm/quotes` | Create line-item estimates and move them draft → sent → accepted / declined |
+| Invoices | `/crm/invoices` | Convert accepted quotes to invoices and track draft → sent → paid / void |
 | Calendar | `/crm/calendar` | Book, reschedule, complete, and cancel appointments |
+| Booking | `/crm/booking` | Share a public self-service link that books into the calendar |
 | Inbox | `/crm/inbox` | Per-contact SMS and email conversations |
 | Automations | `/crm/automations` | No-code trigger → action rules with a run log |
 
@@ -42,6 +45,8 @@ cp .env.local.example .env.local
 | `TWILIO_ACCOUNT_SID` | No | Enables real SMS sending |
 | `TWILIO_AUTH_TOKEN` | No | Twilio auth token |
 | `TWILIO_FROM_NUMBER` | No | Twilio sender number in E.164 format |
+| `STRIPE_SECRET_KEY` | No | Enables real Stripe Checkout payment links |
+| `ANTHROPIC_API_KEY` | No | Enables the AI estimator on quotes (Claude) |
 
 ## Running locally
 

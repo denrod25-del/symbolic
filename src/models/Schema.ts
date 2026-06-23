@@ -7,6 +7,7 @@ import {
   text,
   timestamp,
 } from 'drizzle-orm/pg-core';
+import type { CrmQuoteLineItem } from '@/utils/Crm';
 
 // This file defines the structure of your database tables using the Drizzle ORM.
 
@@ -126,6 +127,77 @@ export const crmAppointments = pgTable('crm_appointments', {
   endAt: timestamp('end_at', { mode: 'date' }).notNull(),
   status: text('status').notNull().default('scheduled'),
   notes: text('notes'),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+// Quotes: priced estimates with line items, convertible to invoices.
+
+export const crmQuotes = pgTable('crm_quotes', {
+  id: serial('id').primaryKey(),
+  ownerClerkUserId: text('owner_clerk_user_id').notNull(),
+  contactId: integer('contact_id').references(() => crmContacts.id, {
+    onDelete: 'set null',
+  }),
+  title: text('title').notNull(),
+  status: text('status').notNull().default('draft'),
+  lineItems: jsonb('line_items')
+    .$type<CrmQuoteLineItem[]>()
+    .notNull()
+    .default([]),
+  total: integer('total').notNull().default(0),
+  notes: text('notes'),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+// Invoices: created by converting an accepted quote, tracked through payment.
+
+export const crmInvoices = pgTable('crm_invoices', {
+  id: serial('id').primaryKey(),
+  ownerClerkUserId: text('owner_clerk_user_id').notNull(),
+  quoteId: integer('quote_id').references(() => crmQuotes.id, {
+    onDelete: 'set null',
+  }),
+  contactId: integer('contact_id').references(() => crmContacts.id, {
+    onDelete: 'set null',
+  }),
+  title: text('title').notNull(),
+  status: text('status').notNull().default('draft'),
+  lineItems: jsonb('line_items')
+    .$type<CrmQuoteLineItem[]>()
+    .notNull()
+    .default([]),
+  total: integer('total').notNull().default(0),
+  amountPaid: integer('amount_paid').notNull().default(0),
+  dueAt: timestamp('due_at', { mode: 'date' }),
+  paymentUrl: text('payment_url'),
+  paymentRef: text('payment_ref'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { mode: 'date' })
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+// Online booking: a public self-service page per owner, feeding the calendar.
+
+export const crmBookingSettings = pgTable('crm_booking_settings', {
+  id: serial('id').primaryKey(),
+  ownerClerkUserId: text('owner_clerk_user_id').notNull().unique(),
+  slug: text('slug').notNull().unique(),
+  businessName: text('business_name'),
+  enabled: boolean('enabled').notNull().default(true),
+  defaultDurationMinutes: integer('default_duration_minutes')
+    .notNull()
+    .default(60),
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { mode: 'date' })
     .defaultNow()

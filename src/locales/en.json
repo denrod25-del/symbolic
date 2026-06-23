@@ -222,7 +222,10 @@
     "nav_dashboard": "Dashboard",
     "nav_contacts": "Contacts",
     "nav_pipeline": "Pipeline",
+    "nav_quotes": "Quotes",
+    "nav_invoices": "Invoices",
     "nav_calendar": "Calendar",
+    "nav_booking": "Booking",
     "nav_inbox": "Inbox",
     "nav_automations": "Automations"
   },
@@ -232,9 +235,14 @@
     "contacts_label": "Contacts",
     "open_label": "Open opportunities",
     "value_label": "Pipeline value",
+    "quotes_label": "Quotes",
+    "outstanding_label": "Outstanding",
     "upcoming_label": "Upcoming bookings",
     "manage_contacts": "Manage contacts",
     "view_pipeline": "View pipeline",
+    "view_quotes": "View quotes",
+    "view_invoices": "View invoices",
+    "booking_page": "Booking page",
     "open_calendar": "Open calendar"
   },
   "CrmContactsPage": {
@@ -276,6 +284,68 @@
     "stage_won": "Won",
     "stage_lost": "Lost"
   },
+  "CrmQuotesPage": {
+    "title": "Quotes",
+    "add_heading": "Create a quote",
+    "empty": "No quotes yet. Create your first one above.",
+    "line_count": "{count, plural, one {# line item} other {# line items}}",
+    "status_draft": "Draft",
+    "status_sent": "Sent",
+    "status_accepted": "Accepted",
+    "status_declined": "Declined"
+  },
+  "CrmQuoteForm": {
+    "title": "Quote title",
+    "contact": "Contact",
+    "no_contact": "No contact",
+    "ai_heading": "Draft with AI",
+    "ai_placeholder": "Describe the job, e.g. pressure wash a two-car driveway and patio",
+    "ai_generate": "Generate line items",
+    "ai_generating": "Generating...",
+    "line_items": "Line items",
+    "description": "Description",
+    "quantity": "Qty",
+    "unit_price": "Unit price (£)",
+    "remove": "Remove",
+    "add_line": "+ Add line item",
+    "notes": "Notes",
+    "total": "Total",
+    "saving": "Saving...",
+    "save": "Save changes",
+    "add": "Create quote",
+    "cancel": "Cancel"
+  },
+  "CrmQuoteRowActions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "convert": "Convert to invoice",
+    "mark_sent": "Mark sent",
+    "mark_accepted": "Mark accepted",
+    "mark_declined": "Mark declined",
+    "delete_confirm": "Delete this quote?",
+    "delete_yes": "Yes",
+    "delete_cancel": "Cancel"
+  },
+  "CrmInvoicesPage": {
+    "title": "Invoices",
+    "empty": "No invoices yet. Convert an accepted quote to create one.",
+    "due": "Due {date}",
+    "pay_link": "Payment link",
+    "status_draft": "Draft",
+    "status_sent": "Sent",
+    "status_paid": "Paid",
+    "status_void": "Void"
+  },
+  "CrmInvoiceRowActions": {
+    "delete": "Delete",
+    "create_link": "Create payment link",
+    "mark_sent": "Mark sent",
+    "mark_paid": "Mark paid",
+    "mark_void": "Void",
+    "delete_confirm": "Delete this invoice?",
+    "delete_yes": "Yes",
+    "delete_cancel": "Cancel"
+  },
   "CrmCalendarPage": {
     "title": "Calendar",
     "book_heading": "Book an appointment",
@@ -314,6 +384,38 @@
     "delete_confirm": "Delete this appointment?",
     "delete_yes": "Yes",
     "delete_cancel": "Cancel"
+  },
+  "CrmBookingPage": {
+    "title": "Online booking",
+    "subtitle": "Share your link so customers can book themselves in.",
+    "link_heading": "Your public booking link",
+    "settings_heading": "Settings"
+  },
+  "CrmBookingSettingsForm": {
+    "business_name": "Business name",
+    "default_duration": "Default appointment length",
+    "minutes": "{count, plural, one {# minute} other {# minutes}}",
+    "enabled": "Accept online bookings",
+    "saving": "Saving...",
+    "save": "Save settings"
+  },
+  "PublicBookingPage": {
+    "title": "Book an appointment",
+    "title_named": "Book with {name}",
+    "subtitle": "Pick a time and we'll confirm your appointment.",
+    "unavailable": "Online booking is not available."
+  },
+  "PublicBookingForm": {
+    "name": "Your name",
+    "email": "Email",
+    "phone": "Phone",
+    "date": "Date",
+    "time": "Time",
+    "notes": "Anything we should know?",
+    "invalid_datetime": "Choose a valid date and time",
+    "book": "Request booking",
+    "booking": "Booking...",
+    "confirmation": "Thanks! Your booking request has been sent."
   },
   "CrmInboxPage": {
     "title": "Inbox",

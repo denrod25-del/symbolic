@@ -222,7 +222,10 @@
     "nav_dashboard": "Tableau de bord",
     "nav_contacts": "Contacts",
     "nav_pipeline": "Pipeline",
+    "nav_quotes": "Devis",
+    "nav_invoices": "Factures",
     "nav_calendar": "Calendrier",
+    "nav_booking": "Réservation",
     "nav_inbox": "Messagerie",
     "nav_automations": "Automatisations"
   },
@@ -232,9 +235,14 @@
     "contacts_label": "Contacts",
     "open_label": "Opportunités ouvertes",
     "value_label": "Valeur du pipeline",
+    "quotes_label": "Devis",
+    "outstanding_label": "En attente",
     "upcoming_label": "Rendez-vous à venir",
     "manage_contacts": "Gérer les contacts",
     "view_pipeline": "Voir le pipeline",
+    "view_quotes": "Voir les devis",
+    "view_invoices": "Voir les factures",
+    "booking_page": "Page de réservation",
     "open_calendar": "Ouvrir le calendrier"
   },
   "CrmContactsPage": {
@@ -276,6 +284,68 @@
     "stage_won": "Gagné",
     "stage_lost": "Perdu"
   },
+  "CrmQuotesPage": {
+    "title": "Devis",
+    "add_heading": "Créer un devis",
+    "empty": "Aucun devis pour le moment. Créez le premier ci-dessus.",
+    "line_count": "{count, plural, one {# ligne} other {# lignes}}",
+    "status_draft": "Brouillon",
+    "status_sent": "Envoyé",
+    "status_accepted": "Accepté",
+    "status_declined": "Refusé"
+  },
+  "CrmQuoteForm": {
+    "title": "Titre du devis",
+    "contact": "Contact",
+    "no_contact": "Aucun contact",
+    "ai_heading": "Rédiger avec l'IA",
+    "ai_placeholder": "Décrivez le travail, ex. nettoyer une allée deux voitures et une terrasse",
+    "ai_generate": "Générer les lignes",
+    "ai_generating": "Génération...",
+    "line_items": "Lignes",
+    "description": "Description",
+    "quantity": "Qté",
+    "unit_price": "Prix unitaire (£)",
+    "remove": "Retirer",
+    "add_line": "+ Ajouter une ligne",
+    "notes": "Notes",
+    "total": "Total",
+    "saving": "Enregistrement...",
+    "save": "Enregistrer",
+    "add": "Créer le devis",
+    "cancel": "Annuler"
+  },
+  "CrmQuoteRowActions": {
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "convert": "Convertir en facture",
+    "mark_sent": "Marquer envoyé",
+    "mark_accepted": "Marquer accepté",
+    "mark_declined": "Marquer refusé",
+    "delete_confirm": "Supprimer ce devis ?",
+    "delete_yes": "Oui",
+    "delete_cancel": "Annuler"
+  },
+  "CrmInvoicesPage": {
+    "title": "Factures",
+    "empty": "Aucune facture. Convertissez un devis accepté pour en créer une.",
+    "due": "Échéance {date}",
+    "pay_link": "Lien de paiement",
+    "status_draft": "Brouillon",
+    "status_sent": "Envoyée",
+    "status_paid": "Payée",
+    "status_void": "Annulée"
+  },
+  "CrmInvoiceRowActions": {
+    "delete": "Supprimer",
+    "create_link": "Créer un lien de paiement",
+    "mark_sent": "Marquer envoyée",
+    "mark_paid": "Marquer payée",
+    "mark_void": "Annuler",
+    "delete_confirm": "Supprimer cette facture ?",
+    "delete_yes": "Oui",
+    "delete_cancel": "Annuler"
+  },
   "CrmCalendarPage": {
     "title": "Calendrier",
     "book_heading": "Réserver un rendez-vous",
@@ -314,6 +384,38 @@
     "delete_confirm": "Supprimer ce rendez-vous ?",
     "delete_yes": "Oui",
     "delete_cancel": "Annuler"
+  },
+  "CrmBookingPage": {
+    "title": "Réservation en ligne",
+    "subtitle": "Partagez votre lien pour que les clients réservent eux-mêmes.",
+    "link_heading": "Votre lien de réservation public",
+    "settings_heading": "Paramètres"
+  },
+  "CrmBookingSettingsForm": {
+    "business_name": "Nom de l'entreprise",
+    "default_duration": "Durée par défaut du rendez-vous",
+    "minutes": "{count, plural, one {# minute} other {# minutes}}",
+    "enabled": "Accepter les réservations en ligne",
+    "saving": "Enregistrement...",
+    "save": "Enregistrer les paramètres"
+  },
+  "PublicBookingPage": {
+    "title": "Réserver un rendez-vous",
+    "title_named": "Réserver avec {name}",
+    "subtitle": "Choisissez un créneau et nous confirmerons votre rendez-vous.",
+    "unavailable": "La réservation en ligne n'est pas disponible."
+  },
+  "PublicBookingForm": {
+    "name": "Votre nom",
+    "email": "E-mail",
+    "phone": "Téléphone",
+    "date": "Date",
+    "time": "Heure",
+    "notes": "Quelque chose à signaler ?",
+    "invalid_datetime": "Choisissez une date et une heure valides",
+    "book": "Demander une réservation",
+    "booking": "Réservation...",
+    "confirmation": "Merci ! Votre demande de réservation a été envoyée."
   },
   "CrmInboxPage": {
     "title": "Messagerie",

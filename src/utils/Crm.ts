@@ -79,6 +79,60 @@ export function isCrmMessageStatus(value: string): value is CrmMessageStatus {
   return (CRM_MESSAGE_STATUSES as readonly string[]).includes(value);
 }
 
+/** Lifecycle states for a customer quote/estimate. */
+export const CRM_QUOTE_STATUSES = [
+  'draft',
+  'sent',
+  'accepted',
+  'declined',
+] as const;
+
+export type CrmQuoteStatus = (typeof CRM_QUOTE_STATUSES)[number];
+
+/**
+ * Narrows an arbitrary string to a known quote status.
+ * @param value - The candidate status string.
+ * @returns Whether the value is a valid `CrmQuoteStatus`.
+ */
+export function isCrmQuoteStatus(value: string): value is CrmQuoteStatus {
+  return (CRM_QUOTE_STATUSES as readonly string[]).includes(value);
+}
+
+/** A single priced line on a quote. Amounts are in integer minor units. */
+export type CrmQuoteLineItem = {
+  description: string;
+  quantity: number;
+  unitPrice: number;
+};
+
+/**
+ * Sums quote line items into a total in minor currency units.
+ * @param items - The quote's line items.
+ * @returns The combined price across all line items.
+ */
+export function quoteLineItemsTotal(
+  items: readonly CrmQuoteLineItem[]
+): number {
+  return items.reduce(
+    (sum, item) => sum + Math.round(item.quantity * item.unitPrice),
+    0
+  );
+}
+
+/** Lifecycle states for a customer invoice. */
+export const CRM_INVOICE_STATUSES = ['draft', 'sent', 'paid', 'void'] as const;
+
+export type CrmInvoiceStatus = (typeof CRM_INVOICE_STATUSES)[number];
+
+/**
+ * Narrows an arbitrary string to a known invoice status.
+ * @param value - The candidate status string.
+ * @returns Whether the value is a valid `CrmInvoiceStatus`.
+ */
+export function isCrmInvoiceStatus(value: string): value is CrmInvoiceStatus {
+  return (CRM_INVOICE_STATUSES as readonly string[]).includes(value);
+}
+
 /** Events that can start an automation workflow. */
 export const CRM_WORKFLOW_TRIGGERS = [
   'contact_created',
