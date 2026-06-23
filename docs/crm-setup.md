@@ -16,6 +16,7 @@ pipeline, calendar and booking, the messaging inbox, and workflow automation.
 | Booking | `/crm/booking` | Share a public self-service link that books into the calendar |
 | Inbox | `/crm/inbox` | Per-contact SMS and email conversations |
 | Automations | `/crm/automations` | No-code trigger → action rules with a run log |
+| Reports | `/crm/reports` | Revenue, quote win rate, monthly collected, and pipeline by stage |
 
 All data is scoped per signed-in user, so each account only sees its own
 records.

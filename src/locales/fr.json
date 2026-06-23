@@ -227,7 +227,8 @@
     "nav_calendar": "Calendrier",
     "nav_booking": "Réservation",
     "nav_inbox": "Messagerie",
-    "nav_automations": "Automatisations"
+    "nav_automations": "Automatisations",
+    "nav_reports": "Rapports"
   },
   "CrmDashboardPage": {
     "greeting": "Bienvenue, {name} 👋",
@@ -243,7 +244,21 @@
     "view_quotes": "Voir les devis",
     "view_invoices": "Voir les factures",
     "booking_page": "Page de réservation",
+    "view_reports": "Voir les rapports",
     "open_calendar": "Ouvrir le calendrier"
+  },
+  "CrmReportsPage": {
+    "title": "Rapports",
+    "subtitle": "Chiffre d'affaires, conversion des devis et pipeline en un coup d'œil.",
+    "revenue_heading": "Chiffre d'affaires",
+    "collected": "Encaissé",
+    "outstanding": "En attente",
+    "invoiced": "Facturé",
+    "monthly_heading": "Encaissé par mois",
+    "quotes_heading": "Devis",
+    "win_rate": "Taux de réussite",
+    "accepted_value": "Valeur acceptée",
+    "pipeline_heading": "Pipeline ouvert par étape"
   },
   "CrmContactsPage": {
     "title": "Contacts",

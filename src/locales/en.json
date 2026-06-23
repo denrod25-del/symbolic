@@ -227,7 +227,8 @@
     "nav_calendar": "Calendar",
     "nav_booking": "Booking",
     "nav_inbox": "Inbox",
-    "nav_automations": "Automations"
+    "nav_automations": "Automations",
+    "nav_reports": "Reports"
   },
   "CrmDashboardPage": {
     "greeting": "Welcome, {name} 👋",
@@ -243,7 +244,21 @@
     "view_quotes": "View quotes",
     "view_invoices": "View invoices",
     "booking_page": "Booking page",
+    "view_reports": "View reports",
     "open_calendar": "Open calendar"
+  },
+  "CrmReportsPage": {
+    "title": "Reports",
+    "subtitle": "Revenue, quote conversion, and pipeline at a glance.",
+    "revenue_heading": "Revenue",
+    "collected": "Collected",
+    "outstanding": "Outstanding",
+    "invoiced": "Invoiced",
+    "monthly_heading": "Collected by month",
+    "quotes_heading": "Quotes",
+    "win_rate": "Win rate",
+    "accepted_value": "Accepted value",
+    "pipeline_heading": "Open pipeline by stage"
   },
   "CrmContactsPage": {
     "title": "Contacts",
