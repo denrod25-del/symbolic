@@ -441,6 +441,8 @@
     "subject_placeholder": "Objet",
     "body_placeholder": "Écrivez un message...",
     "stub_hint": "Envoi via le fournisseur si configuré, sinon simulé.",
+    "draft": "Rédiger une réponse",
+    "drafting": "Rédaction...",
     "sending": "Envoi...",
     "send": "Envoyer"
   },

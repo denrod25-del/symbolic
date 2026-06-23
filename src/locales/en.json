@@ -441,6 +441,8 @@
     "subject_placeholder": "Subject",
     "body_placeholder": "Write a message...",
     "stub_hint": "Sends via provider when configured, otherwise simulated.",
+    "draft": "Draft reply",
+    "drafting": "Drafting...",
     "sending": "Sending...",
     "send": "Send"
   },

@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { sendMessage } from '@/libs/messagingActions';
+import { sendMessage, suggestReply } from '@/libs/messagingActions';
 import type { CrmMessageChannel } from '@/utils/Crm';
 
 type ComposerProps = {
@@ -22,8 +22,24 @@ export function Composer(props: ComposerProps) {
   const [body, setBody] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [drafting, setDrafting] = useState(false);
 
   const canSend = (channel === 'email' && props.hasEmail) || channel === 'sms';
+
+  async function handleDraft() {
+    setError(null);
+    setDrafting(true);
+    try {
+      const result = await suggestReply(props.contactId);
+      if ('error' in result) {
+        setError(result.error);
+        return;
+      }
+      setBody(result.draft);
+    } finally {
+      setDrafting(false);
+    }
+  }
 
   async function handleSend() {
     setError(null);
@@ -106,16 +122,26 @@ export function Composer(props: ComposerProps) {
         className="mb-3 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-white/30 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
       />
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <span className="text-xs text-white/30">{t('stub_hint')}</span>
-        <button
-          type="button"
-          onClick={handleSend}
-          disabled={pending || !canSend || body.trim() === ''}
-          className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
-        >
-          {pending ? t('sending') : t('send')}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleDraft}
+            disabled={drafting}
+            className="rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20 disabled:opacity-50"
+          >
+            {drafting ? t('drafting') : t('draft')}
+          </button>
+          <button
+            type="button"
+            onClick={handleSend}
+            disabled={pending || !canSend || body.trim() === ''}
+            className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
+          >
+            {pending ? t('sending') : t('send')}
+          </button>
+        </div>
       </div>
     </div>
   );

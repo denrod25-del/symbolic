@@ -46,7 +46,7 @@ cp .env.local.example .env.local
 | `TWILIO_AUTH_TOKEN` | No | Twilio auth token |
 | `TWILIO_FROM_NUMBER` | No | Twilio sender number in E.164 format |
 | `STRIPE_SECRET_KEY` | No | Enables real Stripe Checkout payment links |
-| `ANTHROPIC_API_KEY` | No | Enables the AI estimator on quotes (Claude) |
+| `ANTHROPIC_API_KEY` | No | Enables the AI estimator on quotes and inbox reply drafting (Claude) |
 
 ## Running locally
 
