@@ -60,6 +60,7 @@ describe('Crm', () => {
   describe('isCrmWorkflowTrigger', () => {
     it('accepts a known trigger', () => {
       expect(isCrmWorkflowTrigger('opportunity_stage_changed')).toBe(true);
+      expect(isCrmWorkflowTrigger('invoice_paid')).toBe(true);
     });
 
     it('rejects an unknown trigger', () => {
@@ -70,6 +71,7 @@ describe('Crm', () => {
   describe('isCrmWorkflowAction', () => {
     it('accepts a known action', () => {
       expect(isCrmWorkflowAction('send_message')).toBe(true);
+      expect(isCrmWorkflowAction('request_review')).toBe(true);
     });
 
     it('rejects an unknown action', () => {

@@ -84,6 +84,12 @@ export default async function CrmLayout(props: {
             >
               {t('nav_automations')}
             </Link>
+            <Link
+              href={`/${locale}/crm/reports`}
+              className="text-sm text-white/60 hover:text-white"
+            >
+              {t('nav_reports')}
+            </Link>
           </div>
         </div>
         <UserButton />

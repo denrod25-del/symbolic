@@ -1,13 +1,14 @@
 'use server';
 
 import { currentUser } from '@clerk/nextjs/server';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import * as z from 'zod';
 import { crmContacts, crmMessages } from '@/models/Schema';
 import { CRM_MESSAGE_CHANNELS } from '@/utils/Crm';
 import { db } from './DB';
 import { dispatchMessage } from './messaging';
+import { draftReply } from './replyAssistant';
 
 const messageFormSchema = z.object({
   contactId: z.coerce.number().int().positive(),
@@ -96,4 +97,61 @@ export async function sendMessage(
   }
 
   return { success: true };
+}
+
+/**
+ * Drafts a reply to a contact's conversation using the AI assistant. Verifies
+ * the contact belongs to the signed-in user.
+ * @param contactId - The contact whose thread is drafted against.
+ * @returns The drafted reply text, or an error message.
+ */
+export async function suggestReply(
+  contactId: number
+): Promise<{ success: true; draft: string } | { error: string }> {
+  const user = await currentUser();
+  if (!user) {
+    return { error: 'Not authenticated' };
+  }
+
+  const [contact] = await db
+    .select({ name: crmContacts.name })
+    .from(crmContacts)
+    .where(
+      and(
+        eq(crmContacts.id, contactId),
+        eq(crmContacts.ownerClerkUserId, user.id)
+      )
+    )
+    .limit(1);
+
+  if (!contact) {
+    return { error: 'Contact not found' };
+  }
+
+  const recent = await db
+    .select({ direction: crmMessages.direction, body: crmMessages.body })
+    .from(crmMessages)
+    .where(
+      and(
+        eq(crmMessages.contactId, contactId),
+        eq(crmMessages.ownerClerkUserId, user.id)
+      )
+    )
+    .orderBy(desc(crmMessages.createdAt))
+    .limit(12);
+
+  if (recent.length === 0) {
+    return { error: 'No conversation to reply to' };
+  }
+
+  const result = await draftReply({
+    contactName: contact.name,
+    messages: recent.toReversed(),
+  });
+
+  if (result.status === 'failed') {
+    return { error: 'Could not draft a reply' };
+  }
+
+  return { success: true, draft: result.text };
 }

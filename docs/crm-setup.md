@@ -16,6 +16,7 @@ pipeline, calendar and booking, the messaging inbox, and workflow automation.
 | Booking | `/crm/booking` | Share a public self-service link that books into the calendar |
 | Inbox | `/crm/inbox` | Per-contact SMS and email conversations |
 | Automations | `/crm/automations` | No-code trigger → action rules with a run log |
+| Reports | `/crm/reports` | Revenue, quote win rate, monthly collected, and pipeline by stage |
 
 All data is scoped per signed-in user, so each account only sees its own
 records.
@@ -46,7 +47,7 @@ cp .env.local.example .env.local
 | `TWILIO_AUTH_TOKEN` | No | Twilio auth token |
 | `TWILIO_FROM_NUMBER` | No | Twilio sender number in E.164 format |
 | `STRIPE_SECRET_KEY` | No | Enables real Stripe Checkout payment links |
-| `ANTHROPIC_API_KEY` | No | Enables the AI estimator on quotes (Claude) |
+| `ANTHROPIC_API_KEY` | No | Enables the AI estimator on quotes and inbox reply drafting (Claude) |
 
 ## Running locally
 
@@ -90,12 +91,14 @@ action and is logged on every run.
 - `opportunity_stage_changed` — an opportunity moves stage (optionally filtered
   to one target stage)
 - `appointment_booked` — a new appointment is scheduled
+- `invoice_paid` — an invoice is marked paid
 
 **Actions**
 
 - `send_message` — send an SMS or email to the event's contact through the
   provider layer
 - `create_opportunity` — open a new pipeline opportunity
+- `request_review` — send the contact a review request with your review link
 
 Example: *"When a contact is created, send a welcome SMS."* Create it in
 `/crm/automations`, then add a contact and watch the run appear in the activity

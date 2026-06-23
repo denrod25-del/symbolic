@@ -3,10 +3,12 @@
 import { currentUser } from '@clerk/nextjs/server';
 import { and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import * as z from 'zod';
 import { crmInvoices, crmQuotes } from '@/models/Schema';
 import { isCrmInvoiceStatus } from '@/utils/Crm';
 import { db } from './DB';
 import { createPaymentLink } from './payments';
+import { runWorkflows } from './workflows';
 
 /** Days until a freshly converted invoice is due. */
 const INVOICE_DUE_DAYS = 14;
@@ -15,10 +17,51 @@ function revalidateInvoices(locale: string) {
   try {
     revalidatePath(`/${locale}/crm/invoices`);
     revalidatePath(`/${locale}/crm/quotes`);
+    revalidatePath(`/${locale}/crm/reports`);
     revalidatePath(`/${locale}/crm/dashboard`);
   } catch {
     // no-op outside Next.js runtime
   }
+}
+
+const costSchema = z.coerce.number().min(0).max(10_000_000);
+
+/**
+ * Sets an invoice's job cost for profit reporting. Verifies ownership first.
+ * @param id - The invoice's database ID.
+ * @param costPounds - The job cost in pounds.
+ * @param locale - Current locale used to revalidate CRM paths.
+ * @returns Success indicator or an error message.
+ */
+export async function setInvoiceCost(
+  id: number,
+  costPounds: unknown,
+  locale: string
+): Promise<{ success: true } | { error: string }> {
+  const user = await currentUser();
+  if (!user) {
+    return { error: 'Not authenticated' };
+  }
+
+  const parsed = costSchema.safeParse(costPounds);
+  if (!parsed.success) {
+    return { error: 'Enter a valid cost' };
+  }
+
+  const updated = await db
+    .update(crmInvoices)
+    .set({ cost: Math.round(parsed.data * 100) })
+    .where(
+      and(eq(crmInvoices.id, id), eq(crmInvoices.ownerClerkUserId, user.id))
+    )
+    .returning({ id: crmInvoices.id });
+
+  if (updated.length === 0) {
+    return { error: 'Invoice not found' };
+  }
+
+  revalidateInvoices(locale);
+  return { success: true };
 }
 
 /**
@@ -107,7 +150,11 @@ export async function setInvoiceStatus(
   }
 
   const [invoice] = await db
-    .select({ total: crmInvoices.total })
+    .select({
+      total: crmInvoices.total,
+      contactId: crmInvoices.contactId,
+      status: crmInvoices.status,
+    })
     .from(crmInvoices)
     .where(
       and(eq(crmInvoices.id, id), eq(crmInvoices.ownerClerkUserId, user.id))
@@ -118,15 +165,26 @@ export async function setInvoiceStatus(
     return { error: 'Invoice not found' };
   }
 
+  const becamePaid = status === 'paid' && invoice.status !== 'paid';
+
   await db
     .update(crmInvoices)
     .set({
       status,
       amountPaid: status === 'paid' ? invoice.total : 0,
+      ...(becamePaid ? { paidAt: new Date() } : {}),
     })
     .where(
       and(eq(crmInvoices.id, id), eq(crmInvoices.ownerClerkUserId, user.id))
     );
+
+  if (becamePaid) {
+    await runWorkflows({
+      type: 'invoice_paid',
+      ownerClerkUserId: user.id,
+      contactId: invoice.contactId,
+    });
+  }
 
   revalidateInvoices(locale);
   return undefined;

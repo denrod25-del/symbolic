@@ -50,6 +50,7 @@ export function WorkflowForm(props: { locale: string }) {
   const [messageBody, setMessageBody] = useState('');
   const [opportunityTitle, setOpportunityTitle] = useState('');
   const [opportunityValuePounds, setOpportunityValuePounds] = useState('0');
+  const [reviewUrl, setReviewUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -68,6 +69,7 @@ export function WorkflowForm(props: { locale: string }) {
           messageBody,
           opportunityTitle,
           opportunityValuePounds,
+          reviewUrl,
         },
         props.locale
       );
@@ -80,6 +82,7 @@ export function WorkflowForm(props: { locale: string }) {
       setMessageBody('');
       setOpportunityTitle('');
       setOpportunityValuePounds('0');
+      setReviewUrl('');
       router.refresh();
     } finally {
       setPending(false);
@@ -167,7 +170,7 @@ export function WorkflowForm(props: { locale: string }) {
         </select>
       </label>
 
-      {actionType === 'send_message' ? (
+      {actionType === 'send_message' && (
         <div className="space-y-4 rounded-lg border border-white/10 p-4">
           <label className="block">
             <span className="mb-1 block text-sm text-white/60">
@@ -208,7 +211,41 @@ export function WorkflowForm(props: { locale: string }) {
             className={inputClass}
           />
         </div>
-      ) : (
+      )}
+
+      {actionType === 'request_review' && (
+        <div className="space-y-4 rounded-lg border border-white/10 p-4">
+          <label className="block">
+            <span className="mb-1 block text-sm text-white/60">
+              {t('channel')}
+            </span>
+            <select
+              value={messageChannel}
+              onChange={(e) => {
+                setMessageChannel(asChannel(e.target.value));
+              }}
+              className={inputClass}
+            >
+              {CRM_MESSAGE_CHANNELS.map((channel) => (
+                <option key={channel} value={channel}>
+                  {t(`channel_${channel}`)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <input
+            type="url"
+            value={reviewUrl}
+            onChange={(e) => {
+              setReviewUrl(e.target.value);
+            }}
+            placeholder={t('review_url_placeholder')}
+            className={inputClass}
+          />
+        </div>
+      )}
+
+      {actionType === 'create_opportunity' && (
         <div className="grid grid-cols-1 gap-4 rounded-lg border border-white/10 p-4 sm:grid-cols-2">
           <input
             type="text"
