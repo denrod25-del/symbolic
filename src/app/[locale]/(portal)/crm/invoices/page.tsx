@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { db } from '@/libs/DB';
 import { crmContacts, crmInvoices } from '@/models/Schema';
 import { isCrmInvoiceStatus } from '@/utils/Crm';
+import { InvoiceCostField } from './InvoiceCostField';
 import { InvoiceRowActions } from './InvoiceRowActions';
 
 export default async function CrmInvoicesPage(props: {
@@ -83,6 +84,11 @@ export default async function CrmInvoicesPage(props: {
                       {t('pay_link')}
                     </a>
                   ) : null}
+                  <InvoiceCostField
+                    cost={(invoice.cost / 100).toFixed(2)}
+                    invoiceId={invoice.id}
+                    locale={locale}
+                  />
                 </div>
                 <InvoiceRowActions
                   locale={locale}

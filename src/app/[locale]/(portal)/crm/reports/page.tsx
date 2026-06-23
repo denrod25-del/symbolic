@@ -39,6 +39,7 @@ export default async function CrmReportsPage(props: {
         status: crmInvoices.status,
         total: crmInvoices.total,
         amountPaid: crmInvoices.amountPaid,
+        cost: crmInvoices.cost,
         updatedAt: crmInvoices.updatedAt,
       })
       .from(crmInvoices)
@@ -66,6 +67,10 @@ export default async function CrmReportsPage(props: {
   const invoiced = invoices
     .filter((row) => row.status !== 'void')
     .reduce((sum, row) => sum + row.total, 0);
+
+  const totalCost = paidInvoices.reduce((sum, row) => sum + row.cost, 0);
+  const profit = collected - totalCost;
+  const margin = collected > 0 ? Math.round((profit / collected) * 100) : null;
 
   const quoteCounts = CRM_QUOTE_STATUSES.map((status) => ({
     status,
@@ -130,6 +135,28 @@ export default async function CrmReportsPage(props: {
           <div className="rounded-lg border border-white/10 bg-white/5 p-6">
             <p className="mb-1 text-sm text-white/50">{t('invoiced')}</p>
             <p className="text-3xl font-bold">{gbp(invoiced)}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-10">
+        <h2 className="mb-4 text-sm font-semibold text-white/70">
+          {t('profit_heading')}
+        </h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="rounded-lg border border-white/10 bg-white/5 p-6">
+            <p className="mb-1 text-sm text-white/50">{t('cost')}</p>
+            <p className="text-3xl font-bold">{gbp(totalCost)}</p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-6">
+            <p className="mb-1 text-sm text-white/50">{t('profit')}</p>
+            <p className="text-3xl font-bold">{gbp(profit)}</p>
+          </div>
+          <div className="rounded-lg border border-white/10 bg-white/5 p-6">
+            <p className="mb-1 text-sm text-white/50">{t('margin')}</p>
+            <p className="text-3xl font-bold">
+              {margin === null ? '—' : `${margin}%`}
+            </p>
           </div>
         </div>
       </section>

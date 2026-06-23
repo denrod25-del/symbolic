@@ -1,0 +1,1 @@
+ALTER TABLE "crm_invoices" ADD COLUMN "cost" integer DEFAULT 0 NOT NULL;
