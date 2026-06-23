@@ -90,12 +90,14 @@ action and is logged on every run.
 - `opportunity_stage_changed` — an opportunity moves stage (optionally filtered
   to one target stage)
 - `appointment_booked` — a new appointment is scheduled
+- `invoice_paid` — an invoice is marked paid
 
 **Actions**
 
 - `send_message` — send an SMS or email to the event's contact through the
   provider layer
 - `create_opportunity` — open a new pipeline opportunity
+- `request_review` — send the contact a review request with your review link
 
 Example: *"When a contact is created, send a welcome SMS."* Create it in
 `/crm/automations`, then add a contact and watch the run appear in the activity

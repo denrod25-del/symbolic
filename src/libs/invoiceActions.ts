@@ -7,6 +7,7 @@ import { crmInvoices, crmQuotes } from '@/models/Schema';
 import { isCrmInvoiceStatus } from '@/utils/Crm';
 import { db } from './DB';
 import { createPaymentLink } from './payments';
+import { runWorkflows } from './workflows';
 
 /** Days until a freshly converted invoice is due. */
 const INVOICE_DUE_DAYS = 14;
@@ -107,7 +108,7 @@ export async function setInvoiceStatus(
   }
 
   const [invoice] = await db
-    .select({ total: crmInvoices.total })
+    .select({ total: crmInvoices.total, contactId: crmInvoices.contactId })
     .from(crmInvoices)
     .where(
       and(eq(crmInvoices.id, id), eq(crmInvoices.ownerClerkUserId, user.id))
@@ -127,6 +128,14 @@ export async function setInvoiceStatus(
     .where(
       and(eq(crmInvoices.id, id), eq(crmInvoices.ownerClerkUserId, user.id))
     );
+
+  if (status === 'paid') {
+    await runWorkflows({
+      type: 'invoice_paid',
+      ownerClerkUserId: user.id,
+      contactId: invoice.contactId,
+    });
+  }
 
   revalidateInvoices(locale);
   return undefined;

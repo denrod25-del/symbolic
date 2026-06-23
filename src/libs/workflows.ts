@@ -23,6 +23,11 @@ export type WorkflowEvent =
       type: 'appointment_booked';
       ownerClerkUserId: string;
       contactId: number | null;
+    }
+  | {
+      type: 'invoice_paid';
+      ownerClerkUserId: string;
+      contactId: number | null;
     };
 
 type Workflow = typeof crmWorkflows.$inferSelect;
@@ -36,6 +41,11 @@ const sendMessageConfig = z.object({
 const createOpportunityConfig = z.object({
   title: z.string().min(1),
   value: z.number().int().min(0).default(0),
+});
+
+const requestReviewConfig = z.object({
+  channel: z.enum(CRM_MESSAGE_CHANNELS),
+  reviewUrl: z.string().min(1),
 });
 
 type RunOutcome = { status: 'success' | 'failed' | 'skipped'; detail: string };
@@ -68,15 +78,22 @@ function triggerMatches(workflow: Workflow, event: WorkflowEvent): boolean {
   return true;
 }
 
-async function runSendMessage(
-  workflow: Workflow,
-  event: WorkflowEvent
-): Promise<RunOutcome> {
-  const parsed = sendMessageConfig.safeParse(workflow.actionConfig);
-  if (!parsed.success) {
-    return { status: 'failed', detail: 'Invalid message configuration' };
-  }
+type DeliverMessage = {
+  channel: (typeof CRM_MESSAGE_CHANNELS)[number];
+  subject: string | null;
+  body: string;
+};
 
+/**
+ * Sends a message to the event's contact and records it in the inbox.
+ * @param event - The CRM event whose contact is messaged.
+ * @param message - The channel, subject, and body to deliver.
+ * @returns The run outcome for the workflow log.
+ */
+async function deliverToContact(
+  event: WorkflowEvent,
+  message: DeliverMessage
+): Promise<RunOutcome> {
   const { contactId } = event;
   if (contactId === null) {
     return { status: 'skipped', detail: 'No contact to message' };
@@ -97,7 +114,7 @@ async function runSendMessage(
     return { status: 'skipped', detail: 'Contact not found' };
   }
 
-  const { channel, subject, body } = parsed.data;
+  const { channel, body } = message;
   const to = channel === 'email' ? contact.email : contact.phone;
   if (!to) {
     return {
@@ -107,20 +124,15 @@ async function runSendMessage(
     };
   }
 
-  const trimmedSubject = subject?.trim() ?? '';
-  const result = await dispatchMessage({
-    channel,
-    to,
-    subject: channel === 'email' && trimmedSubject ? trimmedSubject : null,
-    body,
-  });
+  const subject = channel === 'email' ? message.subject : null;
+  const result = await dispatchMessage({ channel, to, subject, body });
 
   await db.insert(crmMessages).values({
     ownerClerkUserId: event.ownerClerkUserId,
     contactId,
     channel,
     direction: 'outbound',
-    subject: channel === 'email' && trimmedSubject ? trimmedSubject : null,
+    subject,
     body,
     status: result.status,
     providerId: result.providerId,
@@ -129,6 +141,41 @@ async function runSendMessage(
   return result.status === 'failed'
     ? { status: 'failed', detail: 'Message delivery failed' }
     : { status: 'success', detail: `Sent ${channel} to ${contact.name}` };
+}
+
+async function runSendMessage(
+  workflow: Workflow,
+  event: WorkflowEvent
+): Promise<RunOutcome> {
+  const parsed = sendMessageConfig.safeParse(workflow.actionConfig);
+  if (!parsed.success) {
+    return { status: 'failed', detail: 'Invalid message configuration' };
+  }
+
+  const trimmedSubject = parsed.data.subject?.trim() ?? '';
+  const outcome = await deliverToContact(event, {
+    channel: parsed.data.channel,
+    subject: trimmedSubject === '' ? null : trimmedSubject,
+    body: parsed.data.body,
+  });
+  return outcome;
+}
+
+async function runRequestReview(
+  workflow: Workflow,
+  event: WorkflowEvent
+): Promise<RunOutcome> {
+  const parsed = requestReviewConfig.safeParse(workflow.actionConfig);
+  if (!parsed.success) {
+    return { status: 'failed', detail: 'Invalid review configuration' };
+  }
+
+  const outcome = await deliverToContact(event, {
+    channel: parsed.data.channel,
+    subject: 'How did we do?',
+    body: `Thanks for your business! We'd love a quick review: ${parsed.data.reviewUrl}`,
+  });
+  return outcome;
 }
 
 async function runCreateOpportunity(
@@ -158,6 +205,8 @@ async function executeWorkflow(workflow: Workflow, event: WorkflowEvent) {
   let outcome: RunOutcome;
   if (workflow.actionType === 'send_message') {
     outcome = await runSendMessage(workflow, event);
+  } else if (workflow.actionType === 'request_review') {
+    outcome = await runRequestReview(workflow, event);
   } else if (workflow.actionType === 'create_opportunity') {
     outcome = await runCreateOpportunity(workflow, event);
   } else {

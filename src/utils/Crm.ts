@@ -138,6 +138,7 @@ export const CRM_WORKFLOW_TRIGGERS = [
   'contact_created',
   'opportunity_stage_changed',
   'appointment_booked',
+  'invoice_paid',
 ] as const;
 
 export type CrmWorkflowTrigger = (typeof CRM_WORKFLOW_TRIGGERS)[number];
@@ -146,6 +147,7 @@ export type CrmWorkflowTrigger = (typeof CRM_WORKFLOW_TRIGGERS)[number];
 export const CRM_WORKFLOW_ACTIONS = [
   'send_message',
   'create_opportunity',
+  'request_review',
 ] as const;
 
 export type CrmWorkflowAction = (typeof CRM_WORKFLOW_ACTIONS)[number];

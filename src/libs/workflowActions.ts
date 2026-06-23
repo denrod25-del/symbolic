@@ -23,6 +23,7 @@ const workflowFormSchema = z.object({
   messageBody: z.string().max(4000).optional(),
   opportunityTitle: z.string().max(120).optional(),
   opportunityValuePounds: z.coerce.number().min(0).optional(),
+  reviewUrl: z.string().max(500).optional(),
 });
 
 type WorkflowFormData = z.input<typeof workflowFormSchema>;
@@ -67,6 +68,17 @@ function buildActionConfig(
         ...(data.messageChannel === 'email' && subject ? { subject } : {}),
       },
     };
+  }
+
+  if (data.actionType === 'request_review') {
+    if (!data.messageChannel) {
+      return { error: 'Choose a message channel' };
+    }
+    const reviewUrl = data.reviewUrl?.trim() ?? '';
+    if (reviewUrl === '') {
+      return { error: 'Review link is required' };
+    }
+    return { config: { channel: data.messageChannel, reviewUrl } };
   }
 
   const title = data.opportunityTitle?.trim() ?? '';
