@@ -469,7 +469,7 @@
   },
   "CrmAutomationsPage": {
     "title": "Automatisations",
-    "subtitle": "Exécutez une action automatiquement lorsqu'un événement se produit dans votre CRM.",
+    "subtitle": "Exécutez une action automatiquement lorsqu'un événement se produit dans QuoteIQ.",
     "create_heading": "Nouvelle automatisation",
     "active_heading": "Vos automatisations",
     "empty": "Aucune automatisation. Créez-en une ci-dessus.",
