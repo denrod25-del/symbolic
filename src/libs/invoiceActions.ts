@@ -150,7 +150,11 @@ export async function setInvoiceStatus(
   }
 
   const [invoice] = await db
-    .select({ total: crmInvoices.total, contactId: crmInvoices.contactId })
+    .select({
+      total: crmInvoices.total,
+      contactId: crmInvoices.contactId,
+      status: crmInvoices.status,
+    })
     .from(crmInvoices)
     .where(
       and(eq(crmInvoices.id, id), eq(crmInvoices.ownerClerkUserId, user.id))
@@ -161,17 +165,20 @@ export async function setInvoiceStatus(
     return { error: 'Invoice not found' };
   }
 
+  const becamePaid = status === 'paid' && invoice.status !== 'paid';
+
   await db
     .update(crmInvoices)
     .set({
       status,
       amountPaid: status === 'paid' ? invoice.total : 0,
+      ...(becamePaid ? { paidAt: new Date() } : {}),
     })
     .where(
       and(eq(crmInvoices.id, id), eq(crmInvoices.ownerClerkUserId, user.id))
     );
 
-  if (status === 'paid') {
+  if (becamePaid) {
     await runWorkflows({
       type: 'invoice_paid',
       ownerClerkUserId: user.id,

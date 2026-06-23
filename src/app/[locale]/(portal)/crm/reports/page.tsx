@@ -40,6 +40,7 @@ export default async function CrmReportsPage(props: {
         total: crmInvoices.total,
         amountPaid: crmInvoices.amountPaid,
         cost: crmInvoices.cost,
+        paidAt: crmInvoices.paidAt,
         updatedAt: crmInvoices.updatedAt,
       })
       .from(crmInvoices)
@@ -104,7 +105,7 @@ export default async function CrmReportsPage(props: {
     };
   });
   for (const invoice of paidInvoices) {
-    const date = invoice.updatedAt;
+    const date = invoice.paidAt ?? invoice.updatedAt;
     const bucket = months.find(
       (month) => month.key === `${date.getFullYear()}-${date.getMonth()}`
     );
