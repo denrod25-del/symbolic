@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'CRM — Symbolic',
+  title: 'QuoteIQ',
 };
 
 export default async function CrmLayout(props: {
@@ -26,7 +26,7 @@ export default async function CrmLayout(props: {
           >
             <Image src="/logo.png" alt="Symbolic" width={100} height={44} />
             <span className="text-sm font-semibold tracking-wide text-white/60">
-              CRM
+              QuoteIQ
             </span>
           </Link>
           <div className="flex items-center gap-6">

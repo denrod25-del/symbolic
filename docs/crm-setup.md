@@ -1,7 +1,8 @@
-# CRM platform setup
+# QuoteIQ setup
 
-This guide covers running and configuring the CRM modules: contacts and sales
-pipeline, calendar and booking, the messaging inbox, and workflow automation.
+This guide covers running and configuring QuoteIQ, the CRM modules: contacts and
+sales pipeline, quotes and invoices, calendar and online booking, the messaging
+inbox, workflow automation, and reports.
 
 ## What's included
 
