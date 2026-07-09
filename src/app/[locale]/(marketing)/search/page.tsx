@@ -56,7 +56,8 @@ export default async function SearchPage(props: SearchPageProps) {
 
   return (
     <SearchLayout query={query}>
-      <main className="mx-auto max-w-2xl px-4 py-6">
+      <div className="mx-auto max-w-2xl px-4 py-6">
+        <h1 className="sr-only">Search results for {query}</h1>
         {error && <p className="py-8 text-red-400">{error}</p>}
 
         {results && results.results.length === 0 && (
@@ -84,7 +85,7 @@ export default async function SearchPage(props: SearchPageProps) {
             {adSlots[1] && <AdCard ad={adSlots[1]} query={query} />}
           </>
         )}
-      </main>
+      </div>
     </SearchLayout>
   );
 }
