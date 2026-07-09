@@ -9,8 +9,15 @@
   --color-symbolic-accent: #7c6ff7;
   --color-symbolic-link: #a78bfa;
   --color-symbolic-url: #4ade80;
-  --color-symbolic-muted: #6b7280;
+  /* Bumped from #6b7280 (gray-500, ~4.2:1) to meet WCAG AA on the dark bg. */
+  --color-symbolic-muted: #9ca3af;
   --color-symbolic-text: #e2e8f0;
+  /* Semantic status colors, tuned for contrast on the dark surface. */
+  --color-symbolic-success: #22c55e;
+  --color-symbolic-warning: #f59e0b;
+  --color-symbolic-danger: #f87171;
+  --color-symbolic-info: #38bdf8;
+  --shadow-symbolic-card: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 body {
@@ -20,4 +27,44 @@ body {
 
 .symbolic-glow {
   text-shadow: 0 0 40px rgba(124, 111, 247, 0.5);
+}
+
+/* Homepage hero: a self-contained gradient so the landing page never depends
+ * on a raster asset that can go missing. */
+.symbolic-hero {
+  background:
+    radial-gradient(
+      1200px 600px at 50% -10%,
+      rgba(124, 111, 247, 0.25),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 50% 120%,
+      rgba(167, 139, 250, 0.12),
+      transparent 60%
+    ),
+    #0a0a0f;
+}
+
+/* Skeleton shimmer for loading states. */
+@keyframes symbolic-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.symbolic-shimmer {
+  background: linear-gradient(90deg, #12121a 25%, #1e1e2e 37%, #12121a 63%);
+  background-size: 200% 100%;
+  animation: symbolic-shimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .symbolic-shimmer {
+    animation: none;
+  }
 }

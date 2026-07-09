@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 const COOKIE_NAME = 'symbolic_safesearch';
@@ -22,20 +23,25 @@ function setCookie(name: string, value: string) {
 const LEVELS = [
   {
     value: 'strict',
-    label: 'Strict',
-    description: 'Filter explicit content from results',
+    labelKey: 'level_strict_label',
+    descriptionKey: 'level_strict_description',
   },
   {
     value: 'moderate',
-    label: 'Moderate',
-    description: 'Filter explicit images but not text (default)',
+    labelKey: 'level_moderate_label',
+    descriptionKey: 'level_moderate_description',
   },
-  { value: 'off', label: 'Off', description: 'No filtering applied' },
+  {
+    value: 'off',
+    labelKey: 'level_off_label',
+    descriptionKey: 'level_off_description',
+  },
 ] as const;
 
-type SafeSearchLevel = 'strict' | 'moderate' | 'off';
+type SafeSearchLevel = (typeof LEVELS)[number]['value'];
 
 export default function SettingsPage() {
+  const t = useTranslations('SettingsPage');
   const [safesearch, setSafesearch] = useState<SafeSearchLevel>('moderate');
   const [saved, setSaved] = useState(false);
 
@@ -58,12 +64,16 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-symbolic-bg">
       <div className="mx-auto max-w-2xl px-4 py-12">
-        <h1 className="mb-8 text-2xl font-bold text-symbolic-text">Settings</h1>
+        <h1 className="mb-8 text-2xl font-bold text-symbolic-text">
+          {t('title')}
+        </h1>
 
-        <div className="rounded-lg border border-symbolic-border bg-symbolic-surface p-6">
-          <h2 className="mb-1 font-medium text-symbolic-text">Safe Search</h2>
+        <div className="rounded-lg border border-symbolic-border bg-symbolic-surface p-6 shadow-symbolic-card">
+          <h2 className="mb-1 font-medium text-symbolic-text">
+            {t('safe_search_title')}
+          </h2>
           <p className="mb-4 text-sm text-symbolic-muted">
-            Controls filtering of explicit content in search results.
+            {t('safe_search_description')}
           </p>
 
           <div className="flex flex-col gap-3">
@@ -71,7 +81,7 @@ export default function SettingsPage() {
               <label
                 key={level.value}
                 htmlFor={`safesearch-${level.value}`}
-                aria-label={level.label}
+                aria-label={t(level.labelKey)}
                 className="flex cursor-pointer items-start gap-3"
               >
                 <input
@@ -86,16 +96,18 @@ export default function SettingsPage() {
                   className="mt-1 accent-symbolic-accent"
                 />
                 <div>
-                  <div className="text-symbolic-text">{level.label}</div>
+                  <div className="text-symbolic-text">{t(level.labelKey)}</div>
                   <div className="text-sm text-symbolic-muted">
-                    {level.description}
+                    {t(level.descriptionKey)}
                   </div>
                 </div>
               </label>
             ))}
           </div>
 
-          {saved && <p className="mt-4 text-sm text-symbolic-url">Saved.</p>}
+          {saved && (
+            <p className="mt-4 text-sm text-symbolic-success">{t('saved')}</p>
+          )}
         </div>
       </div>
     </div>
