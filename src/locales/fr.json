@@ -7,11 +7,6 @@
     "sign_in_link": "Se connecter",
     "sign_up_link": "S'inscrire"
   },
-  "BaseTemplate": {
-    "description": "Code de démarrage pour Next.js avec Tailwind CSS",
-    "footer_text": "© {year} {name}. Fait avec <author></author>.",
-    "main_navigation_label": "Navigation principale"
-  },
   "Index": {
     "meta_title": "Présentation de Next.js Boilerplate",
     "meta_description": "Next js Boilerplate est le code de démarrage parfait pour votre projet. Construisez votre application React avec le framework Next.js.",
@@ -80,7 +75,8 @@
   "Footer": {
     "submit": "Soumettre un site",
     "settings": "Paramètres",
-    "copyright": "© Symbolic"
+    "copyright": "© Symbolic",
+    "privacy": "Confidentialité"
   },
   "SubmitPage": {
     "meta_title": "Soumettre votre site — Symbolic",
@@ -519,5 +515,60 @@
     "delete_confirm": "Supprimer cette automatisation ?",
     "delete_yes": "Oui",
     "delete_cancel": "Annuler"
+  },
+  "HomePage": {
+    "meta_title": "Symbolic — la recherche sans compromis",
+    "heading": "Symbolic — la recherche web privée sans compromis",
+    "tagline": "La recherche sans compromis",
+    "privacy_note": "Privé par défaut — aucun suivi, aucun profil. Propulsé par Brave Search."
+  },
+  "SearchBar": {
+    "placeholder": "Rechercher sur le web…",
+    "aria_label": "Rechercher",
+    "submit": "Rechercher",
+    "lucky": "J'ai de la chance"
+  },
+  "SearchPage": {
+    "meta_title_query": "{query} — Symbolic",
+    "meta_title_default": "Recherche — Symbolic",
+    "heading": "Résultats de recherche pour {query}",
+    "searching": "Recherche en cours…",
+    "error": "Une erreur s'est produite.",
+    "no_results": "Aucun résultat pour <strong>« {query} »</strong>",
+    "no_results_hint": "Essayez d'autres mots-clés ou vérifiez l'orthographe."
+  },
+  "Pagination": {
+    "previous": "Précédent",
+    "next": "Suivant"
+  },
+  "SettingsPage": {
+    "title": "Paramètres",
+    "safe_search_title": "Recherche sécurisée",
+    "safe_search_description": "Contrôle le filtrage du contenu explicite dans les résultats de recherche.",
+    "level_strict_label": "Strict",
+    "level_strict_description": "Filtrer le contenu explicite des résultats",
+    "level_moderate_label": "Modéré",
+    "level_moderate_description": "Filtrer les images explicites mais pas le texte (par défaut)",
+    "level_off_label": "Désactivé",
+    "level_off_description": "Aucun filtrage appliqué",
+    "saved": "Enregistré"
+  },
+  "PrivacyPage": {
+    "meta_title": "Confidentialité — Symbolic",
+    "meta_description": "Comment Symbolic gère vos recherches et vos données.",
+    "title": "Confidentialité",
+    "updated": "Dernière mise à jour le 9 juillet 2026",
+    "collect_title": "Ce que nous collectons",
+    "collect_body": "Symbolic ne crée pas de profils d'utilisateur et ne conserve pas d'historique de vos recherches lié à votre identité. Vos requêtes sont envoyées à l'API Brave Search pour renvoyer des résultats et ne servent pas à créer un profil publicitaire.",
+    "cookies_title": "Cookies",
+    "cookies_body": "Nous utilisons un seul cookie fonctionnel pour mémoriser votre préférence de recherche sécurisée. Il ne contient aucun identifiant et n'est jamais partagé.",
+    "third_parties_title": "Tiers",
+    "third_parties_body": "Les résultats de recherche sont fournis par l'API Brave Search. Votre requête est partagée avec Brave pour obtenir ces résultats, conformément à la politique de confidentialité de Brave.",
+    "ads_title": "Publicité",
+    "ads_body": "Les publicités éventuelles correspondent aux mots de votre requête actuelle, et non à votre identité ou à vos recherches précédentes.",
+    "retention_title": "Conservation des données",
+    "retention_body": "Nous ne conservons pas de journaux de recherche liés à votre identité. Des mesures agrégées et non identifiantes peuvent être conservées pour faire fonctionner le service.",
+    "contact_title": "Contact",
+    "contact_body": "Des questions sur la confidentialité ? Contactez-nous via le site et nous vous répondrons."
   }
 }

@@ -1,8 +1,11 @@
+import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 
 const SKELETON_ROWS = [0, 1, 2, 3, 4, 5];
 
-export default function Loading() {
+export default async function Loading() {
+  const t = await getTranslations('SearchPage');
+
   return (
     <div className="min-h-screen bg-symbolic-bg">
       <header className="sticky top-0 z-10 border-b border-symbolic-border bg-symbolic-bg">
@@ -19,7 +22,7 @@ export default function Loading() {
       </header>
 
       <p className="sr-only" role="status">
-        Searching…
+        {t('searching')}
       </p>
 
       <div className="mx-auto max-w-2xl px-4 py-6" aria-hidden>

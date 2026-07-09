@@ -1,7 +1,9 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Button } from './Button';
 
 type SearchBarProps = {
   defaultValue?: string;
@@ -9,6 +11,7 @@ type SearchBarProps = {
 };
 
 export function SearchBar(props: SearchBarProps) {
+  const t = useTranslations('SearchBar');
   const router = useRouter();
   const [query, setQuery] = useState(props.defaultValue ?? '');
 
@@ -39,15 +42,16 @@ export function SearchBar(props: SearchBarProps) {
             setQuery(e.target.value);
           }}
           autoFocus={props.autoFocus}
-          placeholder="Search the web..."
-          className="w-full rounded-full border border-symbolic-border bg-symbolic-surface px-6 py-3 text-symbolic-text placeholder-symbolic-muted transition-all focus:border-symbolic-accent focus:outline-none"
+          placeholder={t('placeholder')}
+          className="w-full rounded-full border border-symbolic-border bg-symbolic-surface py-3 pr-14 pl-6 text-symbolic-text placeholder-symbolic-muted transition-all focus:border-symbolic-accent focus:outline-none"
         />
         <button
           type="submit"
-          aria-label="Search"
-          className="absolute top-1/2 right-4 -translate-y-1/2 text-symbolic-muted transition-colors hover:text-symbolic-accent"
+          aria-label={t('aria_label')}
+          className="absolute top-1/2 right-1.5 flex size-11 -translate-y-1/2 items-center justify-center rounded-full text-symbolic-muted transition-colors hover:text-symbolic-accent focus-visible:ring-2 focus-visible:ring-symbolic-accent focus-visible:outline-none"
         >
           <svg
+            aria-hidden="true"
             width="18"
             height="18"
             viewBox="0 0 24 24"
@@ -63,19 +67,10 @@ export function SearchBar(props: SearchBarProps) {
         </button>
       </div>
       <div className="flex justify-center gap-3">
-        <button
-          type="submit"
-          className="rounded-md border border-symbolic-border bg-symbolic-surface px-5 py-2 text-sm text-symbolic-text transition-colors hover:border-symbolic-accent"
-        >
-          Search
-        </button>
-        <button
-          type="button"
-          onClick={handleLucky}
-          className="rounded-md border border-symbolic-border bg-symbolic-surface px-5 py-2 text-sm text-symbolic-text transition-colors hover:border-symbolic-accent"
-        >
-          I&apos;m Feeling Lucky
-        </button>
+        <Button type="submit">{t('submit')}</Button>
+        <Button type="button" onClick={handleLucky}>
+          {t('lucky')}
+        </Button>
       </div>
     </form>
   );

@@ -12,6 +12,12 @@
   /* Bumped from #6b7280 (gray-500, ~4.2:1) to meet WCAG AA on the dark bg. */
   --color-symbolic-muted: #9ca3af;
   --color-symbolic-text: #e2e8f0;
+  /* Semantic status colors, tuned for contrast on the dark surface. */
+  --color-symbolic-success: #22c55e;
+  --color-symbolic-warning: #f59e0b;
+  --color-symbolic-danger: #f87171;
+  --color-symbolic-info: #38bdf8;
+  --shadow-symbolic-card: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
 body {
