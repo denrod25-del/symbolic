@@ -42,6 +42,7 @@ export function SearchBar(props: SearchBarProps) {
             setQuery(e.target.value);
           }}
           autoFocus={props.autoFocus}
+          aria-label={t('placeholder')}
           placeholder={t('placeholder')}
           className="w-full rounded-full border border-symbolic-border bg-symbolic-surface py-3 pr-14 pl-6 text-symbolic-text placeholder-symbolic-muted transition-all focus:border-symbolic-accent focus:outline-none"
         />

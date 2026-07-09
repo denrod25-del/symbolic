@@ -38,7 +38,7 @@ const LEVELS = [
   },
 ] as const;
 
-type SafeSearchLevel = 'strict' | 'moderate' | 'off';
+type SafeSearchLevel = (typeof LEVELS)[number]['value'];
 
 export default function SettingsPage() {
   const t = useTranslations('SettingsPage');
