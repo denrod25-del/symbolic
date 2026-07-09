@@ -15,24 +15,24 @@ describe('Button', () => {
   it('defaults to a non-submitting type', async () => {
     await render(<Button>Search</Button>);
 
-    expect(page.getByRole('button', { name: 'Search' })).toHaveAttribute(
-      'type',
-      'button'
-    );
+    await expect
+      .element(page.getByRole('button', { name: 'Search' }))
+      .toHaveAttribute('type', 'button');
   });
 
   it('forwards an explicit submit type', async () => {
     await render(<Button type="submit">Send</Button>);
 
-    expect(page.getByRole('button', { name: 'Send' })).toHaveAttribute(
-      'type',
-      'submit'
-    );
+    await expect
+      .element(page.getByRole('button', { name: 'Send' }))
+      .toHaveAttribute('type', 'submit');
   });
 
   it('applies the disabled state', async () => {
     await render(<Button disabled>Search</Button>);
 
-    expect(page.getByRole('button', { name: 'Search' })).toBeDisabled();
+    await expect
+      .element(page.getByRole('button', { name: 'Search' }))
+      .toBeDisabled();
   });
 });
