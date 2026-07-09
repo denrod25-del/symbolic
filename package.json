@@ -86,7 +86,8 @@
     "typescript": "^5.9.3",
     "ultracite": "^7.3.2",
     "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.0",
+    "vitest-browser-react": "^2.2.0"
   },
   "release": {
     "branches": [

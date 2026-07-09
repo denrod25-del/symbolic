@@ -42,14 +42,25 @@ type ButtonProps = ComponentProps<'button'> & {
 };
 
 export function Button(props: ButtonProps) {
-  const { variant = 'secondary', size = 'md', className, ...rest } = props;
+  // Destructure only to separate the styling props from the forwarded rest;
+  // values are read via `props` per the project convention.
+  const {
+    variant: _variant,
+    size: _size,
+    className: _className,
+    ...rest
+  } = props;
 
   return (
     // Defaults to a non-submitting button; a caller-provided `type` in `rest`
     // overrides this literal.
     <button
       type="button"
-      className={buttonClasses({ variant, size, className })}
+      className={buttonClasses({
+        variant: props.variant ?? 'secondary',
+        size: props.size ?? 'md',
+        className: props.className,
+      })}
       {...rest}
     />
   );
@@ -61,9 +72,21 @@ type ButtonLinkProps = ComponentProps<typeof Link> & {
 };
 
 export function ButtonLink(props: ButtonLinkProps) {
-  const { variant = 'secondary', size = 'md', className, ...rest } = props;
+  const {
+    variant: _variant,
+    size: _size,
+    className: _className,
+    ...rest
+  } = props;
 
   return (
-    <Link className={buttonClasses({ variant, size, className })} {...rest} />
+    <Link
+      className={buttonClasses({
+        variant: props.variant ?? 'secondary',
+        size: props.size ?? 'md',
+        className: props.className,
+      })}
+      {...rest}
+    />
   );
 }
