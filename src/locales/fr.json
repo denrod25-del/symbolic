@@ -73,10 +73,63 @@
     "change_language": "Changer de langue"
   },
   "Footer": {
+    "discover": "Découvrir",
     "submit": "Soumettre un site",
     "settings": "Paramètres",
     "copyright": "© Symbolic",
     "privacy": "Confidentialité"
+  },
+  "WeatherChip": {
+    "set_location": "Météo",
+    "feels_like": "Ressenti {temp}°",
+    "humidity": "Humidité {value}%",
+    "wind": "Vent {value} mph",
+    "today_range": "Max {max}° · Min {min}°",
+    "full_forecast": "Prévisions complètes →",
+    "attribution": "Météo par CrewCast",
+    "alert_until": "jusqu'à {time}",
+    "banner_details": "Détails",
+    "banner_dismiss": "Ignorer l'alerte"
+  },
+  "WeatherPage": {
+    "meta_title": "Météo — Symbolic",
+    "title": "Météo",
+    "change_location": "Changer de lieu",
+    "alerts_title": "Alertes actives",
+    "hourly_title": "Prochaines 12 heures",
+    "daily_title": "Prévisions sur 7 jours",
+    "unavailable": "La météo est indisponible pour le moment.",
+    "no_location": "Définissez votre position pour voir les prévisions.",
+    "set_location_cta": "Définir la position dans les paramètres",
+    "attribution": "Météo par CrewCast"
+  },
+  "SettingsLocation": {
+    "title": "Position",
+    "description": "Utilisée pour les prévisions météo et les alertes.",
+    "placeholder": "Ville ou code postal",
+    "save": "Enregistrer",
+    "use_my_location": "Utiliser ma position",
+    "saved": "Enregistré.",
+    "not_found": "Lieu introuvable.",
+    "current": "Actuel : {label}"
+  },
+  "HomeNews": {
+    "title": "La tech aujourd'hui",
+    "more": "Plus sur Discover →",
+    "scroll_hint": "Découvrir"
+  },
+  "DiscoverPage": {
+    "meta_title": "Découvrir — Symbolic",
+    "meta_description": "Les dernières actualités technologiques, agrégées par Symbolic.",
+    "title": "Découvrir",
+    "tab_all": "Tout",
+    "tab_ai": "IA",
+    "tab_startups": "Startups",
+    "tab_security": "Sécurité",
+    "tab_devices": "Appareils",
+    "sources": "Sources",
+    "sources_signin": "Connectez-vous pour choisir vos sources.",
+    "empty": "Rien ici pour l'instant — revenez bientôt."
   },
   "SubmitPage": {
     "meta_title": "Soumettre votre site — Symbolic",

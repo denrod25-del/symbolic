@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
+  "id": "fe8055d0-74bb-4bc2-b483-47f642612655",
+=======
   "id": "299d95d8-1326-4f78-acea-84ddaa18a669",
+>>>>>>> origin/main
   "prevId": "4f31a0e9-43e7-468f-bf53-478f86b1ddca",
   "version": "7",
   "dialect": "postgresql",
@@ -274,8 +278,13 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+<<<<<<< HEAD
+    "public.news_articles": {
+      "name": "news_articles",
+=======
     "public.crm_contacts": {
       "name": "crm_contacts",
+>>>>>>> origin/main
       "schema": "",
       "columns": {
         "id": {
@@ -284,24 +293,62 @@
           "primaryKey": true,
           "notNull": true
         },
+<<<<<<< HEAD
+        "source": {
+          "name": "source",
+=======
         "owner_clerk_user_id": {
           "name": "owner_clerk_user_id",
+>>>>>>> origin/main
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
+<<<<<<< HEAD
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'general'"
+        },
+        "title": {
+          "name": "title",
+=======
         "name": {
           "name": "name",
+>>>>>>> origin/main
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
+<<<<<<< HEAD
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "image_url": {
+          "name": "image_url",
+=======
         "email": {
           "name": "email",
+>>>>>>> origin/main
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
+<<<<<<< HEAD
+        "published_at": {
+          "name": "published_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fetched_at": {
+          "name": "fetched_at",
+=======
         "phone": {
           "name": "phone",
           "type": "text",
@@ -329,6 +376,7 @@
         },
         "updated_at": {
           "name": "updated_at",
+>>>>>>> origin/main
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -338,13 +386,30 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
+<<<<<<< HEAD
+      "uniqueConstraints": {
+        "news_articles_url_unique": {
+          "name": "news_articles_url_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "url"
+          ]
+        }
+      },
+=======
       "uniqueConstraints": {},
+>>>>>>> origin/main
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+<<<<<<< HEAD
+    "public.news_preferences": {
+      "name": "news_preferences",
+=======
     "public.crm_opportunities": {
       "name": "crm_opportunities",
+>>>>>>> origin/main
       "schema": "",
       "columns": {
         "id": {
@@ -353,12 +418,39 @@
           "primaryKey": true,
           "notNull": true
         },
+<<<<<<< HEAD
+        "clerk_user_id": {
+          "name": "clerk_user_id",
+=======
         "owner_clerk_user_id": {
           "name": "owner_clerk_user_id",
+>>>>>>> origin/main
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
+<<<<<<< HEAD
+        "hidden_sources": {
+          "name": "hidden_sources",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{}'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "news_preferences_clerk_user_id_unique": {
+          "name": "news_preferences_clerk_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "clerk_user_id"
+          ]
+        }
+      },
+=======
         "contact_id": {
           "name": "contact_id",
           "type": "integer",
@@ -418,6 +510,7 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
+>>>>>>> origin/main
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

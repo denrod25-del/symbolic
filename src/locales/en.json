@@ -73,10 +73,63 @@
     "change_language": "Change language"
   },
   "Footer": {
+    "discover": "Discover",
     "submit": "Submit a site",
     "settings": "Settings",
     "copyright": "© Symbolic",
     "privacy": "Privacy"
+  },
+  "WeatherChip": {
+    "set_location": "Weather",
+    "feels_like": "Feels like {temp}°",
+    "humidity": "Humidity {value}%",
+    "wind": "Wind {value} mph",
+    "today_range": "H {max}° · L {min}°",
+    "full_forecast": "Full forecast →",
+    "attribution": "Weather by CrewCast",
+    "alert_until": "until {time}",
+    "banner_details": "Details",
+    "banner_dismiss": "Dismiss alert"
+  },
+  "WeatherPage": {
+    "meta_title": "Weather — Symbolic",
+    "title": "Weather",
+    "change_location": "Change location",
+    "alerts_title": "Active alerts",
+    "hourly_title": "Next 12 hours",
+    "daily_title": "7-day forecast",
+    "unavailable": "Weather is unavailable right now.",
+    "no_location": "Set your location to see the forecast.",
+    "set_location_cta": "Set location in Settings",
+    "attribution": "Weather by CrewCast"
+  },
+  "SettingsLocation": {
+    "title": "Location",
+    "description": "Used for the weather forecast and alerts.",
+    "placeholder": "City or zip code",
+    "save": "Save",
+    "use_my_location": "Use my location",
+    "saved": "Saved.",
+    "not_found": "Location not found.",
+    "current": "Current: {label}"
+  },
+  "HomeNews": {
+    "title": "Tech today",
+    "more": "More on Discover →",
+    "scroll_hint": "Discover"
+  },
+  "DiscoverPage": {
+    "meta_title": "Discover — Symbolic",
+    "meta_description": "The latest technology news, aggregated by Symbolic.",
+    "title": "Discover",
+    "tab_all": "All",
+    "tab_ai": "AI",
+    "tab_startups": "Startups",
+    "tab_security": "Security",
+    "tab_devices": "Devices",
+    "sources": "Sources",
+    "sources_signin": "Sign in to choose your sources.",
+    "empty": "Nothing here yet — check back soon."
   },
   "SubmitPage": {
     "meta_title": "Submit your site — Symbolic",
