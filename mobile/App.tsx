@@ -20,9 +20,11 @@ import {
   clearHistory,
   loadBookmarks,
   loadHistory,
+  loadTabs,
   recordHistory,
   removeBookmark,
   saveBookmark,
+  saveTabs,
 } from './src/storage';
 import { TabsScreen } from './src/TabsScreen';
 import { theme } from './src/theme';
@@ -55,7 +57,27 @@ export default function App() {
   useEffect(() => {
     loadBookmarks().then(setBookmarks);
     loadHistory().then(setHistory);
+    loadTabs().then((saved) => {
+      if (!saved || saved.urls.length === 0) {
+        return;
+      }
+      const restored = saved.urls.map((url) => makeTab(url));
+      setTabs(restored);
+      const target =
+        restored[Math.min(saved.active, restored.length - 1)] ?? restored[0];
+      if (target) {
+        setActiveId(target.id);
+      }
+    });
   }, []);
+
+  useEffect(() => {
+    const activeIndex = tabs.findIndex((t) => t.id === activeId);
+    void saveTabs(
+      tabs.map((t) => t.url || NEW_TAB),
+      Math.max(0, activeIndex)
+    );
+  }, [tabs, activeId]);
 
   const activeTab = tabs.find((t) => t.id === activeId) ?? tabs[0];
   const activeRef = activeTab
@@ -179,6 +201,7 @@ export default function App() {
                     }
                   }}
                   allowsBackForwardNavigationGestures
+                  pullToRefreshEnabled
                   decelerationRate="normal"
                 />
               </View>

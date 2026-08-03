@@ -46,3 +46,13 @@ export async function recordHistory(url: string, title: string): Promise<void> {
 export async function clearHistory(): Promise<void> {
   await AsyncStorage.removeItem(HISTORY_KEY);
 }
+
+const TABS_KEY = 'symbolic_tabs';
+
+type SavedTabs = { urls: string[]; active: number };
+
+export const loadTabs = () => load<SavedTabs | null>(TABS_KEY, null);
+
+export async function saveTabs(urls: string[], active: number): Promise<void> {
+  await AsyncStorage.setItem(TABS_KEY, JSON.stringify({ urls, active }));
+}

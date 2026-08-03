@@ -9,6 +9,46 @@ npm install
 npm start
 ```
 
+## Features
+
+- Tabs with per-tab history, favicons, and session restore on relaunch
+- Private tabs (in-memory session, no history recorded) — `Ctrl+Shift+N`
+- Omnibox: URLs load directly, anything else searches Symbolic
+- Find in page with match counter — `Ctrl+F`
+- Downloads panel with progress, Open, and Show-in-folder — `Ctrl+J`
+- Command palette with every browser action — `Ctrl+K`
+- Reader mode (distraction-free article view) — `Ctrl+E`
+- Full-page screenshot saved to Downloads — `Ctrl+Shift+S`
+- Per-tab zoom — `Ctrl+=` / `Ctrl+-` / `Ctrl+0`
+- Bookmarks bar (star button or `Ctrl+D`; right-click to remove)
+- History page — `Ctrl+H`
+- Ad/tracker blocking: seed list + StevenBlack/hosts (~150k domains),
+  cached weekly, applied to normal and private sessions
+- Built-in PDF viewing
+
+## Keyboard shortcuts
+
+| Shortcut | Action |
+| --- | --- |
+| `Ctrl+T` | New tab |
+| `Ctrl+Shift+N` | New private tab |
+| `Ctrl+W` | Close tab |
+| `Ctrl+L` | Focus address bar |
+| `Ctrl+R` / `F5` | Reload |
+| `Ctrl+F` | Find in page |
+| `Ctrl+D` | Bookmark current page |
+| `Ctrl+H` | History page |
+| `Ctrl+J` | Downloads panel |
+| `Ctrl+K` / `Ctrl+Shift+P` | Command palette |
+| `Ctrl+E` | Reader mode |
+| `Ctrl+Shift+S` | Screenshot page |
+| `Ctrl+=` / `Ctrl+-` / `Ctrl+0` | Zoom in / out / reset |
+| `Alt+←` / `Alt+→` | Back / Forward |
+| `Ctrl+Tab` / `Ctrl+Shift+Tab` | Cycle tabs |
+| `Ctrl+1`..`8` | Jump to tab N |
+| `Ctrl+9` | Jump to last tab |
+| `Esc` | Close find bar / palette / reader / downloads |
+
 ## Build the Windows installer
 
 ```
@@ -16,41 +56,14 @@ npm install
 npm run dist:win
 ```
 
-The signed-but-unsigned `Symbolic Setup <version>.exe` lands in `desktop/dist/`.
-Double-click it to install — users get a desktop shortcut and a Start menu
-entry. The installer is NSIS-based and lets users choose an install location.
+The `Symbolic Setup <version>.exe` lands in `desktop/dist/`. The installer is
+NSIS-based, shows Symbolic-branded wizard art, and lets users choose an
+install location. `npm run dist:mac` and `npm run dist:linux` produce `.dmg`
+and `.AppImage`.
 
-You can build on macOS or Linux instead of Windows: `electron-builder` cross-
-builds the NSIS installer for Windows from either platform.
-
-## Build other platforms
-
-- `npm run dist:mac` → `.dmg` for macOS
-- `npm run dist:linux` → `.AppImage` for Linux
-- `npm run dist` → all targets supported by the host OS
-
-All output lands in `desktop/dist/`.
-
-## Code-signing (optional)
-
-For Windows code-signing, set `WIN_CSC_LINK` and `WIN_CSC_KEY_PASSWORD`
-environment variables to a `.pfx` certificate and its password. Without
-signing, Windows SmartScreen will warn end-users on first launch.
-
-## Keyboard shortcuts
-
-| Shortcut | Action |
-| --- | --- |
-| `Ctrl+T` | New tab |
-| `Ctrl+W` | Close tab |
-| `Ctrl+L` | Focus address bar |
-| `Ctrl+R` / `F5` | Reload |
-| `Ctrl+D` | Bookmark current page |
-| `Ctrl+H` | History page |
-| `Alt+←` / `Alt+→` | Back / Forward |
-| `Ctrl+Tab` / `Ctrl+Shift+Tab` | Cycle tabs |
-| `Ctrl+1`..`8` | Jump to tab N |
-| `Ctrl+9` | Jump to last tab |
+For Windows code-signing, set `WIN_CSC_LINK` and `WIN_CSC_KEY_PASSWORD` to a
+`.pfx` certificate and its password. Without signing, Windows SmartScreen
+warns end-users on first launch.
 
 ## Configuration
 
@@ -62,8 +75,9 @@ const SYMBOLIC_ORIGIN = 'http://localhost:3000';
 
 Point this at your Symbolic deployment URL.
 
-## Ad-blocker
+## Not built yet (deliberately)
 
-The blocklist starts as a small seed list and is augmented with
-`StevenBlack/hosts` (MIT) fetched on first run and cached in the Electron
-`userData` directory. Cache refreshes weekly.
+- Password/form autofill (needs OS keychain integration)
+- Cross-device sync (needs account auth on the Symbolic backend)
+- Chromium extension support (multi-year effort; out of scope)
+- Auto-update (`electron-updater` is the natural next step)
