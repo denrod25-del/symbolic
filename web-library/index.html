@@ -156,7 +156,7 @@
     font-size: 11px; letter-spacing: 0.28em;
     text-transform: uppercase; color: var(--ink-soft); margin-bottom: 6px;
   }
-  input[type="text"], input[type="search"], textarea, select {
+  input[type="text"], input[type="search"], input[type="password"], textarea, select {
     width: 100%; padding: 12px 14px;
     background: var(--parchment-light); border: 1px solid var(--rule);
     font-family: 'EB Garamond', serif; font-size: 17px; color: var(--ink);
@@ -379,6 +379,12 @@
       </div>
     </div>
     <button class="btn" id="startScanBtn">Start Camera</button>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+      <button class="btn outline" id="uploadBarcodeBtn">Upload barcode photo</button>
+      <button class="btn outline" id="uploadCoverBtn" style="display:none;">Identify cover (AI)</button>
+    </div>
+    <input type="file" id="barcodeFile" accept="image/*" style="display:none;">
+    <input type="file" id="coverFile" accept="image/*" style="display:none;">
 
     <div class="divider"><span>or enter manually</span></div>
 
@@ -388,6 +394,15 @@
       <div class="helper-text" id="isbnHelper">Find this above the barcode on the back cover.</div>
     </div>
     <button class="btn outline" id="lookupBtn">Look up book</button>
+
+    <div class="divider"><span>no ISBN? search Open Library</span></div>
+
+    <div class="field">
+      <label>Title, author, or keywords</label>
+      <input type="text" id="searchQuery" placeholder="e.g. Norwegian Wood Murakami" autocomplete="off">
+    </div>
+    <button class="btn outline" id="searchBtn">Search</button>
+    <div id="searchResults" style="margin-top: 14px;"></div>
   </section>
 
   <!-- STATS -->
@@ -431,6 +446,19 @@
     </p>
     <input type="file" id="importFile" accept=".json,application/json" style="display:none;">
     <button class="btn outline" id="importBtn">Choose JSON file…</button>
+
+    <h3 class="section-heading">AI Cover Identification</h3>
+    <p class="helper-text" style="margin-bottom: 12px;">
+      Optional. Paste an Anthropic API key to unlock the "Identify cover (AI)"
+      button on the Add Book tab — useful for books with no barcode. The key
+      is stored only in this browser and sent directly to Anthropic. Get one
+      at console.anthropic.com.
+    </p>
+    <div class="field">
+      <label>Anthropic API key</label>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off">
+    </div>
+    <button class="btn outline" id="saveKeyBtn">Save key</button>
   </section>
 </div>
 
@@ -909,6 +937,200 @@
     renderLibrary();
   }
 
+  // ---------- Barcode from still image ----------
+  // ZXing can decode either a live video stream or a single image. This is
+  // the escape hatch when the live camera can't focus (bad lighting,
+  // reflective covers, tiny mass-market paperbacks).
+  async function decodeBarcodeFile(file) {
+    if (typeof ZXing === 'undefined' || !ZXing.BrowserMultiFormatReader) {
+      toast('Scanner library did not load.', 3000);
+      return;
+    }
+    const reader = new ZXing.BrowserMultiFormatReader();
+    const url = URL.createObjectURL(file);
+    try {
+      const result = await reader.decodeFromImageUrl(url);
+      const text = result.getText();
+      const isbn = normalizeIsbn(text);
+      if (isbn) await handleIsbn(isbn);
+      else toast('Read a barcode but it isn\'t a book ISBN: ' + text, 3500);
+    } catch (e) {
+      toast('No barcode found in that photo. Try a clearer shot.', 3500);
+    } finally {
+      URL.revokeObjectURL(url);
+      try { reader.reset(); } catch (e) { /* ignore */ }
+    }
+  }
+
+  // ---------- Title / author search ----------
+  // For books that have no ISBN at all (old paperbacks, foreign editions,
+  // library discards). Open Library's search endpoint is free and doesn't
+  // require an API key.
+  async function searchByTitle(query) {
+    const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=10`;
+    try {
+      const r = await fetch(url);
+      if (!r.ok) return [];
+      const data = await r.json();
+      return (data.docs || []).map(d => ({
+        isbn: (d.isbn && d.isbn[0]) || '',
+        title: d.title || 'Unknown title',
+        authors: d.author_name || [],
+        publishYear: d.first_publish_year ? String(d.first_publish_year) : '',
+        cover: d.cover_i
+          ? `https://covers.openlibrary.org/b/id/${d.cover_i}-M.jpg`
+          : null,
+        source: 'openlibrary-search'
+      }));
+    } catch (e) {
+      console.error(e);
+      return [];
+    }
+  }
+
+  function renderSearchResults(results) {
+    const el = document.getElementById('searchResults');
+    if (!results.length) {
+      el.innerHTML = '<div class="helper-text">No matches. Try a different query.</div>';
+      return;
+    }
+    el.innerHTML = results.map((b, i) => {
+      const author = (b.authors[0] || 'Unknown author');
+      const meta = [author, b.publishYear].filter(Boolean).join(' · ');
+      const coverHtml = b.cover
+        ? `<img src="${escapeHtml(b.cover)}" alt="" style="width:100%; display:block; border:1px solid var(--rule);">`
+        : `<div style="aspect-ratio:2/3; background:var(--burgundy); color:var(--parchment); display:flex; align-items:center; justify-content:center; padding:6px; text-align:center; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:11px; line-height:1.1;">${escapeHtml(b.title)}</div>`;
+      return `
+        <div class="search-result" data-idx="${i}" style="display:flex; gap:12px; align-items:flex-start; margin-bottom:10px; padding:10px; background:var(--parchment-deep); border:1px solid var(--rule); cursor:pointer;">
+          <div style="width:56px; flex-shrink:0;">${coverHtml}</div>
+          <div style="flex:1; min-width:0;">
+            <div class="book-title">${escapeHtml(b.title)}</div>
+            <div class="book-author">${escapeHtml(meta)}</div>
+            ${b.isbn ? `<div class="helper-text" style="margin-top:4px;">ISBN ${escapeHtml(b.isbn)}</div>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+    el.querySelectorAll('.search-result').forEach(node => {
+      node.addEventListener('click', () => addFromSearch(results[+node.dataset.idx]));
+    });
+  }
+
+  async function addFromSearch(candidate) {
+    // If Open Library gave us an ISBN, prefer the full ISBN lookup — richer
+    // metadata (publisher, page count, subjects) than the search result.
+    if (candidate.isbn) {
+      const existing = library.find(b => b.isbn === candidate.isbn);
+      if (existing) { toast(`Already catalogued: "${existing.title}"`, 3000); return; }
+      await handleIsbn(candidate.isbn);
+    } else {
+      const book = Object.assign({
+        id: 'b_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+        status: 'owned',
+        notes: '',
+        dateAdded: Date.now()
+      }, candidate);
+      library.push(book);
+      const ok = await Store.save(library);
+      if (!ok) { toast('Save failed.', 3000); return; }
+      toast(`Added: ${book.title}`, 2800);
+      updateCount();
+    }
+    document.getElementById('searchResults').innerHTML = '';
+    document.getElementById('searchQuery').value = '';
+  }
+
+  // ---------- AI cover identification (Anthropic Vision) ----------
+  // Uses whichever Anthropic API key the user pasted on the Stats tab. The
+  // key lives in localStorage and is sent directly from the browser to
+  // api.anthropic.com — no server in between. This is fine for a personal
+  // tool on your own device; don't ship it as a public web app.
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function identifyCoverPhoto(file) {
+    const apiKey = localStorage.getItem('anthropic_api_key');
+    if (!apiKey) {
+      toast('Paste an Anthropic key in Stats first.', 3000);
+      return;
+    }
+    toast('Analysing cover…');
+    try {
+      const base64 = await fileToBase64(file);
+      const mediaType = file.type || 'image/jpeg';
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          // Required for browser-origin requests. Anthropic uses it as an
+          // acknowledgement that you know your key is exposed client-side.
+          'anthropic-dangerous-direct-browser-access': 'true',
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'claude-haiku-4-5-20251001',
+          max_tokens: 300,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+              { type: 'text', text: 'This is a photo of a book. Extract the title, primary author, and ISBN if visible. Reply with ONLY a JSON object on a single line, no markdown, no prose: {"title":"...","author":"...","isbn":"..."}. Use empty strings for anything you cannot read confidently.' }
+            ]
+          }]
+        })
+      });
+      if (!r.ok) {
+        const t = await r.text();
+        console.error('Anthropic error:', t);
+        toast('AI request failed (' + r.status + ')', 3500);
+        return;
+      }
+      const data = await r.json();
+      const text = (data.content && data.content[0] && data.content[0].text) || '';
+      let parsed;
+      try {
+        // Model may wrap in fences despite instructions — strip them.
+        const clean = text.replace(/```json|```/g, '').trim();
+        parsed = JSON.parse(clean);
+      } catch (e) {
+        console.error('Could not parse AI response:', text);
+        toast('AI reply was not valid JSON.', 3500);
+        return;
+      }
+      const cleanIsbn = normalizeIsbn(parsed.isbn || '');
+      if (cleanIsbn) {
+        await handleIsbn(cleanIsbn);
+        return;
+      }
+      const q = [parsed.title, parsed.author].filter(Boolean).join(' ').trim();
+      if (q) {
+        document.getElementById('searchQuery').value = q;
+        const results = await searchByTitle(q);
+        renderSearchResults(results);
+        toast(`AI read "${parsed.title}" — pick the correct edition below.`, 4000);
+        return;
+      }
+      toast('Could not identify book from photo.', 3000);
+    } catch (e) {
+      console.error(e);
+      toast('AI request failed: ' + e.message, 3500);
+    }
+  }
+
+  // Show the AI button only when a key has been saved.
+  function refreshAiButton() {
+    const key = localStorage.getItem('anthropic_api_key');
+    const btn = document.getElementById('uploadCoverBtn');
+    if (btn) btn.style.display = key ? '' : 'none';
+  }
+
   // ---------- Wire-up ----------
   document.querySelectorAll('.tab').forEach(b => {
     b.addEventListener('click', () => switchTab(b.dataset.tab));
@@ -948,11 +1170,55 @@
     e.target.value = '';
   });
 
+  document.getElementById('uploadBarcodeBtn').addEventListener('click', () => {
+    document.getElementById('barcodeFile').click();
+  });
+  document.getElementById('barcodeFile').addEventListener('change', e => {
+    const f = e.target.files[0];
+    if (f) decodeBarcodeFile(f);
+    e.target.value = '';
+  });
+
+  document.getElementById('uploadCoverBtn').addEventListener('click', () => {
+    document.getElementById('coverFile').click();
+  });
+  document.getElementById('coverFile').addEventListener('change', e => {
+    const f = e.target.files[0];
+    if (f) identifyCoverPhoto(f);
+    e.target.value = '';
+  });
+
+  document.getElementById('searchBtn').addEventListener('click', async () => {
+    const q = document.getElementById('searchQuery').value.trim();
+    if (!q) return;
+    document.getElementById('searchResults').innerHTML =
+      '<div class="helper-text">Searching…</div>';
+    renderSearchResults(await searchByTitle(q));
+  });
+  document.getElementById('searchQuery').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); document.getElementById('searchBtn').click(); }
+  });
+
+  document.getElementById('saveKeyBtn').addEventListener('click', () => {
+    const key = document.getElementById('apiKeyInput').value.trim();
+    if (key) {
+      localStorage.setItem('anthropic_api_key', key);
+      toast('Key saved.');
+    } else {
+      localStorage.removeItem('anthropic_api_key');
+      toast('Key cleared.');
+    }
+    refreshAiButton();
+  });
+
   // ---------- Init ----------
   (async () => {
     library = await Store.load();
     updateCount();
     renderLibrary();
+    document.getElementById('apiKeyInput').value =
+      localStorage.getItem('anthropic_api_key') || '';
+    refreshAiButton();
   })();
 </script>
 </body>

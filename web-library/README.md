@@ -58,6 +58,27 @@ Each browser keeps its own copy in `localStorage` (~5 MB, comfortably enough
 for thousands of book records). There is **no server and no sync between
 devices** — use **Stats -> Export JSON** to back up or move data manually.
 
+## Adding books without a barcode
+
+The Add Book tab has three routes for books that aren't easy to scan live:
+
+1. **Upload barcode photo** — pick a photo of the back-cover barcode from
+   your gallery. Runs the same ZXing decoder on a still image. Handy when
+   the live camera won't focus on small paperbacks or glossy covers.
+2. **Search Open Library** — type the title and/or author. Free, no API key
+   required. Results show as cards; tap one to add it.
+3. **Identify cover (AI)** *(optional)* — paste an Anthropic API key on the
+   Stats tab and a new button appears in Add Book. Snap the cover, the app
+   sends the image to Claude Vision, extracts title/author/ISBN, and either
+   looks it up (if an ISBN was visible) or hands the extracted text to the
+   Open Library search step so you can pick the right edition.
+
+The key is stored only in your browser's `localStorage` and sent directly to
+`api.anthropic.com`. Anthropic requires the
+`anthropic-dangerous-direct-browser-access: true` header for browser-origin
+requests — the app sends it automatically. This is a personal-use pattern;
+don't reuse it for a public web app you'd deploy for other users.
+
 ## Files
 
 - `index.html` — the entire app (HTML/CSS/JS in one file)
