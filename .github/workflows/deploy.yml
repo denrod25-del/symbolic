@@ -32,13 +32,12 @@ jobs:
             git log -1 --oneline
             echo "== Installing dependencies =="
             npm ci
+            echo "== Applying database migrations =="
+            # Idempotent: drizzle-kit records applied migrations and skips them,
+            # so this is safe to run on every deploy.
+            npm run db:migrate
             echo "== Building Next.js =="
             npx next build
             echo "== Restarting pm2 =="
             pm2 restart symbolic --update-env
             pm2 status
-
-            # NOTE: database migrations are NOT applied here.
-            # If your push includes a new file in migrations/, run it manually on the VPS:
-            #   PGPASSWORD=symbolic_pass psql -h localhost -U symbolic -d symbolic -f migrations/<file>.sql
-            # Then re-run this workflow (Actions tab → Deploy to production → Run workflow).

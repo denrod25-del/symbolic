@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "id": "fe8055d0-74bb-4bc2-b483-47f642612655",
+=======
+  "id": "299d95d8-1326-4f78-acea-84ddaa18a669",
+>>>>>>> origin/main
   "prevId": "4f31a0e9-43e7-468f-bf53-478f86b1ddca",
   "version": "7",
   "dialect": "postgresql",
@@ -274,8 +278,13 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+<<<<<<< HEAD
     "public.news_articles": {
       "name": "news_articles",
+=======
+    "public.crm_contacts": {
+      "name": "crm_contacts",
+>>>>>>> origin/main
       "schema": "",
       "columns": {
         "id": {
@@ -284,12 +293,18 @@
           "primaryKey": true,
           "notNull": true
         },
+<<<<<<< HEAD
         "source": {
           "name": "source",
+=======
+        "owner_clerk_user_id": {
+          "name": "owner_clerk_user_id",
+>>>>>>> origin/main
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
+<<<<<<< HEAD
         "category": {
           "name": "category",
           "type": "text",
@@ -299,10 +314,15 @@
         },
         "title": {
           "name": "title",
+=======
+        "name": {
+          "name": "name",
+>>>>>>> origin/main
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
+<<<<<<< HEAD
         "url": {
           "name": "url",
           "type": "text",
@@ -311,10 +331,15 @@
         },
         "image_url": {
           "name": "image_url",
+=======
+        "email": {
+          "name": "email",
+>>>>>>> origin/main
           "type": "text",
           "primaryKey": false,
           "notNull": false
         },
+<<<<<<< HEAD
         "published_at": {
           "name": "published_at",
           "type": "timestamp",
@@ -323,6 +348,35 @@
         },
         "fetched_at": {
           "name": "fetched_at",
+=======
+        "phone": {
+          "name": "phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "company": {
+          "name": "company",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+>>>>>>> origin/main
           "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
@@ -332,6 +386,7 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
+<<<<<<< HEAD
       "uniqueConstraints": {
         "news_articles_url_unique": {
           "name": "news_articles_url_unique",
@@ -341,12 +396,20 @@
           ]
         }
       },
+=======
+      "uniqueConstraints": {},
+>>>>>>> origin/main
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+<<<<<<< HEAD
     "public.news_preferences": {
       "name": "news_preferences",
+=======
+    "public.crm_opportunities": {
+      "name": "crm_opportunities",
+>>>>>>> origin/main
       "schema": "",
       "columns": {
         "id": {
@@ -355,12 +418,18 @@
           "primaryKey": true,
           "notNull": true
         },
+<<<<<<< HEAD
         "clerk_user_id": {
           "name": "clerk_user_id",
+=======
+        "owner_clerk_user_id": {
+          "name": "owner_clerk_user_id",
+>>>>>>> origin/main
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
+<<<<<<< HEAD
         "hidden_sources": {
           "name": "hidden_sources",
           "type": "text[]",
@@ -381,6 +450,67 @@
           ]
         }
       },
+=======
+        "contact_id": {
+          "name": "contact_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stage": {
+          "name": "stage",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'lead'"
+        },
+        "value": {
+          "name": "value",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "crm_opportunities_contact_id_crm_contacts_id_fk": {
+          "name": "crm_opportunities_contact_id_crm_contacts_id_fk",
+          "tableFrom": "crm_opportunities",
+          "tableTo": "crm_contacts",
+          "columnsFrom": [
+            "contact_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+>>>>>>> origin/main
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

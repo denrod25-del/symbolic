@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
+import { ButtonLink } from './Button';
 
 type PaginationProps = {
   query: string;
@@ -10,7 +11,8 @@ type PaginationProps = {
 const PAGE_SIZE = 10;
 const MAX_PAGE_INDEX = 9;
 
-export function Pagination(props: PaginationProps) {
+export async function Pagination(props: PaginationProps) {
+  const t = await getTranslations('Pagination');
   const hasPrev = props.offset > 0;
   const hasNext = props.count === PAGE_SIZE && props.offset < MAX_PAGE_INDEX;
 
@@ -25,22 +27,22 @@ export function Pagination(props: PaginationProps) {
   return (
     <div className="mt-8 flex justify-between border-t border-symbolic-border py-4">
       {hasPrev ? (
-        <Link
+        <ButtonLink
           href={`/search?q=${encodedQuery}&offset=${prevOffset}`}
-          className="rounded-md border border-symbolic-border bg-symbolic-surface px-4 py-2 text-sm text-symbolic-text transition-colors hover:border-symbolic-accent"
+          size="sm"
         >
-          ← Previous
-        </Link>
+          ← {t('previous')}
+        </ButtonLink>
       ) : (
         <div />
       )}
       {hasNext && (
-        <Link
+        <ButtonLink
           href={`/search?q=${encodedQuery}&offset=${nextOffset}`}
-          className="rounded-md border border-symbolic-border bg-symbolic-surface px-4 py-2 text-sm text-symbolic-text transition-colors hover:border-symbolic-accent"
+          size="sm"
         >
-          Next →
-        </Link>
+          {t('next')} →
+        </ButtonLink>
       )}
     </div>
   );

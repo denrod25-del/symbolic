@@ -27,6 +27,13 @@ export async function Footer(props: { locale: string }) {
         {t('settings')}
       </Link>
       <span className="mx-2">·</span>
+      <Link
+        href={`/${props.locale}/privacy`}
+        className="hover:text-symbolic-text"
+      >
+        {t('privacy')}
+      </Link>
+      <span className="mx-2">·</span>
       <span>{t('copyright')}</span>
     </footer>
   );

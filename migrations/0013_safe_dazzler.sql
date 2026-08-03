@@ -1,0 +1,1 @@
+ALTER TABLE "crm_invoices" ADD COLUMN "paid_at" timestamp;

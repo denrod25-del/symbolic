@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { AdCard } from '@/components/AdCard';
@@ -18,13 +18,18 @@ type SearchPageProps = {
 export async function generateMetadata(
   props: SearchPageProps
 ): Promise<Metadata> {
+  const { locale } = await props.params;
   const { q } = await props.searchParams;
-  return { title: q ? `${q} — Symbolic` : 'Search — Symbolic' };
+  const t = await getTranslations({ locale, namespace: 'SearchPage' });
+  return {
+    title: q ? t('meta_title_query', { query: q }) : t('meta_title_default'),
+  };
 }
 
 export default async function SearchPage(props: SearchPageProps) {
   const { locale } = await props.params;
   setRequestLocale(locale);
+  const t = await getTranslations('SearchPage');
 
   const { q, offset: offsetStr, lucky } = await props.searchParams;
   const query = q?.trim();
@@ -47,8 +52,7 @@ export default async function SearchPage(props: SearchPageProps) {
   ]);
 
   const results = searchResult;
-  const error =
-    searchResult === null ? 'Something went wrong. Please try again.' : null;
+  const error = searchResult === null ? t('error') : null;
 
   if (lucky === '1' && results?.results[0]) {
     redirect(results.results[0].url);
@@ -56,16 +60,20 @@ export default async function SearchPage(props: SearchPageProps) {
 
   return (
     <SearchLayout query={query}>
-      <main className="mx-auto max-w-2xl px-4 py-6">
-        {error && <p className="py-8 text-red-400">{error}</p>}
+      <div className="mx-auto max-w-2xl px-4 py-6">
+        <h1 className="sr-only">{t('heading', { query })}</h1>
+        {error && <p className="py-8 text-symbolic-danger">{error}</p>}
 
         {results && results.results.length === 0 && (
           <div className="py-8">
             <p className="text-symbolic-text">
-              No results found for <strong>&ldquo;{query}&rdquo;</strong>
+              {t.rich('no_results', {
+                query,
+                strong: (chunks) => <strong>{chunks}</strong>,
+              })}
             </p>
             <p className="mt-2 text-sm text-symbolic-muted">
-              Try different keywords or check your spelling.
+              {t('no_results_hint')}
             </p>
           </div>
         )}
@@ -84,7 +92,7 @@ export default async function SearchPage(props: SearchPageProps) {
             {adSlots[1] && <AdCard ad={adSlots[1]} query={query} />}
           </>
         )}
-      </main>
+      </div>
     </SearchLayout>
   );
 }

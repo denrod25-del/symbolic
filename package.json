@@ -15,12 +15,12 @@
     "lint:fix": "ultracite fix --type-aware --type-check",
     "check:types": "tsc --noEmit --pretty",
     "check:deps": "knip",
-    "check:i18n": "i18n-check -l src/locales -s en -u src -f next-intl",
+    "check:i18n": "i18n-check -l src/locales -s en -f next-intl",
     "commit": "commit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "db-server:file": "pglite-server -m 100 --db=local.db --run 'npm run db:migrate'",
-    "db-server:memory": "pglite-server -m 100 --run 'npm run db:migrate'",
+    "db-server:file": "pglite-server -m 100 --db=local.db --run \"node node_modules/dotenv-cli/cli.js -c -- drizzle-kit migrate\"",
+    "db-server:memory": "pglite-server -m 100 --run \"node node_modules/dotenv-cli/cli.js -c -- drizzle-kit migrate\"",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "dotenv -c -- drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
@@ -88,7 +88,7 @@
     "ultracite": "^7.3.2",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.0",
-    "vitest-browser-react": "^2.1.0"
+    "vitest-browser-react": "^2.2.0"
   },
   "release": {
     "branches": [
