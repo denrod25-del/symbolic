@@ -78,6 +78,7 @@
     "change_language": "Change language"
   },
   "Footer": {
+    "discover": "Discover",
     "submit": "Submit a site",
     "settings": "Settings",
     "copyright": "© Symbolic"
@@ -115,6 +116,24 @@
     "saved": "Saved.",
     "not_found": "Location not found.",
     "current": "Current: {label}"
+  },
+  "HomeNews": {
+    "title": "Tech today",
+    "more": "More on Discover →",
+    "scroll_hint": "Discover"
+  },
+  "DiscoverPage": {
+    "meta_title": "Discover — Symbolic",
+    "meta_description": "The latest technology news, aggregated by Symbolic.",
+    "title": "Discover",
+    "tab_all": "All",
+    "tab_ai": "AI",
+    "tab_startups": "Startups",
+    "tab_security": "Security",
+    "tab_devices": "Devices",
+    "sources": "Sources",
+    "sources_signin": "Sign in to choose your sources.",
+    "empty": "Nothing here yet — check back soon."
   },
   "SubmitPage": {
     "meta_title": "Submit your site — Symbolic",

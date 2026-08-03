@@ -7,6 +7,13 @@ export async function Footer(props: { locale: string }) {
   return (
     <footer className="border-t border-symbolic-border bg-symbolic-bg py-4 text-center text-sm text-symbolic-muted">
       <Link
+        href={`/${props.locale}/discover`}
+        className="hover:text-symbolic-text"
+      >
+        {t('discover')}
+      </Link>
+      <span className="mx-2">·</span>
+      <Link
         href={`/${props.locale}/submit`}
         className="hover:text-symbolic-text"
       >

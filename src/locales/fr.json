@@ -78,6 +78,7 @@
     "change_language": "Changer de langue"
   },
   "Footer": {
+    "discover": "Découvrir",
     "submit": "Soumettre un site",
     "settings": "Paramètres",
     "copyright": "© Symbolic"
@@ -115,6 +116,24 @@
     "saved": "Enregistré.",
     "not_found": "Lieu introuvable.",
     "current": "Actuel : {label}"
+  },
+  "HomeNews": {
+    "title": "La tech aujourd'hui",
+    "more": "Plus sur Discover →",
+    "scroll_hint": "Découvrir"
+  },
+  "DiscoverPage": {
+    "meta_title": "Découvrir — Symbolic",
+    "meta_description": "Les dernières actualités technologiques, agrégées par Symbolic.",
+    "title": "Découvrir",
+    "tab_all": "Tout",
+    "tab_ai": "IA",
+    "tab_startups": "Startups",
+    "tab_security": "Sécurité",
+    "tab_devices": "Appareils",
+    "sources": "Sources",
+    "sources_signin": "Connectez-vous pour choisir vos sources.",
+    "empty": "Rien ici pour l'instant — revenez bientôt."
   },
   "SubmitPage": {
     "meta_title": "Soumettre votre site — Symbolic",
