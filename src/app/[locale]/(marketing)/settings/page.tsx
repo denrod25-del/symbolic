@@ -1,6 +1,8 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
+import { readStoredLocation } from '@/components/WeatherChip';
 
 const COOKIE_NAME = 'symbolic_safesearch';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
@@ -39,10 +41,21 @@ export default function SettingsPage() {
   const [safesearch, setSafesearch] = useState<SafeSearchLevel>('moderate');
   const [saved, setSaved] = useState(false);
 
+  const tLoc = useTranslations('SettingsLocation');
+  const [locationQuery, setLocationQuery] = useState('');
+  const [locationLabel, setLocationLabel] = useState<string | null>(null);
+  const [locationStatus, setLocationStatus] = useState<
+    'idle' | 'saved' | 'not_found'
+  >('idle');
+
   useEffect(() => {
     const stored = getCookie(COOKIE_NAME);
     if (stored === 'strict' || stored === 'moderate' || stored === 'off') {
       setSafesearch(stored);
+    }
+    const storedLocation = readStoredLocation();
+    if (storedLocation) {
+      setLocationLabel(storedLocation.label || null);
     }
   }, []);
 
@@ -53,6 +66,42 @@ export default function SettingsPage() {
     setTimeout(() => {
       setSaved(false);
     }, 1500);
+  }
+
+  async function handleSaveLocation() {
+    const q = locationQuery.trim();
+    if (!q) {
+      return;
+    }
+    const response = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
+    if (!response.ok) {
+      setLocationStatus('not_found');
+      return;
+    }
+    const result: { lat: number; lon: number; label: string } =
+      await response.json();
+    window.localStorage.setItem('symbolic_location', JSON.stringify(result));
+    setLocationLabel(result.label);
+    setLocationStatus('saved');
+    setTimeout(() => {
+      setLocationStatus('idle');
+    }, 1500);
+  }
+
+  function handleUseMyLocation() {
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const loc = {
+        lat: pos.coords.latitude,
+        lon: pos.coords.longitude,
+        label: '',
+      };
+      window.localStorage.setItem('symbolic_location', JSON.stringify(loc));
+      setLocationLabel(null);
+      setLocationStatus('saved');
+      setTimeout(() => {
+        setLocationStatus('idle');
+      }, 1500);
+    });
   }
 
   return (
@@ -96,6 +145,51 @@ export default function SettingsPage() {
           </div>
 
           {saved && <p className="mt-4 text-sm text-symbolic-url">Saved.</p>}
+        </div>
+
+        <div className="mt-6 rounded-lg border border-symbolic-border bg-symbolic-surface p-6">
+          <h2 className="mb-1 font-medium text-symbolic-text">
+            {tLoc('title')}
+          </h2>
+          <p className="mb-4 text-sm text-symbolic-muted">
+            {tLoc('description')}
+          </p>
+          {locationLabel && (
+            <p className="mb-3 text-sm text-symbolic-text">
+              {tLoc('current', { label: locationLabel })}
+            </p>
+          )}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={locationQuery}
+              onChange={(e) => {
+                setLocationQuery(e.target.value);
+              }}
+              placeholder={tLoc('placeholder')}
+              className="flex-1 rounded-md border border-symbolic-border bg-symbolic-bg px-3 py-2 text-sm text-symbolic-text placeholder-symbolic-muted focus:border-symbolic-accent focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={handleSaveLocation}
+              className="rounded-md border border-symbolic-border bg-symbolic-surface px-4 py-2 text-sm text-symbolic-text hover:border-symbolic-accent"
+            >
+              {tLoc('save')}
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={handleUseMyLocation}
+            className="mt-3 text-sm text-symbolic-accent hover:underline"
+          >
+            📍 {tLoc('use_my_location')}
+          </button>
+          {locationStatus === 'saved' && (
+            <p className="mt-3 text-sm text-symbolic-url">{tLoc('saved')}</p>
+          )}
+          {locationStatus === 'not_found' && (
+            <p className="mt-3 text-sm text-red-400">{tLoc('not_found')}</p>
+          )}
         </div>
       </div>
     </div>
