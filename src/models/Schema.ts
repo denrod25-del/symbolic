@@ -68,7 +68,6 @@ export const adClicks = pgTable('ad_clicks', {
   clickedAt: timestamp('clicked_at').notNull().defaultNow(),
 });
 
-<<<<<<< HEAD
 export const newsArticles = pgTable('news_articles', {
   id: serial('id').primaryKey(),
   source: text('source').notNull(),
@@ -84,7 +83,8 @@ export const newsPreferences = pgTable('news_preferences', {
   id: serial('id').primaryKey(),
   clerkUserId: text('clerk_user_id').notNull().unique(),
   hiddenSources: text('hidden_sources').array().notNull().default([]),
-=======
+});
+
 // CRM module: contacts and sales pipeline, scoped per Clerk user (tenant).
 
 export const crmContacts = pgTable('crm_contacts', {
@@ -260,5 +260,4 @@ export const crmWorkflowRuns = pgTable('crm_workflow_runs', {
   status: text('status').notNull(),
   detail: text('detail'),
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
->>>>>>> origin/main
 });
