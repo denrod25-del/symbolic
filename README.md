@@ -642,3 +642,10 @@ Made with ♥ by [CreativeDesignsGuru](https://creativedesignsguru.com) [![Twitt
 Looking for a custom boilerplate to kick off your project? I'd be glad to discuss how I can help you build one. Feel free to reach out anytime at contact@nextjs-boilerplate.com!
 
 [![Sponsor Next JS Boilerplate](https://cdn.buymeacoffee.com/buttons/default-red.png)](https://github.com/sponsors/ixartz)
+
+## News & weather ops
+
+- News refresh: a cron job must hit the refresh endpoint every 15 minutes:
+  `*/15 * * * * curl -s -H "Authorization: Bearer $CRON_SECRET" https://bsymbolic.com/api/news/refresh`
+- Production env requires: `OPENWEATHER_API_KEY` (One Call 3.0), `CRON_SECRET`.
+- New tables (`news_articles`, `news_preferences`) ship in `migrations/0004_*.sql` — apply manually on the VPS.
