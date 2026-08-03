@@ -8,6 +8,7 @@ export const Env = createEnv({
     BRAVE_API_BASE_URL: z.url().optional(),
     CLERK_SECRET_KEY: z.string().min(1),
     ADMIN_EMAILS: z.string().optional(),
+    OPENWEATHER_API_KEY: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_APP_URL: z.string().optional(),
@@ -26,6 +27,7 @@ export const Env = createEnv({
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     ADMIN_EMAILS: process.env.ADMIN_EMAILS,
+    OPENWEATHER_API_KEY: process.env.OPENWEATHER_API_KEY,
   },
   skipValidation: process.env.NODE_ENV === 'test',
 });
