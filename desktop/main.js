@@ -87,6 +87,25 @@ const refreshBlocklistAsync = () => {
     });
 };
 
+// Auto-update from GitHub Releases. Checks on launch, downloads in the
+// background, notifies the user, and installs when the app quits. No-op in
+// dev (`npm start`) — only packaged builds have update metadata.
+const initAutoUpdate = () => {
+  if (!app.isPackaged) {
+    return;
+  }
+  try {
+    const { autoUpdater } = require('electron-updater');
+    autoUpdater.autoDownload = true;
+    autoUpdater.autoInstallOnAppQuit = true;
+    autoUpdater.checkForUpdatesAndNotify().catch(() => {
+      // Offline or no release feed yet — try again next launch.
+    });
+  } catch {
+    // Updater module missing from this build; skip silently.
+  }
+};
+
 const uniqueSavePath = (filename) => {
   const dir = app.getPath('downloads');
   const ext = path.extname(filename);
@@ -162,6 +181,7 @@ app.whenReady().then(() => {
   wireDownloads(normal);
   wireDownloads(priv);
   refreshBlocklistAsync();
+  initAutoUpdate();
   createWindow();
 
   app.on('activate', () => {

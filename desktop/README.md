@@ -75,9 +75,32 @@ const SYMBOLIC_ORIGIN = 'http://localhost:3000';
 
 Point this at your Symbolic deployment URL.
 
+## Auto-update
+
+Installed builds check GitHub Releases on `denrod25-del/symbolic` at every
+launch, download updates in the background, and install them on quit.
+
+To ship an update:
+
+1. Bump `version` in this `package.json` (e.g. `0.2.0` → `0.2.1`).
+2. Create a GitHub personal access token with `repo` scope, then:
+   ```powershell
+   $env:GH_TOKEN = "<your token>"
+   npm run release
+   ```
+   This builds the Windows installer and uploads it (plus `latest.yml`) to a
+   draft GitHub release tagged `v<version>`.
+3. Publish the draft release on GitHub.
+
+Every installed copy picks up the new version on its next launch — no manual
+reinstall. Notes:
+
+- The repository must be public (or you must host releases elsewhere) for
+  installed apps to reach the update feed without credentials.
+- Dev mode (`npm start`) never self-updates.
+
 ## Not built yet (deliberately)
 
 - Password/form autofill (needs OS keychain integration)
 - Cross-device sync (needs account auth on the Symbolic backend)
 - Chromium extension support (multi-year effort; out of scope)
-- Auto-update (`electron-updater` is the natural next step)
