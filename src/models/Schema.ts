@@ -65,3 +65,20 @@ export const adClicks = pgTable('ad_clicks', {
   query: text('query').notNull(),
   clickedAt: timestamp('clicked_at').notNull().defaultNow(),
 });
+
+export const newsArticles = pgTable('news_articles', {
+  id: serial('id').primaryKey(),
+  source: text('source').notNull(),
+  category: text('category').notNull().default('general'),
+  title: text('title').notNull(),
+  url: text('url').notNull().unique(),
+  imageUrl: text('image_url'),
+  publishedAt: timestamp('published_at').notNull(),
+  fetchedAt: timestamp('fetched_at').notNull().defaultNow(),
+});
+
+export const newsPreferences = pgTable('news_preferences', {
+  id: serial('id').primaryKey(),
+  clerkUserId: text('clerk_user_id').notNull().unique(),
+  hiddenSources: text('hidden_sources').array().notNull().default([]),
+});
