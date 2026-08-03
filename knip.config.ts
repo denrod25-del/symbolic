@@ -9,6 +9,7 @@ const config: KnipConfig = {
     'src/libs/I18n.ts',
     'src/types/I18n.ts',
     'src/components/AdWizard.tsx',
+    'src/components/WeatherChip.tsx',
     'src/components/Sponsors.tsx',
     'src/components/CounterForm.tsx',
     'src/components/DemoBadge.tsx',
