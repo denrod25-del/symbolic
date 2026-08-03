@@ -15,7 +15,6 @@ const config: KnipConfig = {
     'src/components/DemoBanner.tsx',
     'src/components/LocaleSwitcher.tsx',
     'src/components/CurrentCount.tsx',
-    'src/components/NewsCard.tsx',
     'src/libs/admin.ts',
     'src/libs/adminStats.ts',
     'src/libs/news.ts',
