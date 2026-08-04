@@ -470,12 +470,31 @@
 
 <script>
   // ---------- Storage wrapper ----------
-  // Backed by localStorage. Async signatures kept so the rest of the app can
-  // call `await Store.load()` regardless of where the data physically lives —
-  // swap this out for IndexedDB or a remote API later without touching callers.
+  // Two backends, decided at load time:
+  //   - Server mode: reads/writes go through /api/books (the Python server
+  //     that shares the same SQLite database as the C++ CLI). Enabled
+  //     automatically when GET /api/books responds successfully.
+  //   - Local mode: falls back to browser localStorage. Used when the page
+  //     is opened directly (file://) or the server isn't running.
+  // Save returns the reconciled full list on success, or null on failure.
+  // Server-assigned ids show up in that returned list, so callers replace
+  // their in-memory `library` with what save() returns.
   const Store = {
     KEY: 'library',
+    serverMode: false,
+
     async load() {
+      try {
+        const r = await fetch('/api/books', { cache: 'no-store' });
+        if (r.ok) {
+          this.serverMode = true;
+          const data = await r.json();
+          console.log('Store: server mode');
+          return Array.isArray(data) ? data : [];
+        }
+      } catch (e) { /* offline or file:// — fall through */ }
+      this.serverMode = false;
+      console.log('Store: local mode (localStorage)');
       try {
         const raw = localStorage.getItem(this.KEY);
         if (!raw) return [];
@@ -486,14 +505,33 @@
         return [];
       }
     },
+
     async save(books) {
+      if (this.serverMode) {
+        try {
+          const r = await fetch('/api/books', {
+            method: 'PUT',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(books)
+          });
+          if (!r.ok) {
+            console.error('server save failed:', r.status, await r.text());
+            return null;
+          }
+          const updated = await r.json();
+          return Array.isArray(updated) ? updated : books;
+        } catch (e) {
+          console.error('server save error:', e);
+          return null;
+        }
+      }
       try {
         localStorage.setItem(this.KEY, JSON.stringify(books));
-        return true;
+        return books;
       } catch (e) {
         // QuotaExceededError is the realistic one — ~5 MB per origin.
         console.error('Storage save failed:', e);
-        return false;
+        return null;
       }
     }
   };
@@ -733,16 +771,16 @@
     document.getElementById('saveBtn').onclick = async () => {
       b.notes = document.getElementById('notesInput').value;
       b.status = document.getElementById('statusSelect').value;
-      const ok = await Store.save(library);
-      toast(ok ? 'Saved.' : 'Save failed.');
-      if (ok) { closeModal(); renderLibrary(); }
+      const saved = await Store.save(library);
+      toast(saved ? 'Saved.' : 'Save failed.');
+      if (saved) { library = saved; closeModal(); renderLibrary(); }
     };
     document.getElementById('deleteBtn').onclick = async () => {
       if (!confirm(`Remove "${b.title}" from the library?`)) return;
       library = library.filter(x => x.id !== b.id);
-      const ok = await Store.save(library);
-      toast(ok ? 'Removed.' : 'Remove failed.');
-      if (ok) { closeModal(); updateCount(); renderLibrary(); }
+      const saved = await Store.save(library);
+      toast(saved ? 'Removed.' : 'Remove failed.');
+      if (saved) { library = saved; closeModal(); updateCount(); renderLibrary(); }
     };
   }
 
@@ -826,10 +864,12 @@
         dateAdded: Date.now()
       }, data);
       library.push(book);
-      const ok = await Store.save(library);
-      if (!ok) { toast('Save failed.', 3000); return; }
+      const saved = await Store.save(library);
+      if (!saved) { toast('Save failed.', 3000); return; }
+      library = saved;
       toast(`Added: ${book.title}`, 2800);
       updateCount();
+      renderLibrary();
     } catch (e) {
       console.error(e);
       toast('Lookup failed. Check your connection.', 3000);
@@ -929,8 +969,9 @@
       existingIds.add(b.id);
       added++;
     }
-    const ok = await Store.save(library);
-    if (!ok) { toast('Save failed.', 3000); return; }
+    const saved = await Store.save(library);
+    if (!saved) { toast('Save failed.', 3000); return; }
+    library = saved;
     toast(`Imported ${added}, skipped ${skipped} (duplicates).`, 3500);
     updateCount();
     renderStats();
@@ -1031,10 +1072,12 @@
         dateAdded: Date.now()
       }, candidate);
       library.push(book);
-      const ok = await Store.save(library);
-      if (!ok) { toast('Save failed.', 3000); return; }
+      const saved = await Store.save(library);
+      if (!saved) { toast('Save failed.', 3000); return; }
+      library = saved;
       toast(`Added: ${book.title}`, 2800);
       updateCount();
+      renderLibrary();
     }
     document.getElementById('searchResults').innerHTML = '';
     document.getElementById('searchQuery').value = '';
