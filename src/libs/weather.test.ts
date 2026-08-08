@@ -108,28 +108,32 @@ const alertsFixture = {
   ],
 };
 
+function requestHref(input: RequestInfo | URL): string {
+  if (typeof input === 'string') {
+    return input;
+  }
+  if (input instanceof URL) {
+    return input.href;
+  }
+  return input.url;
+}
+
 function mockEndpoints(
   map: Record<string, unknown>,
   okOverride?: Record<string, boolean>
 ) {
   vi.stubGlobal(
     'fetch',
-    vi.fn( async (url: string | URL) => {
-      const href = url.toString();
+    // Plain (non-promise) returns: `await` resolves them fine, and this avoids
+    // the require-await / promise-function-async rules contradicting each other.
+    vi.fn((url: string | URL) => {
+      const href = typeof url === 'string' ? url : url.href;
       const key = Object.keys(map).find((k) => href.includes(k));
       if (!key) {
-        return Promise.resolve({
-          ok: false,
-          status: 404,
-          json:  async () => Promise.resolve({}),
-        });
+        return { ok: false, status: 404, json: () => ({}) };
       }
       const ok = okOverride?.[key] ?? true;
-      return Promise.resolve({
-        ok,
-        status: ok ? 200 : 500,
-        json:  async () => Promise.resolve(map[key]),
-      });
+      return { ok, status: ok ? 200 : 500, json: () => map[key] };
     })
   );
 }
@@ -189,6 +193,48 @@ describe('weather', () => {
       mockAllEndpoints();
       const w = await fetchWeather(26.71, -80.05);
       expect(w.hourly).toHaveLength(12);
+    });
+
+    it('converts wind speed from km/h to mph', async () => {
+      mockAllEndpoints();
+      const w = await fetchWeather(26.71, -80.05);
+      expect(w.current.windSpeed).toBe(9); // 13.7 km/h
+    });
+
+    it('normalises precipitation probability to a fraction', async () => {
+      mockAllEndpoints();
+      const w = await fetchWeather(26.71, -80.05);
+      for (const day of w.daily) {
+        expect(day.pop).toBeGreaterThanOrEqual(0);
+        expect(day.pop).toBeLessThanOrEqual(1);
+      }
+    });
+
+    it('sends a user agent on every weather.gov request', async () => {
+      mockAllEndpoints();
+      await fetchWeather(26.71, -80.05);
+
+      const { calls } = vi.mocked(fetch).mock;
+      const nwsCalls = calls.filter(([url]) =>
+        requestHref(url).includes('api.weather.gov')
+      );
+      expect(nwsCalls.length).toBeGreaterThan(0);
+      for (const [, init] of nwsCalls) {
+        expect(new Headers(init?.headers).get('user-agent')).toContain(
+          'Symbolic'
+        );
+      }
+    });
+
+    it('tolerates an observation missing measurement objects entirely', async () => {
+      mockAllEndpoints({
+        observation: { properties: { textDescription: null, icon: null } },
+      });
+      const w = await fetchWeather(26.71, -80.05);
+
+      expect(Number.isNaN(w.current.temp)).toBe(false);
+      expect(Number.isNaN(w.current.windSpeed)).toBe(false);
+      expect(w.current.humidity).toBe(0);
     });
 
     it('pairs day/night periods into seven daily entries', async () => {
@@ -252,18 +298,17 @@ describe('weather', () => {
         vi.fn().mockResolvedValue({
           ok: true,
           status: 200,
-          json:  async () =>
-            Promise.resolve({
-              results: [
-                {
-                  latitude: 26.71,
-                  longitude: -80.05,
-                  name: 'West Palm Beach',
-                  admin1: 'Florida',
-                  country_code: 'US',
-                },
-              ],
-            }),
+          json: () => ({
+            results: [
+              {
+                latitude: 26.71,
+                longitude: -80.05,
+                name: 'West Palm Beach',
+                admin1: 'Florida',
+                country_code: 'US',
+              },
+            ],
+          }),
         })
       );
       const g = await geocodeCity('west palm beach');
@@ -280,7 +325,7 @@ describe('weather', () => {
         vi.fn().mockResolvedValue({
           ok: true,
           status: 200,
-          json:  async () => Promise.resolve({}),
+          json: () => ({}),
         })
       );
       expect(await geocodeCity('xyzzy')).toBeNull();

@@ -64,13 +64,17 @@ type NwsStations = {
   features: { properties: { stationIdentifier: string } }[];
 };
 
+// Degraded stations can omit measurement objects entirely, not just report a
+// null `value` — every nested read below is optional-chained accordingly.
+type NwsMeasurement = { value: number | null } | null;
+
 type NwsObservation = {
   properties: {
-    temperature: { value: number | null };
-    heatIndex: { value: number | null };
-    windChill: { value: number | null };
-    relativeHumidity: { value: number | null };
-    windSpeed: { value: number | null };
+    temperature?: NwsMeasurement;
+    heatIndex?: NwsMeasurement;
+    windChill?: NwsMeasurement;
+    relativeHumidity?: NwsMeasurement;
+    windSpeed?: NwsMeasurement;
     textDescription: string | null;
     icon: string | null;
   };
@@ -82,7 +86,7 @@ type NwsForecastPeriod = {
   temperature: number;
   shortForecast: string;
   icon: string;
-  probabilityOfPrecipitation: { value: number | null };
+  probabilityOfPrecipitation?: NwsMeasurement;
 };
 
 type NwsForecast = { properties: { periods: NwsForecastPeriod[] } };
@@ -139,9 +143,9 @@ function buildCurrentTemps(
   props: NwsObservation['properties'] | undefined,
   fallbackTemp: number
 ): { temp: number; feelsLike: number } {
-  const rawTempC = props?.temperature.value ?? null;
+  const rawTempC = props?.temperature?.value ?? null;
   const rawFeelsC =
-    props?.heatIndex.value ?? props?.windChill.value ?? rawTempC;
+    props?.heatIndex?.value ?? props?.windChill?.value ?? rawTempC;
   const temp = rawTempC === null ? fallbackTemp : celsiusToFahrenheit(rawTempC);
   const feelsLike = rawFeelsC === null ? temp : celsiusToFahrenheit(rawFeelsC);
   return { temp, feelsLike };
@@ -156,12 +160,12 @@ function buildCurrent(
     props,
     currentHourly?.temperature ?? 0
   );
-  const windKmh = props?.windSpeed.value ?? null;
+  const windKmh = props?.windSpeed?.value ?? null;
 
   return {
     temp,
     feelsLike,
-    humidity: props?.relativeHumidity.value ?? 0,
+    humidity: props?.relativeHumidity?.value ?? 0,
     windSpeed: windKmh === null ? 0 : kmhToMph(windKmh),
     description: props?.textDescription ?? currentHourly?.shortForecast ?? '',
     icon: props?.icon ?? currentHourly?.icon ?? '',
@@ -190,7 +194,7 @@ function groupPeriodsByDate(periods: NwsForecastPeriod[]): DayGroup[] {
 function buildDailyEntry(group: DayGroup): Weather['daily'][number] {
   const temps = group.periods.map((p) => p.temperature);
   const pops = group.periods.map(
-    (p) => p.probabilityOfPrecipitation.value ?? 0
+    (p) => p.probabilityOfPrecipitation?.value ?? 0
   );
   const period = group.periods.find((p) => p.isDaytime) ?? group.periods[0];
   if (!period) {
