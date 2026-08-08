@@ -75,6 +75,10 @@ export default async function DiscoverPage(props: {
           ))}
         </div>
 
+        {/* Article titles are h3, matching the homepage strip where an h2
+            already precedes them. This keeps the heading order sequential. */}
+        <h2 className="sr-only">{t('articles_heading')}</h2>
+
         {articles.length === 0 ? (
           <p className="rounded-lg border border-symbolic-border bg-symbolic-surface px-6 py-16 text-center text-symbolic-muted">
             {t('empty')}
