@@ -6,6 +6,11 @@ import { NewsCard } from '@/components/NewsCard';
 import { SearchBar } from '@/components/SearchBar';
 import { latestArticles } from '@/libs/news';
 
+// The news strip reads from the DB at render time. Without this the page is
+// prerendered once at build (when the table may be empty) and never refreshes.
+// 15 minutes matches the news refresh cron.
+export const revalidate = 900;
+
 type HomePageProps = {
   params: Promise<{ locale: string }>;
 };
