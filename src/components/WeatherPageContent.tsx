@@ -9,14 +9,6 @@ import { readStoredLocation } from './WeatherChip';
 
 type PageState = 'loading' | 'no-location' | 'failed' | 'ready';
 
-function iconUrl(icon: string): string {
-  return `https://openweathermap.org/img/wn/${icon}@2x.png`;
-}
-
-function smallIconUrl(icon: string): string {
-  return `https://openweathermap.org/img/wn/${icon}.png`;
-}
-
 function tierClass(tier: 'severe' | 'moderate' | 'minor'): string {
   if (tier === 'severe') {
     return 'border-red-500/40 bg-red-500/10 text-red-300';
@@ -100,13 +92,8 @@ export function WeatherPageContent(props: { locale: string }) {
       <div>
         <div className="flex items-end gap-4">
           <span className="text-6xl font-bold">{weather.current.temp}°F</span>
-          {/* eslint-disable-next-line @next/next/no-img-element -- OpenWeatherMap host isn't in next/image remotePatterns */}
-          <img
-            src={iconUrl(weather.current.icon)}
-            alt=""
-            width={80}
-            height={80}
-          />
+          {/* eslint-disable-next-line @next/next/no-img-element -- weather.gov icon host isn't in next/image remotePatterns */}
+          <img src={weather.current.icon} alt="" width={80} height={80} />
         </div>
         <div className="mt-1 text-lg text-symbolic-muted capitalize">
           {weather.current.description}
@@ -151,8 +138,8 @@ export function WeatherPageContent(props: { locale: string }) {
                   hour: 'numeric',
                 })}
               </span>
-              {/* eslint-disable-next-line @next/next/no-img-element -- OpenWeatherMap host isn't in next/image remotePatterns */}
-              <img src={smallIconUrl(h.icon)} alt="" width={32} height={32} />
+              {/* eslint-disable-next-line @next/next/no-img-element -- weather.gov icon host isn't in next/image remotePatterns */}
+              <img src={h.icon} alt="" width={32} height={32} />
               <span>{h.temp}°</span>
             </div>
           ))}
@@ -172,8 +159,8 @@ export function WeatherPageContent(props: { locale: string }) {
                   weekday: 'short',
                 })}
               </span>
-              {/* eslint-disable-next-line @next/next/no-img-element -- OpenWeatherMap host isn't in next/image remotePatterns */}
-              <img src={smallIconUrl(d.icon)} alt="" width={40} height={40} />
+              {/* eslint-disable-next-line @next/next/no-img-element -- weather.gov icon host isn't in next/image remotePatterns */}
+              <img src={d.icon} alt="" width={40} height={40} />
               <span>
                 {d.max}° / {d.min}°
               </span>

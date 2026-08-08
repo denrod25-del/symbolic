@@ -44,10 +44,6 @@ function toC(f: number): number {
   return Math.round(((f - 32) * 5) / 9);
 }
 
-function iconUrl(icon: string): string {
-  return `https://openweathermap.org/img/wn/${icon}.png`;
-}
-
 /**
  * Fetches weather for a stored location and reports the result via setters.
  * @param loc - The location to fetch weather for.
@@ -195,13 +191,8 @@ export function WeatherChip(props: { locale: string }) {
             }}
             className="relative flex items-center gap-1.5 rounded-full border border-symbolic-border bg-symbolic-surface/90 px-3 py-1.5 text-sm text-symbolic-text backdrop-blur hover:border-symbolic-accent"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element -- OpenWeatherMap host isn't in next/image remotePatterns */}
-            <img
-              src={iconUrl(weather.current.icon)}
-              alt=""
-              width={20}
-              height={20}
-            />
+            {/* eslint-disable-next-line @next/next/no-img-element -- weather.gov icon host isn't in next/image remotePatterns */}
+            <img src={weather.current.icon} alt="" width={20} height={20} />
             {fmt(weather.current.temp)}
             {hasModerate && (
               <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-amber-400" />
@@ -273,8 +264,8 @@ export function WeatherChip(props: { locale: string }) {
                       weekday: 'short',
                     })}
                   </span>
-                  {/* eslint-disable-next-line @next/next/no-img-element -- OpenWeatherMap host isn't in next/image remotePatterns */}
-                  <img src={iconUrl(d.icon)} alt="" width={24} height={24} />
+                  {/* eslint-disable-next-line @next/next/no-img-element -- weather.gov icon host isn't in next/image remotePatterns */}
+                  <img src={d.icon} alt="" width={24} height={24} />
                   <span>
                     {celsius ? toC(d.max) : d.max}° /{' '}
                     {celsius ? toC(d.min) : d.min}°
