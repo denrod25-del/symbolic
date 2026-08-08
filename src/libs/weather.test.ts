@@ -195,6 +195,21 @@ describe('weather', () => {
       expect(w.hourly).toHaveLength(12);
     });
 
+    it('rounds humidity to a whole percent', async () => {
+      mockAllEndpoints({
+        observation: {
+          properties: {
+            temperature: { value: 25.6 },
+            relativeHumidity: { value: 66.582_191_385_786 },
+            textDescription: 'Clear',
+            icon: 'https://api.weather.gov/icons/land/day/skc?size=medium',
+          },
+        },
+      });
+      const w = await fetchWeather(26.71, -80.05);
+      expect(w.current.humidity).toBe(67);
+    });
+
     it('converts wind speed from km/h to mph', async () => {
       mockAllEndpoints();
       const w = await fetchWeather(26.71, -80.05);

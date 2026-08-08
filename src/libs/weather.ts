@@ -165,7 +165,7 @@ function buildCurrent(
   return {
     temp,
     feelsLike,
-    humidity: props?.relativeHumidity?.value ?? 0,
+    humidity: Math.round(props?.relativeHumidity?.value ?? 0),
     windSpeed: windKmh === null ? 0 : kmhToMph(windKmh),
     description: props?.textDescription ?? currentHourly?.shortForecast ?? '',
     icon: props?.icon ?? currentHourly?.icon ?? '',
