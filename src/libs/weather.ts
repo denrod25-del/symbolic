@@ -1,5 +1,3 @@
-import { Env } from './Env';
-
 export type AlertTier = 'severe' | 'moderate' | 'minor';
 
 export type WeatherAlert = {
@@ -35,145 +33,280 @@ export type Weather = {
 
 export type GeoResult = { lat: number; lon: number; label: string };
 
-const ONE_CALL_URL = 'https://api.openweathermap.org/data/3.0/onecall';
-const GEO_URL = 'https://api.openweathermap.org/geo/1.0/direct';
-
-const SEVERE_RE = /tornado|hurricane|extreme|evacuat|tsunami|storm surge/i;
-const MODERATE_RE = /warning|watch/i;
+const USER_AGENT = 'SymbolicWeather/1.0 (+https://bsymbolic.com)';
+const ALERTS_URL = 'https://api.weather.gov/alerts/active';
+const GEOCODE_URL = 'https://geocoding-api.open-meteo.com/v1/search';
 
 /**
- * Classifies an alert event name into a display tier.
- * @param event - The alert event name from OpenWeatherMap.
+ * Classifies an NWS alert severity into a display tier.
+ * @param severity - The `properties.severity` field from a weather.gov alert.
  * @returns The severity tier used by the UI.
  */
-export function alertTier(event: string): AlertTier {
-  if (SEVERE_RE.test(event)) {
+export function alertTier(severity: string): AlertTier {
+  if (severity === 'Extreme' || severity === 'Severe') {
     return 'severe';
   }
-  if (MODERATE_RE.test(event)) {
+  if (severity === 'Moderate') {
     return 'moderate';
   }
   return 'minor';
 }
 
-type OwmWeather = { description: string; icon: string };
-type OwmOneCall = {
-  current: {
-    temp: number;
-    feels_like: number;
-    humidity: number;
-    wind_speed: number;
-    weather: OwmWeather[];
+type NwsPoint = {
+  properties: {
+    forecast: string;
+    forecastHourly: string;
+    observationStations: string;
   };
-  hourly: { dt: number; temp: number; weather: OwmWeather[] }[];
-  daily: {
-    dt: number;
-    temp: { min: number; max: number };
-    pop: number;
-    weather: OwmWeather[];
-  }[];
-  alerts?: {
-    sender_name: string;
-    event: string;
-    start: number;
-    end: number;
-    description: string;
-  }[];
 };
 
+type NwsStations = {
+  features: { properties: { stationIdentifier: string } }[];
+};
+
+type NwsObservation = {
+  properties: {
+    temperature: { value: number | null };
+    heatIndex: { value: number | null };
+    windChill: { value: number | null };
+    relativeHumidity: { value: number | null };
+    windSpeed: { value: number | null };
+    textDescription: string | null;
+    icon: string | null;
+  };
+};
+
+type NwsForecastPeriod = {
+  startTime: string;
+  isDaytime: boolean;
+  temperature: number;
+  shortForecast: string;
+  icon: string;
+  probabilityOfPrecipitation: { value: number | null };
+};
+
+type NwsForecast = { properties: { periods: NwsForecastPeriod[] } };
+
+type NwsHourlyPeriod = {
+  startTime: string;
+  temperature: number;
+  icon: string;
+  shortForecast: string;
+};
+type NwsHourlyForecast = { properties: { periods: NwsHourlyPeriod[] } };
+
+type NwsAlertFeature = {
+  properties: {
+    event: string;
+    senderName: string;
+    description: string;
+    onset: string | null;
+    effective: string | null;
+    ends: string | null;
+    expires: string | null;
+    severity: string;
+  };
+};
+type NwsAlerts = { features: NwsAlertFeature[] };
+
 /**
- * Fetches current conditions, forecast, and alerts for a coordinate.
- * Temperatures are imperial (°F); the client converts to °C on demand.
- * @param lat - Latitude.
- * @param lon - Longitude.
- * @returns The mapped weather data.
+ * Fetches and parses a weather.gov (geo+json) endpoint.
+ * @param url - The full weather.gov URL to request.
+ * @returns The parsed JSON body.
  * @throws When the API responds with a non-ok status.
  */
-export async function fetchWeather(lat: number, lon: number): Promise<Weather> {
-  const url = new URL(ONE_CALL_URL);
-  url.searchParams.set('lat', String(lat));
-  url.searchParams.set('lon', String(lon));
-  url.searchParams.set('units', 'imperial');
-  url.searchParams.set('exclude', 'minutely');
-  url.searchParams.set('appid', Env.OPENWEATHER_API_KEY ?? '');
-
-  const response = await fetch(url.toString(), { cache: 'no-store' });
+async function fetchGeoJson<T>(url: string): Promise<T> {
+  const response = await fetch(url, {
+    headers: { 'User-Agent': USER_AGENT, Accept: 'application/geo+json' },
+    cache: 'no-store',
+  });
   if (!response.ok) {
-    throw new Error(`OpenWeatherMap error: ${response.status}`);
+    throw new Error(`weather.gov error: ${response.status} for ${url}`);
   }
-  const data: OwmOneCall = await response.json();
+  const data: T = await response.json();
+  return data;
+}
 
-  const [today] = data.daily;
+function celsiusToFahrenheit(celsius: number): number {
+  return Math.round((celsius * 9) / 5 + 32);
+}
+
+function kmhToMph(kmh: number): number {
+  return Math.round(kmh * 0.621_371);
+}
+
+function buildCurrentTemps(
+  props: NwsObservation['properties'] | undefined,
+  fallbackTemp: number
+): { temp: number; feelsLike: number } {
+  const rawTempC = props?.temperature.value ?? null;
+  const rawFeelsC =
+    props?.heatIndex.value ?? props?.windChill.value ?? rawTempC;
+  const temp = rawTempC === null ? fallbackTemp : celsiusToFahrenheit(rawTempC);
+  const feelsLike = rawFeelsC === null ? temp : celsiusToFahrenheit(rawFeelsC);
+  return { temp, feelsLike };
+}
+
+function buildCurrent(
+  observation: NwsObservation | null,
+  currentHourly: NwsHourlyPeriod | undefined
+): Weather['current'] {
+  const props = observation?.properties;
+  const { temp, feelsLike } = buildCurrentTemps(
+    props,
+    currentHourly?.temperature ?? 0
+  );
+  const windKmh = props?.windSpeed.value ?? null;
+
   return {
-    current: {
-      temp: Math.round(data.current.temp),
-      feelsLike: Math.round(data.current.feels_like),
-      humidity: data.current.humidity,
-      windSpeed: Math.round(data.current.wind_speed),
-      description: data.current.weather[0]?.description ?? '',
-      icon: data.current.weather[0]?.icon ?? '01d',
-    },
-    today: {
-      min: Math.round(today?.temp.min ?? 0),
-      max: Math.round(today?.temp.max ?? 0),
-    },
-    hourly: data.hourly.slice(0, 12).map((h) => ({
-      dt: h.dt,
-      temp: Math.round(h.temp),
-      icon: h.weather[0]?.icon ?? '01d',
-    })),
-    daily: data.daily.slice(0, 7).map((d) => ({
-      dt: d.dt,
-      min: Math.round(d.temp.min),
-      max: Math.round(d.temp.max),
-      pop: d.pop,
-      description: d.weather[0]?.description ?? '',
-      icon: d.weather[0]?.icon ?? '01d',
-    })),
-    alerts: (data.alerts ?? []).map((a) => ({
-      event: a.event,
-      sender: a.sender_name,
-      start: a.start,
-      end: a.end,
-      description: a.description,
-      tier: alertTier(a.event),
-    })),
+    temp,
+    feelsLike,
+    humidity: props?.relativeHumidity.value ?? 0,
+    windSpeed: windKmh === null ? 0 : kmhToMph(windKmh),
+    description: props?.textDescription ?? currentHourly?.shortForecast ?? '',
+    icon: props?.icon ?? currentHourly?.icon ?? '',
   };
 }
 
-type OwmGeo = {
-  name: string;
-  state?: string;
-  country: string;
-  lat: number;
-  lon: number;
-};
+type DayGroup = { date: string; periods: NwsForecastPeriod[] };
+
+function groupPeriodsByDate(periods: NwsForecastPeriod[]): DayGroup[] {
+  const map = new Map<string, NwsForecastPeriod[]>();
+  for (const period of periods) {
+    const date = period.startTime.slice(0, 10);
+    const existing = map.get(date);
+    if (existing) {
+      existing.push(period);
+    } else {
+      map.set(date, [period]);
+    }
+  }
+  return [...map.entries()].map(([date, dayPeriods]) => ({
+    date,
+    periods: dayPeriods,
+  }));
+}
+
+function buildDailyEntry(group: DayGroup): Weather['daily'][number] {
+  const temps = group.periods.map((p) => p.temperature);
+  const pops = group.periods.map(
+    (p) => p.probabilityOfPrecipitation.value ?? 0
+  );
+  const period = group.periods.find((p) => p.isDaytime) ?? group.periods[0];
+  if (!period) {
+    throw new Error(`Empty forecast period group for date ${group.date}`);
+  }
+
+  return {
+    dt: Math.floor(Date.parse(period.startTime) / 1000),
+    min: Math.min(...temps),
+    max: Math.max(...temps),
+    pop: Math.max(...pops) / 100,
+    description: period.shortForecast,
+    icon: period.icon,
+  };
+}
+
+function toUnixSeconds(dateString: string | null): number {
+  return dateString === null
+    ? Math.floor(Date.now() / 1000)
+    : Math.floor(Date.parse(dateString) / 1000);
+}
+
+function buildAlert(feature: NwsAlertFeature): WeatherAlert {
+  const props = feature.properties;
+  return {
+    event: props.event,
+    sender: props.senderName,
+    start: toUnixSeconds(props.onset ?? props.effective),
+    end: toUnixSeconds(props.ends ?? props.expires),
+    description: props.description,
+    tier: alertTier(props.severity),
+  };
+}
 
 /**
- * Geocodes a free-text city or zip query to coordinates.
- * @param query - City name or zip code.
+ * Fetches current conditions, forecast, and active alerts for a coordinate
+ * from weather.gov (NOAA). US coverage only.
+ * @param lat - Latitude.
+ * @param lon - Longitude.
+ * @returns The mapped weather data.
+ * @throws When any required weather.gov call fails.
+ */
+export async function fetchWeather(lat: number, lon: number): Promise<Weather> {
+  const point = await fetchGeoJson<NwsPoint>(
+    `https://api.weather.gov/points/${lat},${lon}`
+  );
+  const { forecast, forecastHourly, observationStations } = point.properties;
+
+  const stations = await fetchGeoJson<NwsStations>(observationStations);
+  const stationId = stations.features[0]?.properties.stationIdentifier;
+  const observation = stationId
+    ? await fetchGeoJson<NwsObservation>(
+        `https://api.weather.gov/stations/${stationId}/observations/latest`
+      )
+    : null;
+
+  const forecastData = await fetchGeoJson<NwsForecast>(forecast);
+  const hourlyData = await fetchGeoJson<NwsHourlyForecast>(forecastHourly);
+  const alertsData = await fetchGeoJson<NwsAlerts>(
+    `${ALERTS_URL}?point=${lat},${lon}`
+  );
+
+  const hourlyPeriods = hourlyData.properties.periods.slice(0, 12);
+  const dayGroups = groupPeriodsByDate(forecastData.properties.periods).slice(
+    0,
+    7
+  );
+  const daily = dayGroups.map(buildDailyEntry);
+  const [today] = daily;
+
+  return {
+    current: buildCurrent(observation, hourlyPeriods[0]),
+    today: { min: today?.min ?? 0, max: today?.max ?? 0 },
+    hourly: hourlyPeriods.map((p) => ({
+      dt: Math.floor(Date.parse(p.startTime) / 1000),
+      temp: p.temperature,
+      icon: p.icon,
+    })),
+    daily,
+    alerts: alertsData.features.map(buildAlert),
+  };
+}
+
+type OpenMeteoResult = {
+  latitude: number;
+  longitude: number;
+  name: string;
+  admin1?: string;
+  country_code?: string;
+};
+type OpenMeteoResponse = { results?: OpenMeteoResult[] };
+
+/**
+ * Geocodes a free-text city query using Open-Meteo's free geocoding API.
+ * @param query - City name or place query.
  * @returns The first match, or null when nothing matches.
  * @throws When the API responds with a non-ok status.
  */
 export async function geocodeCity(query: string): Promise<GeoResult | null> {
-  const url = new URL(GEO_URL);
-  url.searchParams.set('q', query);
-  url.searchParams.set('limit', '1');
-  url.searchParams.set('appid', Env.OPENWEATHER_API_KEY ?? '');
+  const url = new URL(GEOCODE_URL);
+  url.searchParams.set('name', query);
+  url.searchParams.set('count', '1');
 
   const response = await fetch(url.toString(), { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`Geocoding error: ${response.status}`);
   }
-  const results: OwmGeo[] = await response.json();
-  const [first] = results;
+  const data: OpenMeteoResponse = await response.json();
+  const [first] = data.results ?? [];
   if (!first) {
     return null;
   }
   return {
-    lat: first.lat,
-    lon: first.lon,
-    label: [first.name, first.state ?? first.country]
+    lat: first.latitude,
+    lon: first.longitude,
+    label: [first.name, first.admin1 ?? first.country_code]
       .filter(Boolean)
       .join(', '),
   };
