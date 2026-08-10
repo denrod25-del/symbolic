@@ -1,0 +1,16 @@
+# Core (required to train + predict)
+numpy>=1.24
+pandas>=2.0
+scikit-learn>=1.3
+joblib>=1.3
+requests>=2.31
+
+# Recommended: drop-in upgrade for the classifier (auto-detected by model.py)
+lightgbm>=4.0
+
+# Optional surfaces (install as needed)
+# fastapi>=0.110
+# uvicorn>=0.29
+# streamlit>=1.33
+# plotly>=5.20
+# pyswmm>=2.0      # swap the hydraulic engine for a calibrated SWMM network
