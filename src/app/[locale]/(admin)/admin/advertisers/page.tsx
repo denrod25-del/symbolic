@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { db } from '@/libs/DB';
 import { adClicks, ads, advertisers } from '@/models/Schema';
+import { formatUsd } from '@/utils/Money';
 
 export default async function AdminAdvertisersPage(props: {
   params: Promise<{ locale: string }>;
@@ -43,23 +44,25 @@ export default async function AdminAdvertisersPage(props: {
         </p>
       ) : (
         <div className="overflow-hidden rounded-lg border border-white/10">
-          <div className="grid grid-cols-[1.5fr_2fr_60px_70px_110px_80px] gap-4 border-b border-white/10 bg-white/5 px-4 py-3 text-xs font-semibold tracking-wide text-white/40 uppercase">
+          <div className="grid grid-cols-[1.5fr_2fr_60px_70px_90px_110px_80px] gap-4 border-b border-white/10 bg-white/5 px-4 py-3 text-xs font-semibold tracking-wide text-white/40 uppercase">
             <span>{t('col_name')}</span>
             <span>{t('col_email')}</span>
             <span>{t('col_ads')}</span>
             <span>{t('col_clicks')}</span>
+            <span>{t('col_balance')}</span>
             <span>{t('col_joined')}</span>
             <span />
           </div>
           {allAdvertisers.map((advertiser) => (
             <div
               key={advertiser.id}
-              className="grid grid-cols-[1.5fr_2fr_60px_70px_110px_80px] items-center gap-4 border-b border-white/5 px-4 py-3 text-sm last:border-0"
+              className="grid grid-cols-[1.5fr_2fr_60px_70px_90px_110px_80px] items-center gap-4 border-b border-white/5 px-4 py-3 text-sm last:border-0"
             >
               <span className="truncate">{advertiser.name}</span>
               <span className="truncate text-white/50">{advertiser.email}</span>
               <span>{adsByAdvertiser.get(advertiser.id) ?? 0}</span>
               <span>{clicksByAdvertiser.get(advertiser.id) ?? 0}</span>
+              <span>{formatUsd(advertiser.balanceCents)}</span>
               <span className="text-xs text-white/50">
                 {advertiser.createdAt.toISOString().slice(0, 10)}
               </span>

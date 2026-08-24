@@ -235,6 +235,7 @@
     "col_email": "Email",
     "col_ads": "Ads",
     "col_clicks": "Clicks",
+    "col_balance": "Balance",
     "col_joined": "Joined",
     "view": "View",
     "empty": "No advertisers yet"
@@ -254,7 +255,11 @@
     "active_ads_label": "Active ads",
     "budget_label": "Budget",
     "budget_placeholder": "$0",
-    "create_first_ad": "+ Create your first ad"
+    "create_first_ad": "+ Create your first ad",
+    "balance_label": "Balance",
+    "low_balance_warning": "Your balance is low - top up to keep your ads running.",
+    "no_funds_warning": "Your ads are paused - you're out of funds.",
+    "manage_billing": "Manage billing"
   },
   "AdWizard": {
     "create_title": "Create ad",
