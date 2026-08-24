@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { db } from '@/libs/DB';
 import { ads, advertisers } from '@/models/Schema';
+import { formatUsd } from '@/utils/Money';
 import { AdRowActions } from './AdRowActions';
 
 type AdsPageTranslator = Awaited<ReturnType<typeof getTranslations<'AdsPage'>>>;
@@ -102,7 +103,7 @@ export default async function AdsPage(props: {
                   {ad.keywords.slice(0, 3).join(', ')}
                   {ad.keywords.length > 3 ? '…' : ''}
                 </span>
-                <span>£{(ad.bidAmount / 100).toFixed(2)}</span>
+                <span>{formatUsd(ad.bidAmount)}</span>
                 <span>
                   <span
                     title={ad.rejectionReason ?? undefined}

@@ -2,6 +2,7 @@ import { asc, eq } from 'drizzle-orm';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { db } from '@/libs/DB';
 import { ads } from '@/models/Schema';
+import { formatUsd } from '@/utils/Money';
 import { QueueRowActions } from './QueueRowActions';
 
 export default async function AdminQueuePage(props: {
@@ -45,7 +46,7 @@ export default async function AdminQueuePage(props: {
                     {t('keywords_label')}: {ad.keywords.join(', ')}
                   </div>
                   <div className="text-xs text-white/50">
-                    {t('bid_label')}: £{(ad.bidAmount / 100).toFixed(2)}
+                    {t('bid_label')}: {formatUsd(ad.bidAmount)}
                   </div>
                 </div>
                 <QueueRowActions
