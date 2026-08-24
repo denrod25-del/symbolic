@@ -37,6 +37,7 @@ export const advertisers = pgTable('advertisers', {
   clerkUserId: text('clerk_user_id').notNull().unique(),
   email: text('email').notNull(),
   name: text('name').notNull(),
+  balanceCents: integer('balance_cents').notNull().default(0),
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
 });
 
@@ -260,4 +261,20 @@ export const crmWorkflowRuns = pgTable('crm_workflow_runs', {
   status: text('status').notNull(),
   detail: text('detail'),
   createdAt: timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+});
+
+// Append-only money ledger. Rows are never updated or deleted; the cached
+// advertisers.balanceCents is always derivable from SUM(amount_cents).
+export const billingTransactions = pgTable('billing_transactions', {
+  id: serial('id').primaryKey(),
+  advertiserId: integer('advertiser_id')
+    .notNull()
+    .references(() => advertisers.id),
+  kind: text('kind').notNull(),
+  amountCents: integer('amount_cents').notNull(),
+  balanceAfterCents: integer('balance_after_cents').notNull(),
+  adId: integer('ad_id').references(() => ads.id),
+  stripeSessionId: text('stripe_session_id').unique(),
+  description: text('description').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 });

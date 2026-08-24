@@ -16,6 +16,7 @@ export const Env = createEnv({
     TWILIO_AUTH_TOKEN: z.string().optional(),
     TWILIO_FROM_NUMBER: z.string().optional(),
     STRIPE_SECRET_KEY: z.string().optional(),
+    STRIPE_WEBHOOK_SECRET: z.string().optional(),
     ANTHROPIC_API_KEY: z.string().optional(),
   },
   client: {
@@ -43,6 +44,7 @@ export const Env = createEnv({
     TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN,
     TWILIO_FROM_NUMBER: process.env.TWILIO_FROM_NUMBER,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
   },
   skipValidation: process.env.NODE_ENV === 'test',
