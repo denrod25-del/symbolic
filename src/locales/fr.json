@@ -233,7 +233,7 @@
     "greeting": "Bienvenue, {name} 👋",
     "active_ads_label": "Annonces actives",
     "budget_label": "Budget",
-    "budget_placeholder": "£0",
+    "budget_placeholder": "0 $",
     "create_first_ad": "+ Créer votre première annonce"
   },
   "AdWizard": {
@@ -252,7 +252,7 @@
     "bid_label": "Enchère par clic",
     "bid_hint": "Définissez le montant que vous payez par clic. Les enchères plus élevées sont mieux classées.",
     "bid_per_click": "par clic",
-    "bid_minimum": "Minimum £0.10 par clic",
+    "bid_minimum": "Minimum 0,10 $ par clic",
     "button_next": "Suivant →",
     "button_back": "← Retour",
     "button_saving": "Enregistrement...",
