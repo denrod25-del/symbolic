@@ -2,12 +2,17 @@
 
 import { useState } from 'react';
 import { createTopUpSession } from '@/libs/billingActions';
+import { formatUsd } from '@/utils/Money';
 
 const PRESETS_CENTS = [2500, 5000, 10_000];
 const MIN_TOPUP_CENTS = 1000;
 
 export function TopUpButtons(props: {
-  labels: { custom: string; submit: string };
+  labels: {
+    custom: string;
+    submit: string;
+    errors: Record<string, string>;
+  };
 }) {
   const [custom, setCustom] = useState('');
   const [busy, setBusy] = useState(false);
@@ -18,7 +23,11 @@ export function TopUpButtons(props: {
     setError('');
     const result = await createTopUpSession(amountCents);
     if ('error' in result) {
-      setError(result.error);
+      setError(
+        props.labels.errors[result.error] ??
+          props.labels.errors.checkout_failed ??
+          ''
+      );
       setBusy(false);
       return;
     }
@@ -42,7 +51,7 @@ export function TopUpButtons(props: {
             }}
             type="button"
           >
-            ${cents / 100}
+            {formatUsd(cents)}
           </button>
         ))}
       </div>

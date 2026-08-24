@@ -89,6 +89,12 @@ export default async function BillingPage(props: {
           labels={{
             custom: t('topup_custom_placeholder'),
             submit: t('topup_button'),
+            errors: {
+              not_signed_in: t('error_not_signed_in'),
+              invalid_amount: t('error_invalid_amount'),
+              no_account: t('error_no_account'),
+              checkout_failed: t('error_checkout_failed'),
+            },
           }}
         />
       </div>

@@ -73,7 +73,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true });
   }
 
-  await creditTopUp({ advertiserId, amountCents, stripeSessionId: sessionId });
+  try {
+    await creditTopUp({
+      advertiserId,
+      amountCents,
+      stripeSessionId: sessionId,
+    });
+  } catch {
+    // A concurrent replay of the same event lost the unique-constraint race.
+    // The balance is already correct, so acknowledge rather than make Stripe retry.
+  }
 
   return NextResponse.json({ received: true });
 }

@@ -9,17 +9,23 @@ import { createTopUpLink } from './payments';
 const MIN_TOPUP_CENTS = 1000;
 const MAX_TOPUP_CENTS = 50_000;
 
+export type TopUpError =
+  | 'not_signed_in'
+  | 'invalid_amount'
+  | 'no_account'
+  | 'checkout_failed';
+
 /**
  * Starts a Stripe Checkout session to top up the signed-in advertiser's balance.
  * @param amountCents - The amount to add, in cents.
- * @returns The checkout URL to redirect to, or an error message.
+ * @returns The checkout URL to redirect to, or an error code.
  */
 export async function createTopUpSession(
   amountCents: number
-): Promise<{ url: string } | { error: string }> {
+): Promise<{ url: string } | { error: TopUpError }> {
   const user = await currentUser();
   if (!user) {
-    return { error: 'Not signed in' };
+    return { error: 'not_signed_in' };
   }
 
   if (
@@ -27,7 +33,7 @@ export async function createTopUpSession(
     amountCents < MIN_TOPUP_CENTS ||
     amountCents > MAX_TOPUP_CENTS
   ) {
-    return { error: 'Enter an amount between $10 and $500' };
+    return { error: 'invalid_amount' };
   }
 
   const [advertiser] = await db
@@ -37,7 +43,7 @@ export async function createTopUpSession(
     .limit(1);
 
   if (!advertiser) {
-    return { error: 'Advertiser account not found' };
+    return { error: 'no_account' };
   }
 
   const result = await createTopUpLink({
@@ -46,7 +52,7 @@ export async function createTopUpSession(
   });
 
   if (result.status === 'failed') {
-    return { error: "Couldn't start checkout" };
+    return { error: 'checkout_failed' };
   }
 
   return { url: result.url };

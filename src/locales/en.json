@@ -177,7 +177,10 @@
     "col_description": "Description",
     "col_amount": "Amount",
     "col_balance": "Balance",
-    "error_generic": "Couldn't start checkout."
+    "error_not_signed_in": "Please sign in to add funds.",
+    "error_invalid_amount": "Enter an amount between $10 and $500.",
+    "error_no_account": "Advertiser account not found.",
+    "error_checkout_failed": "Couldn't start checkout."
   },
   "AdminLayout": {
     "logo": "Symbolic Admin",
