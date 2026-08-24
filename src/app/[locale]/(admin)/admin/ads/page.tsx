@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { db } from '@/libs/DB';
 import { adClicks, ads } from '@/models/Schema';
+import { formatUsd } from '@/utils/Money';
 import { AdminAdActions } from './AdminAdActions';
 
 const FILTERS = ['all', 'pending', 'approved', 'rejected', 'paused'] as const;
@@ -104,7 +105,7 @@ export default async function AdminAdsPage(props: {
                 {ad.advertiserName}
               </span>
               <span className="text-xs text-white/70">{statusLabel(ad)}</span>
-              <span>£{(ad.bidAmount / 100).toFixed(2)}</span>
+              <span>{formatUsd(ad.bidAmount)}</span>
               <span>{clicksByAd.get(ad.id) ?? 0}</span>
               <span className="text-xs text-white/50">
                 {ad.createdAt.toISOString().slice(0, 10)}

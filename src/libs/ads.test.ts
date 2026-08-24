@@ -18,6 +18,11 @@ describe('selectAds', () => {
       })
       .returning();
     advertiserId = adv!.id;
+
+    await db
+      .update(advertisers)
+      .set({ balanceCents: 10_000 })
+      .where(eq(advertisers.id, advertiserId));
   });
 
   afterEach(async () => {
@@ -71,5 +76,27 @@ describe('selectAds', () => {
     const id = await insertAd('approved', false);
     const result = await selectAds('running');
     expect(result.map((ad) => ad.id)).not.toContain(id);
+  });
+
+  it('excludes an ad whose advertiser has no balance', async () => {
+    await db
+      .update(advertisers)
+      .set({ balanceCents: 0 })
+      .where(eq(advertisers.id, advertiserId));
+
+    const id = await insertAd('approved', true);
+    const result = await selectAds('running');
+    expect(result.map((ad) => ad.id)).not.toContain(id);
+  });
+
+  it('includes an ad whose advertiser has a balance', async () => {
+    await db
+      .update(advertisers)
+      .set({ balanceCents: 500 })
+      .where(eq(advertisers.id, advertiserId));
+
+    const id = await insertAd('approved', true);
+    const result = await selectAds('running');
+    expect(result.map((ad) => ad.id)).toContain(id);
   });
 });

@@ -142,7 +142,8 @@
   },
   "AdvertiseLayout": {
     "nav_dashboard": "Tableau de bord",
-    "nav_my_ads": "Mes annonces"
+    "nav_my_ads": "Mes annonces",
+    "nav_billing": "Facturation"
   },
   "AdsPage": {
     "title": "Mes annonces",
@@ -158,6 +159,28 @@
     "status_approved_active": "Actif",
     "status_approved_paused": "En pause",
     "status_rejected": "Rejeté"
+  },
+  "BillingPage": {
+    "title": "Facturation",
+    "balance_label": "Solde actuel",
+    "low_balance": "Votre solde est faible.",
+    "no_funds": "Vos annonces sont en pause - ajoutez des fonds pour reprendre.",
+    "topup_title": "Ajouter des fonds",
+    "topup_custom_placeholder": "Montant personnalisé",
+    "topup_button": "Ajouter des fonds",
+    "topup_pending": "Paiement reçu - votre solde sera mis à jour dans quelques secondes.",
+    "topup_simulated": "Rechargement simulé (aucune clé Stripe configurée).",
+    "refresh": "Actualiser",
+    "history_title": "Historique des transactions",
+    "history_empty": "Aucune transaction pour le moment.",
+    "col_date": "Date",
+    "col_description": "Description",
+    "col_amount": "Montant",
+    "col_balance": "Solde",
+    "error_not_signed_in": "Connectez-vous pour ajouter des fonds.",
+    "error_invalid_amount": "Saisissez un montant entre 10 $ et 500 $.",
+    "error_no_account": "Compte annonceur introuvable.",
+    "error_checkout_failed": "Impossible de démarrer le paiement."
   },
   "AdminLayout": {
     "logo": "Symbolic Admin",
@@ -215,6 +238,7 @@
     "col_email": "Email",
     "col_ads": "Ads",
     "col_clicks": "Clicks",
+    "col_balance": "Solde",
     "col_joined": "Joined",
     "view": "View",
     "empty": "No advertisers yet"
@@ -233,8 +257,12 @@
     "greeting": "Bienvenue, {name} 👋",
     "active_ads_label": "Annonces actives",
     "budget_label": "Budget",
-    "budget_placeholder": "£0",
-    "create_first_ad": "+ Créer votre première annonce"
+    "budget_placeholder": "0 $",
+    "create_first_ad": "+ Créer votre première annonce",
+    "balance_label": "Solde",
+    "low_balance_warning": "Votre solde est faible - rechargez pour que vos annonces continuent.",
+    "no_funds_warning": "Vos annonces sont en pause - vous n'avez plus de fonds.",
+    "manage_billing": "Gérer la facturation"
   },
   "AdWizard": {
     "create_title": "Créer une annonce",
@@ -252,7 +280,7 @@
     "bid_label": "Enchère par clic",
     "bid_hint": "Définissez le montant que vous payez par clic. Les enchères plus élevées sont mieux classées.",
     "bid_per_click": "par clic",
-    "bid_minimum": "Minimum £0.10 par clic",
+    "bid_minimum": "Minimum 0,10 $ par clic",
     "button_next": "Suivant →",
     "button_back": "← Retour",
     "button_saving": "Enregistrement...",

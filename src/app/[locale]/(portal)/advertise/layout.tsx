@@ -42,6 +42,12 @@ export default async function AdvertiseLayout(props: {
             >
               {t('nav_my_ads')}
             </Link>
+            <Link
+              href={`/${locale}/advertise/billing`}
+              className="text-sm text-white/60 hover:text-white"
+            >
+              {t('nav_billing')}
+            </Link>
           </div>
         </div>
         <UserButton />
