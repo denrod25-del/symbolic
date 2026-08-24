@@ -118,3 +118,66 @@ export async function createPaymentLink(
     return { status: 'failed' };
   }
 }
+
+export type CreateTopUpInput = {
+  advertiserId: number;
+  amountCents: number;
+};
+
+export type CreateTopUpResult =
+  | { status: 'created'; url: string }
+  | { status: 'failed' };
+
+/**
+ * Creates a hosted Stripe Checkout session for an advertiser balance top-up.
+ * Falls back to a simulated link when no Stripe key is configured.
+ * @param input - The advertiser and amount in cents.
+ * @returns The checkout URL, or a failed result.
+ */
+export async function createTopUpLink(
+  input: CreateTopUpInput
+): Promise<CreateTopUpResult> {
+  const base = appBaseUrl();
+
+  if (!Env.STRIPE_SECRET_KEY) {
+    return {
+      status: 'created',
+      url: `${base}/en/advertise/billing?topup=simulated`,
+    };
+  }
+
+  try {
+    const response = await fetch(
+      'https://api.stripe.com/v1/checkout/sessions',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${Env.STRIPE_SECRET_KEY}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          mode: 'payment',
+          client_reference_id: String(input.advertiserId),
+          'metadata[advertiser_id]': String(input.advertiserId),
+          success_url: `${base}/en/advertise/billing?topup=pending`,
+          cancel_url: `${base}/en/advertise/billing`,
+          'line_items[0][quantity]': '1',
+          'line_items[0][price_data][currency]': 'usd',
+          'line_items[0][price_data][unit_amount]': String(input.amountCents),
+          'line_items[0][price_data][product_data][name]':
+            'Symbolic Ads balance top-up',
+        }).toString(),
+      }
+    );
+
+    if (!response.ok) {
+      return { status: 'failed' };
+    }
+
+    const data: unknown = await response.json();
+    const url = readString(data, 'url');
+    return url ? { status: 'created', url } : { status: 'failed' };
+  } catch {
+    return { status: 'failed' };
+  }
+}
