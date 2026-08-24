@@ -1,5 +1,5 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
-import { ads } from '@/models/Schema';
+import { and, desc, eq, gt, sql } from 'drizzle-orm';
+import { ads, advertisers } from '@/models/Schema';
 import { db } from './DB';
 
 export type Ad = typeof ads.$inferSelect;
@@ -38,10 +38,12 @@ export const selectAds = async (query: string): Promise<Ad[]> => {
   const result = await db
     .select()
     .from(ads)
+    .innerJoin(advertisers, eq(ads.advertiserId, advertisers.id))
     .where(
       and(
         eq(ads.status, 'approved'),
         eq(ads.active, true),
+        gt(advertisers.balanceCents, 0),
         sql`${ads.keywords} && ARRAY[${sql.join(
           tokens.map((t) => sql`${t}`),
           sql`, `
@@ -50,5 +52,5 @@ export const selectAds = async (query: string): Promise<Ad[]> => {
     )
     .orderBy(desc(ads.bidAmount))
     .limit(2);
-  return result;
+  return result.map((row) => row.ads);
 };
