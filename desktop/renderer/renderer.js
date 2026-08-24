@@ -1,6 +1,6 @@
 'use strict';
 
-const SYMBOLIC_ORIGIN = 'http://localhost:3000';
+const SYMBOLIC_ORIGIN = 'https://symbolic-bsymbolic.vercel.app';
 const NEW_TAB_URL = 'newtab.html';
 const HISTORY_URL = 'history.html';
 const BOOKMARKS_KEY = 'symbolic_bookmarks';
