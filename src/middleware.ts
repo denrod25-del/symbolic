@@ -9,6 +9,7 @@ const isProtectedRoute = createRouteMatcher([
   '/:locale/advertise/dashboard(.*)',
   '/:locale/advertise/ads(.*)',
   '/:locale/advertise/create(.*)',
+  '/:locale/advertise/billing(.*)',
   '/:locale/crm(.*)',
   '/:locale/admin(.*)',
 ]);

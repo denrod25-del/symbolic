@@ -142,7 +142,8 @@
   },
   "AdvertiseLayout": {
     "nav_dashboard": "Dashboard",
-    "nav_my_ads": "My ads"
+    "nav_my_ads": "My ads",
+    "nav_billing": "Billing"
   },
   "AdsPage": {
     "title": "My ads",
@@ -158,6 +159,25 @@
     "status_approved_active": "Active",
     "status_approved_paused": "Paused",
     "status_rejected": "Rejected"
+  },
+  "BillingPage": {
+    "title": "Billing",
+    "balance_label": "Current balance",
+    "low_balance": "Your balance is running low.",
+    "no_funds": "Your ads are paused - add funds to resume.",
+    "topup_title": "Add funds",
+    "topup_custom_placeholder": "Custom amount",
+    "topup_button": "Add funds",
+    "topup_pending": "Payment received - your balance will update in a few seconds.",
+    "topup_simulated": "Simulated top-up (no Stripe key configured).",
+    "refresh": "Refresh",
+    "history_title": "Transaction history",
+    "history_empty": "No transactions yet.",
+    "col_date": "Date",
+    "col_description": "Description",
+    "col_amount": "Amount",
+    "col_balance": "Balance",
+    "error_generic": "Couldn't start checkout."
   },
   "AdminLayout": {
     "logo": "Symbolic Admin",

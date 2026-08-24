@@ -142,7 +142,8 @@
   },
   "AdvertiseLayout": {
     "nav_dashboard": "Tableau de bord",
-    "nav_my_ads": "Mes annonces"
+    "nav_my_ads": "Mes annonces",
+    "nav_billing": "Facturation"
   },
   "AdsPage": {
     "title": "Mes annonces",
@@ -158,6 +159,25 @@
     "status_approved_active": "Actif",
     "status_approved_paused": "En pause",
     "status_rejected": "Rejeté"
+  },
+  "BillingPage": {
+    "title": "Facturation",
+    "balance_label": "Solde actuel",
+    "low_balance": "Votre solde est faible.",
+    "no_funds": "Vos annonces sont en pause - ajoutez des fonds pour reprendre.",
+    "topup_title": "Ajouter des fonds",
+    "topup_custom_placeholder": "Montant personnalisé",
+    "topup_button": "Ajouter des fonds",
+    "topup_pending": "Paiement reçu - votre solde sera mis à jour dans quelques secondes.",
+    "topup_simulated": "Rechargement simulé (aucune clé Stripe configurée).",
+    "refresh": "Actualiser",
+    "history_title": "Historique des transactions",
+    "history_empty": "Aucune transaction pour le moment.",
+    "col_date": "Date",
+    "col_description": "Description",
+    "col_amount": "Montant",
+    "col_balance": "Solde",
+    "error_generic": "Impossible de démarrer le paiement."
   },
   "AdminLayout": {
     "logo": "Symbolic Admin",
