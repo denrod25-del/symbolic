@@ -1,6 +1,6 @@
 'use strict';
 
-const SYMBOLIC_ORIGIN = 'https://symbolic-bsymbolic.vercel.app';
+const SYMBOLIC_ORIGIN = 'https://www.bsymbolic.com';
 const RECENT_KEY = 'symbolic_recent';
 const RECENT_LIMIT = 6;
 
