@@ -1,6 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { getAdminStats } from '@/libs/adminStats';
+import { formatUsd } from '@/utils/Money';
 
 export default async function AdminDashboardPage(props: {
   params: Promise<{ locale: string }>;
@@ -10,7 +11,6 @@ export default async function AdminDashboardPage(props: {
   const t = await getTranslations('AdminDashboardPage');
 
   const stats = await getAdminStats();
-  const revenuePounds = (stats.revenuePenceLast30Days / 100).toFixed(2);
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-12">
@@ -60,7 +60,9 @@ export default async function AdminDashboardPage(props: {
           <div className="text-xs tracking-wide text-white/40 uppercase">
             {t('stat_revenue')}
           </div>
-          <div className="mt-1 text-3xl font-bold">£{revenuePounds}</div>
+          <div className="mt-1 text-3xl font-bold">
+            {formatUsd(stats.revenuePenceLast30Days)}
+          </div>
         </div>
       </div>
     </div>

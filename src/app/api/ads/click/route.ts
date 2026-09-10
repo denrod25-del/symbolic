@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { NextResponse } from 'next/server';
+import { chargeForClick } from '@/libs/billing';
 import { db } from '@/libs/DB';
 import { adClicks, ads } from '@/models/Schema';
 
@@ -21,8 +22,17 @@ export async function GET(request: Request) {
 
   try {
     await db.insert(adClicks).values({ adId: ad.id, query });
+
+    if (ad.advertiserId) {
+      await chargeForClick({
+        advertiserId: ad.advertiserId,
+        amountCents: ad.bidAmount,
+        adId: ad.id,
+        description: `Click on "${ad.title}"`,
+      });
+    }
   } catch {
-    // Best-effort: record the click if possible, but don't block the redirect
+    // Best-effort: never block the visitor's redirect on a billing failure.
   }
 
   return new NextResponse(null, {

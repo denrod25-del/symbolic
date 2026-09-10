@@ -649,3 +649,29 @@ Looking for a custom boilerplate to kick off your project? I'd be glad to discus
   `*/15 * * * * curl -s -H "Authorization: Bearer $CRON_SECRET" https://bsymbolic.com/api/news/refresh`
 - Production env requires: `OPENWEATHER_API_KEY` (One Call 3.0), `CRON_SECRET`.
 - New tables (`news_articles`, `news_preferences`) ship in `migrations/0004_*.sql` — apply manually on the VPS.
+
+## Billing ops
+
+Advertisers prepay a balance; each ad click deducts their bid. Money movements
+are recorded in the append-only `billing_transactions` ledger, and
+`advertisers.balance_cents` is a cached figure always equal to
+`SUM(amount_cents)` for that advertiser. Ads stop serving when the balance
+reaches zero.
+
+Production env vars:
+
+- `STRIPE_SECRET_KEY` — start with `sk_test_...` and verify the whole flow
+  before switching to a live key
+- `STRIPE_WEBHOOK_SECRET` — the `whsec_...` signing secret from the Stripe
+  dashboard webhook endpoint
+
+Stripe dashboard setup: add a webhook endpoint at
+`https://bsymbolic.com/api/stripe/webhook` subscribed to
+`checkout.session.completed`.
+
+Test in Stripe test mode with card `4242 4242 4242 4242`, any future expiry, any
+CVC. Confirm the balance credits within a few seconds of paying, and that
+resending the same event from the Stripe dashboard does **not** double-credit.
+
+With no `STRIPE_SECRET_KEY` set, top-ups fall back to a simulated link and no
+money moves — useful for local development.

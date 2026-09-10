@@ -263,7 +263,7 @@ export function AdWizard(props: AdWizardProps) {
             </span>
             <p className="mb-2 text-xs text-white/40">{t('bid_hint')}</p>
             <div className="flex items-center gap-2">
-              <span className="text-white/50">£</span>
+              <span className="text-white/50">$</span>
               <input
                 type="number"
                 step="0.01"

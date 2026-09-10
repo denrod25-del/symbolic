@@ -59,7 +59,7 @@ describe('adActions', () => {
         .where(eq(ads.advertiserId, advertiserId));
       expect(rows).toHaveLength(1);
       expect(rows[0]?.title).toBe('Best running shoes');
-      expect(rows[0]?.bidAmount).toBe(50); // £0.50 = 50 pence
+      expect(rows[0]?.bidAmount).toBe(50); // $0.50 = 50 cents
       expect(rows[0]?.keywords).toEqual(['running', 'shoes', 'trainers']);
       expect(rows[0]?.active).toBe(true);
     });
@@ -75,7 +75,7 @@ describe('adActions', () => {
       expect(rows).toHaveLength(0);
     });
 
-    it('returns error for bid below minimum (£0.10 = 10 pence)', async () => {
+    it('returns error for bid below minimum ($0.10 = 10 cents)', async () => {
       const result = await createAd({ ...validData, bidPounds: '0.05' });
 
       expect(result).toHaveProperty('error');
