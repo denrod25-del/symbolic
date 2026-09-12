@@ -2,19 +2,15 @@ import type { MetadataRoute } from 'next';
 import { routing } from '@/libs/I18nRouting';
 import { getBaseUrl, getI18nPath } from '@/utils/Helpers';
 
+// Public, crawlable pages only. /search is excluded because its content comes
+// from a query string, /settings and the advertiser, admin and CRM areas sit
+// behind auth.
+const PUBLIC_ROUTES = ['', '/discover', '/weather', '/submit', '/privacy'];
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = getBaseUrl();
 
-  const routes = ['', '/about', '/counter', '/portfolio'];
-
-  // Generate portfolio detail pages
-  const portfolioRoutes = Array.from(
-    { length: 6 },
-    (_, i) => `/portfolio/${i}`
-  );
-  const allRoutes = [...routes, ...portfolioRoutes];
-
-  return allRoutes.map((route) => ({
+  return PUBLIC_ROUTES.map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),
     alternates: {
