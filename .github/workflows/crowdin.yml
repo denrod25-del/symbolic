@@ -18,6 +18,7 @@ jobs:
 
       - name: Crowdin action
         uses: crowdin/github-action@v2
+        continue-on-error: true
         with:
           upload_sources: true
           upload_translations: true
